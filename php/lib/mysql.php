@@ -80,6 +80,8 @@
       // unserialize/explode content
       $dbhash['refs'] = unserialize($dbhash['refs']);
       $dbhash['content'] = explode("\n", $dbhash['content']);
+
+      $dbhash['settings'] = RetrieveSettings();
       return $dbhash;
    }
 
@@ -109,13 +111,12 @@
       $pagehash = MakeDBHash($pagename, $pagehash);
 
       $COLUMNS = "author, content, created, flags, " .
-                 "lastmodified, pagename, refs, version";
+                 "lastmodified, pagename, refs, version, title, meta, keywords";
 
       $VALUES =  "'$pagehash[author]', '$pagehash[content]', " .
                  "$pagehash[created], $pagehash[flags], " .
                  "$pagehash[lastmodified], '$pagehash[pagename]', " .
-                 "'$pagehash[refs]', $pagehash[version]";
-
+                 "'$pagehash[refs]', $pagehash[version], '$pagehash[title]', '$pagehash[meta]', '$pagehash[keywords]'";
       if (!mysql_query("replace into $dbi[table] ($COLUMNS) values ($VALUES)",
       			$dbi['dbc'])) {
             $msg = sprintf(gettext ("Error writing page '%s'"), $pagename);
@@ -125,6 +126,25 @@
       }
    }
 
+   function SaveSettings($settingshash) {
+	foreach($settingshash as $key => $value) {
+		$key = addslashes($key);
+		$value = addslashes($value);
+		mysql_query("REPLACE INTO settings (name, value) VALUES ('$key', '$value');");
+	}
+   }
+
+   function RetrieveSettings() {
+      if ($settings = mysql_query("SELECT name, value FROM settings")) {
+        $settingshash = array();
+        while(list($key, $value) = mysql_fetch_row($settings)) {
+           $settingshash[$key] = $value;
+        }
+        return $settingshash;
+      }
+      else
+        return false;
+   }
 
    // for archiving pages to a seperate dbm
    function SaveCopyToArchive($dbi, $pagename, $pagehash) {

@@ -6,11 +6,10 @@
    // if we got GET data, the first item is always a page name
    // if it wasn't this file would not have been included
 
-   if (!empty($argv[0])) {
-      $pagename = rawurldecode($argv[0]);
+   if (!empty($_SERVER['argv'][0])) {
+      $pagename = rawurldecode($_SERVER['argv'][0]);
    } else { 
       $pagename = gettext("home");
-
    }
 
    $html = "";

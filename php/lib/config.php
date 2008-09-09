@@ -136,7 +136,7 @@
    // logo image (path relative to index.php)
    $logo = "images/logo.gif";
    // signature image which is shown after saving an edited page
-   $SignatureImg = "images/thankyou.gif";
+   $SignatureImg = "images/edit/thankyou.gif";
 
    // date & time formats used to display modification times, etc.
    // formats are given as format strings to PHP date() function

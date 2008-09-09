@@ -139,11 +139,17 @@
    $pagehash['lastmodified'] = time();
    $pagehash['version']++;
    $pagehash['author'] = $remoteuser;
+   $pagehash['meta'] = $_REQUEST['meta'];
+   $pagehash['title'] = $_REQUEST['title'];
+   $pagehash['keywords'] = $_REQUEST['metakeywords'];
 
    // create page header
    $enc_url = rawurlencode($pagename);
    $enc_name = htmlspecialchars($pagename);
-   $html = sprintf(gettext("Thank you for editing %s."),
+   $html = "<table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" style=\"font-size: 12px;\"><tr><td width=\"143\">";
+   $html .= "<img src=\"$SignatureImg\">";
+   $html .= "</td><td>";
+   $html .= sprintf(gettext("Thank you for editing %s."),
 		   "<a href=\"$ScriptUrl?$enc_url\">$enc_name</a>");
    $html .= "<br>\n";
 
@@ -184,7 +190,7 @@
 		"all the pages!</B>\n";
    }
 
-   $html .= "<P><img src=\"$SignatureImg\"></P><hr noshade><P>";
+   $html .= "</td></tr></table><hr noshade>";
    include('php/lib/transform.php');
 
    GeneratePage('BROWSE', $html, $pagename, $pagehash);

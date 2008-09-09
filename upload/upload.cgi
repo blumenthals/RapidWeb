@@ -27,10 +27,10 @@ $start_directory = 'images/upload';
 #dont change below this line
 $upload_script = $site_url.'upload/upload.cgi';
 $filename = param('upfile');
-$info_upload_dir = param('fileupload');
+$info_note = param('note');
+$info_upload_dir = $start_directory;
 $url_dir = $info_upload_dir;
 $info_upload_dir = $root_directory.'images/upload';
-
 
 # Munge the uploaded text so that it doesn't contain HTML elements
 # This munging isn't complete -- lots of illegal characters are left as-is.
@@ -51,22 +51,90 @@ print "Content-type: text/html\n\n";
     $info_outfile =~ s/[^A-Za-z0-9\._ \-=@\x80-\xFE]/_/go;
     $info_outfile =~ s/ /_/g;
 
-print "<HTML>";
 $temp = "";
 $upload_url = $site_url.$url_dir.'/'.$info_outfile;
 $upload_url =~ s/$temp//;
-print "<blockquote><img src=http://rapidweb.blumenthals.com/rapidweb.gif><br><br>";
-print "<h2>Congratulations!</h2><br>";
-print "<font face=verdana,helvetica size=2><p> You uploaded $filename<br><br><a href=$site_url$start_directory/$info_outfile target=_blank>View uploaded File</a> (<i>note: image will appear in a new window</i>)<br><br>";
-print "You can copy & paste the following URL into your RapidWeb Page:<br><br>";
-print "<b>BASIC:</b>  [$site_url$start_directory/$info_outfile]<br><br>";
-print "<b>ADVANCED:</b>  |&lt;img src=$site_url$start_directory/$info_outfile align=right&gt;</font></blockquote>";
-print "<center><form><input type=button value= Upload_Another_Image onClick=history.go(-1)
-name=back></form> ";
-print "<center><form><input type=button value= Back_To_Edit_Page onClick=history.go(-2)
-name=back></form><br><br>";
+print <<"EOF";
 
+<html>
+<head>
+<title>RapidWeb File Upload Form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+body, td, th {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+.style1 {
+	font-size: 24px;
+	color: #FFFFFF;
+}
+body {
+	background-image: url(../rw-global/images/edit/editpgbg.gif);
+	background-repeat: repeat-x;
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+}
+.buttons {
+	width: 140px;
+}
+.buttons2 {
+	width: 160px;
+}
+-->
+</style>
+</head>
+<body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top"><table width="500" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="197" height="154"><img src="../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+          <td colspan="2"><h1 class="style1">File &amp; Image<br>
+              Upload Successful!</h1></td>
+        </tr>
+        <tr>
+          <td height="74" colspan="2" valign="middle"><form>
+              <input type="button" onClick="window.open('$site_url$start_directory/$info_outfile','Uploaded Image',' width=500,height=500, resizable=yes')" value="View $info_outfile">
+          </form></td>
+		  <td width="168" align="right" valign="middle"><form>
+              <input type="button" class="buttons2" onClick="parent.location='/upload/upload.cgi'" value="Upload Another Image"><br>
+              <input type="button" class="buttons2" onClick="history.go(-2)" value="Back To Edit Page"></form></td>
+        </tr>
+        <tr>
+          <td height="98" colspan="3"><p><br>
+              The File or Image '$info_outfile' that you <br>
+              selected was successfully uploaded.</p>
+            <p>You can now copy and paste the following URL into your RapidWeb Page:</p>
+            <p><strong>BASIC:</strong><br>
+              [$site_url$start_directory/$info_outfile]</p>
+            <p align="center"><strong>OR</strong></p>
+            <p align="left"><strong>ADVANCED:</strong><br>
+              |&lt;img src=$site_url$start_directory/$info_outfile align=&quot;right&quot; alt=&quot;$info_note&quot;&gt;</p>
+		    <p align="center"><strong>OR</strong></p>
+		    <p align="left"><strong>PDF File:</strong><br>
+		      [$info_note (pdf)|$site_url$start_directory/$info_outfile]</p></td>
+        </tr>
+        <tr>
+          <td height="0"></td>
+          <td width="135" height="0"></td>
+          <td height="0"></td>
+        </tr>
+        <tr>
+          <td height="1"></td>
+          <td height="1" colspan="2"></td>
+        </tr>
+      </table></td>
+  </tr>
+</table>
+</body>
+</html>
+EOF
 
+# Do the actual work.
     (open INFO,">$info_upload_dir/$info_outfile");
 
     
@@ -75,34 +143,86 @@ name=back></form><br><br>";
                 print INFO $data;
         }
 	 close(INFO);
-print "</HTML>";
 }
 
 else
 {
 
 print "Content-type: text/html\n\n"; 
-print "<HTML>";
-print "<head>";
-print "<title>RapidWeb File Upload Form</title>";
-print "</head>";
-print "<body>";
-print "<blockquote><img src=http://rapidweb.blumenthals.com/rapidweb.gif><br><br>";
-print "<hr>";
-print "<h2>Please fill in the file-upload form below</h2>";
-print "<form method='POST' enctype='multipart/form-data'";
-print " action=$upload_script>";
-print "File to upload: <input type=file name=upfile><br>";
-print "Notes about the file: <input type=text name=note><br>";
-print "<br>";
-print "<input type=hidden name=fileupload size = 40 value"; 
-print "=$start_directory> <br><br>";
-print "<input type=submit value=Press> to upload the file!<br><br>";
-print "<input type=reset value=Clear> form and start over.";
-print "</form>";
-print "<hr></blockquote>";
-print "</body>";
-print "</html>";
+print << 'EOF';
+<html>
+<head>
+<title>RapidWeb File Upload Form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+body, td, th {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+.style1 {
+	font-size: 24px;
+	color: #FFFFFF;
+}
+body {
+	background-image: url(../rw-global/images/edit/editpgbg.gif);
+	background-repeat: repeat-x;
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+}
+.buttons {
+	width: 80px;
+}
+-->
+</style>
+</head>
+<body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top"><form method='POST' enctype='multipart/form-data'>
+        <table width="500" border="0" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="197" height="154"><img src="../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+            <td colspan="2"><h1 class="style1">File &amp; Image<br>Upload Page</h1></td>
+          </tr>
+          <tr>
+            <td height="62" colspan="2" valign="middle"><strong>To Upload:<br>
+              </strong>1. Select the file with the browse button.<br>
+              2. Fill in the description (1-5 words).<br>
+              3. Click the Upload Button. </td>
+            <td width="146" height="62" align="right" valign="middle"><input type=submit class="buttons" value=Upload File><br>
+              <input type=reset class="buttons" value=Clear Fields><input type="button" class="buttons2" onClick="history.go(-1)" value="Cancel"></td>
+          </tr>
+          <tr>
+            <td height="98" colspan="3"><br>
+              File to upload:<br>
+              <input name=upfile type=file size="45">
+              <br>
+              <br>
+              File Description:<br>
+              <input name=note type=text size="45">
+              <input type=hidden name=fileupload size = 40 value=images/upload>
+              <br>
+              <div align="right">
+              <input type="button" class="buttons2" onClick="history.go(-1)" value="Cancel">
+              <input type=reset class="buttons" value=Clear fields>
+              <input type=submit class="buttons" value=Upload file></div>            </td>
+          </tr>
+          <tr>
+            <td height="1"></td>
+            <td width="157" height="1"></td>
+            <td height="1"></td>
+          </tr>
+        </table>
+      </form></td>
+  </tr>
+</table>
+</body>
+</html>
+EOF
+
  
 }
 

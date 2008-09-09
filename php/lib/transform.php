@@ -1,22 +1,22 @@
 <?php rcs_id('$Id: transform.php,v 1.8 2001/01/04 18:34:15 ahollosi Exp $');
    // expects $pagehash and $html to be set
-
-   function tokenize($str, $pattern, &$orig, &$ntokens) {
-      global $FieldSeparator;
-      // Find any strings in $str that match $pattern and
-      // store them in $orig, replacing them with tokens
-      // starting at number $ntokens - returns tokenized string
-      $new = '';      
-      while (preg_match("/^(.*?)($pattern)/", $str, $matches)) {
-         $linktoken = $FieldSeparator . $FieldSeparator . ($ntokens++) . $FieldSeparator;
-         $new .= $matches[1] . $linktoken;
-	 $orig[] = $matches[2];
-         $str = substr($str, strlen($matches[0]));
+   if(!function_exists('tokenize')) {
+      function tokenize($str, $pattern, &$orig, &$ntokens) {
+         global $FieldSeparator;
+         // Find any strings in $str that match $pattern and
+         // store them in $orig, replacing them with tokens
+         // starting at number $ntokens - returns tokenized string
+         $new = '';      
+         while (preg_match("/^(.*?)($pattern)/", $str, $matches)) {
+            $linktoken = $FieldSeparator . $FieldSeparator . ($ntokens++) . $FieldSeparator;
+            $new .= $matches[1] . $linktoken;
+            $orig[] = $matches[2];
+            $str = substr($str, strlen($matches[0]));
+         }
+         $new .= $str;
+         return $new;
       }
-      $new .= $str;
-      return $new;
    }
-
 
    // Prepare replacements for references [\d+]
    for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
@@ -54,8 +54,20 @@
          $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
          continue;
       }
+		//Block HTML
+		elseif (preg_match("/^STARTHTML.*/", $tmpline, $matches)) {
+			$htmlmode = true;
+			continue;	
+		}
 
-
+		elseif ($htmlmode == true) {
+			if (preg_match("/ENDHTML.*/", $tmpline, $matches)) {
+				$htmlmode = false;
+				continue;
+			}
+			$html .= $tmpline;
+			continue;
+		}
       elseif (preg_match("/(^\|)(.*)/", $tmpline, $matches)) {
          // HTML mode
          $html .= SetHTMLOutputMode("", ZERO_LEVEL, 0);

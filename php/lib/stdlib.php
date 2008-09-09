@@ -51,10 +51,11 @@
 
    function LinkUnknownWikiWord($wikiword, $linktext='') {
       global $ScriptUrl;
+      global $AdminUrl;
       $enc_word = rawurlencode($wikiword);
       if(empty($linktext))
          $linktext = htmlspecialchars($wikiword);
-      return "<u>$linktext</u><a href=\"/admin.php?edit=$enc_word\">?</a>";
+      return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\">?</a>";
    }
 
    function LinkURL($url, $linktext='') {
@@ -380,7 +381,6 @@
       return $txt;
    }
 
-   
    # GeneratePage() -- takes $content and puts it in the template $template
    # this function contains all the template logic
    #
@@ -394,6 +394,23 @@
    {
       global $ScriptUrl, $AllowedProtocols, $templates;
       global $datetimeformat, $dbi, $logo, $FieldSeparator;
+
+	if (!function_exists('_pagecontent')) {
+      function _pagecontent($page) {
+         //encapsulates transform.php into a proper function, so we can include it as part of an expression.
+         global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
+         if(is_array($page)) {
+           $html = "";
+           $pagehash = RetrievePage($dbi, $page[1], $WikiPageStore);
+           if (is_array($pagehash)) {
+               // transform.php returns $html containing all the HTML markup
+               include("php/lib/transform.php");
+           }
+           $page = $html;
+         }
+         return $page;
+      }
+	}
 
       if (!is_array($hash))
          unset($hash);
@@ -441,7 +458,27 @@
       _iftoken('ADMIN', defined('WIKI_ADMIN'), $page);
 
       _dotoken('SCRIPTURL', $ScriptUrl, $page);
-      _dotoken('PAGE', htmlspecialchars($name), $page);
+
+      if (strlen($hash['title']) > 1) 
+          _dotoken('PAGE', htmlspecialchars($hash['title']), $page);
+      elseif (strlen($hash['settings']['default_title']) > 1)
+          _dotoken('PAGE', htmlspecialchars($hash['settings']['default_title']), $page);
+      else 
+          _dotoken('PAGE', htmlspecialchars($name), $page); 
+
+      _dotoken('PAGENAME', htmlspecialchars($name), $page);
+      _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
+
+      if (strlen($hash['meta']) > 1) 
+	_dotoken('META', htmlspecialchars($hash['meta']), $page);
+      else 
+        _dotoken('META', htmlspecialchars($hash['settings']['default_meta_description']), $page);
+
+      if (strlen($hash['keywords']) > 1)
+        _dotoken('METAKEYWORDS', htmlspecialchars($hash['keywords']), $page);
+      else
+        _dotoken('METAKEYWORDS', htmlspecialchars($hash['settings']['default_meta_keywords']), $page);
+
       _dotoken('ALLOWEDPROTOCOLS', $AllowedProtocols, $page);
       _dotoken('LOGO', $logo, $page);
       
@@ -467,7 +504,9 @@
 	    _dotoken("R$i", $ref, $page);
          }
       }
-
+      //Add secondardy WIKI content.
+      //Sytax is PAGECONTENT(PAGENAME)
+      $page = preg_replace_callback('/PAGECONTENT\((.*)\)/', _pagecontent, $page);
       _dotoken('CONTENT', $content, $page);
       print $page;
    }
