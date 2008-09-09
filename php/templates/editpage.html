@@ -1,0 +1,47 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>###PAGE###</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399">
+
+<form method="POST" action="###SCRIPTURL###">
+
+<h1><a href="###SCRIPTURL###"><img src="###LOGO###" border=0></a>
+Edit ###PAGE###
+<input type="submit" value=" Save "></h1>
+<hr align=left width=80%>
+Upload an Image from your computer:  [ <a href="/upload/upload.cgi">PC</a> ] - [ <a href="/upload/uploadmac.cgi">MAC</a> ]<br>
+<br> Note: images must be in GIF or JPG format with no spaces in the name. (i.e. mypicture.jpg)
+<hr align=left width=80%>
+<p>
+<textarea name="content" ROWS="22" COLS="80" wrap="virtual">###CONTENT###</textarea>
+</p>
+<p align="center">
+<input type="submit" value=" Save " name="submit">
+<br>
+</p>
+<p> <font face="Verdana, Arial, Helvetica, sans-serif"> <b><u>Basic Editing commands</u></b> 
+<br>
+<font size="2"><b>Headings:</b> ! (Exclamation symbol) Before a word or group 
+of words makes headings. Can combine 2 or 3 for larger headings <br>
+<b>Emphasis:</b> '' (2 single quotes) before and after a word or sentence for 
+italics, __ (2 underscores ) before and after a word or sentence for bold They 
+can be combined <br>
+<b> References:</b> [ N</font></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif">ewPageName] 
+use square brackets around a word for a [page link] to create link to a new page 
+Type full URL or or type a name followed by URL in side of square brackets [URL 
+|http://cool.wiki.int/] to link to a new site<br>
+Here are some common symbols you can copy and paste into your text: 
+</font><font size="2" face="Verdana, Arial, Helvetica, sans-serif">® © ¼ ½ ¾ ™ ‰<br>
+</font><font size="2"> </font> <small><a href="http://www.rapidweb.info/index.php?TextFormattingRules" target="_blank"><b><font face="Verdana, Arial, Helvetica, sans-serif" size="2">TextFormattingRules</font></b></a> 
+<font face="Verdana, Arial, Helvetica, sans-serif" size="2"><br>
+</font></small><font face="Verdana, Arial, Helvetica, sans-serif" size="2"><a href="http://www.rapidweb.info/index.php?SandBox" target="_blank"><b>SandBox</b></a> 
+Provides a tutorial on the basics of entry in the text edit box</font> 
+<input type="hidden" name="post" value="###PAGEURL###">
+<input type="hidden" name="editversion" value="###VERSION###">
+
+</form>
+</body>
+</html>
