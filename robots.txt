@@ -1,0 +1,9 @@
+# robots.txt for http://www.website.com/
+# User agent wild card * means it applies to all bots
+# dissallow as below prohibits visits to all subdirectories
+# to dissallow to certain subdirectories put: Disallow: /directory name/
+
+User-agent: *
+Disallow: /cgi-bin/
+Disallow: /admin.php?*
+Disallow: /admin.php
