@@ -392,7 +392,7 @@
 
    function GeneratePage($template, $content, $name, $hash)
    {
-      global $ScriptUrl, $AllowedProtocols, $templates;
+      global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
       global $datetimeformat, $dbi, $logo, $FieldSeparator;
 
 	if (!function_exists('_pagecontent')) {
@@ -458,6 +458,7 @@
       _iftoken('ADMIN', defined('WIKI_ADMIN'), $page);
 
       _dotoken('SCRIPTURL', $ScriptUrl, $page);
+      _dotoken('ADMINURL', $AdminUrl, $page);
 
       if (strlen($hash['title']) > 1) 
           _dotoken('PAGE', htmlspecialchars($hash['title']), $page);
