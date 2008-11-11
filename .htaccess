@@ -1,0 +1,13 @@
+DirectoryIndex splash.php index.php
+
+PHP_Value register_globals On
+
+ErrorDocument 403 /index.php?403-Restricted
+ErrorDocument 404 /index.php?404-FileNotFound
+ErrorDocument 500 /index.php?500-ServerError
+
+RewriteEngine On
+RewriteCond %{HTTP_HOST} !^www\.website\.com [NC]
+RewriteCond %{HTTP_HOST} !^$
+RewriteRule ^(.*)$ http://www.website.com/$1 [r=301,nc]
+RewriteRule ^(.*)$ "http\:\/\/www\.website\.com\/" [R=301,L]
