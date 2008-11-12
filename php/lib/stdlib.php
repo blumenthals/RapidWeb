@@ -482,7 +482,6 @@
 				list($k, $v) = explode('=', $v);
 				$GLOBALS['VARIABLES'][trim($k)] = trim($v);
 			}
-			print_r($GLOBALS['VARIABLES']);
 
       if (strlen($hash['meta']) > 1) 
 	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
