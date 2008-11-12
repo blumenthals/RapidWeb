@@ -111,12 +111,12 @@
       $pagehash = MakeDBHash($pagename, $pagehash);
 
       $COLUMNS = "author, content, created, flags, " .
-                 "lastmodified, pagename, refs, version, title, meta, keywords";
+                 "lastmodified, pagename, refs, version, title, meta, keywords, variables";
 
       $VALUES =  "'$pagehash[author]', '$pagehash[content]', " .
                  "$pagehash[created], $pagehash[flags], " .
                  "$pagehash[lastmodified], '$pagehash[pagename]', " .
-                 "'$pagehash[refs]', $pagehash[version], '$pagehash[title]', '$pagehash[meta]', '$pagehash[keywords]'";
+                 "'$pagehash[refs]', $pagehash[version], '$pagehash[title]', '$pagehash[meta]', '$pagehash[keywords]', '$pagehash[variables]'";
       if (!mysql_query("replace into $dbi[table] ($COLUMNS) values ($VALUES)",
       			$dbi['dbc'])) {
             $msg = sprintf(gettext ("Error writing page '%s'"), $pagename);

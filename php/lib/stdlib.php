@@ -474,6 +474,15 @@
 
       _dotoken('PAGENAME', htmlspecialchars($name), $page);
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
+      _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page);
+
+			$GLOBALS['VARIABLES'] = Array();
+			$vars = explode(',', $hash['variables']);
+			foreach($vars as $v) {
+				list($k, $v) = explode('=', $v);
+				$GLOBALS['VARIABLES'][trim($k)] = trim($v);
+			}
+			print_r($GLOBALS['VARIABLES']);
 
       if (strlen($hash['meta']) > 1) 
 	      _dotoken('META', htmlspecialchars($hash['meta']), $page);

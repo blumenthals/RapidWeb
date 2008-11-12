@@ -176,3 +176,16 @@ INSERT INTO `wikiscore` VALUES ('Products', 3);
 INSERT INTO `wikiscore` VALUES ('RecentChanges', 3);
 INSERT INTO `wikiscore` VALUES ('Services', 3);
 INSERT INTO `wikiscore` VALUES ('SiteMap', 6);
+ALTER TABLE wiki add COLUMN `title` text;
+ALTER TABLE wiki add COLUMN `keywords` text;
+ALTER TABLE wiki add COLUMN `meta` text;
+ALTER TABLE archive add COLUMN `meta` text;
+ALTER TABLE archive add COLUMN `title` text;
+ALTER TABLE archive add COLUMN `keywords` text;CREATE TABLE `settings` (
+  `name` varchar(100) NOT NULL,
+  `value` varchar(255) default NULL,
+  PRIMARY KEY  (`name`)
+ );
+INSERT INTO settings VALUES('default_title', 'Test Rapidweb');
+INSERT INTO settings VALUES('default_meta_keywords', 'Rapidweb, Olean, Content Management');
+INSERT INTO settings VALUES('default_meta_description', 'An easy content management system'); alter table wiki add variables text;
