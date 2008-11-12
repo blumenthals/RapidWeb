@@ -476,7 +476,7 @@
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
 
       if (strlen($hash['meta']) > 1) 
-	_dotoken('META', htmlspecialchars($hash['meta']), $page);
+	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
       else 
         _dotoken('META', htmlspecialchars($hash['settings']['default_meta_description']), $page);
 
