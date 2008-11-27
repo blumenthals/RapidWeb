@@ -20,6 +20,22 @@
 	 GeneratePage($template, $content, $name, $hash)
    */
 
+   function ListTemplates($active)
+   {
+      $o = '<option value="">Default</option>';
+      $d = opendir("php/templates/");
+      while($e = readdir($d)) {
+         if('php/templates/'.$e == $active) {
+            $selected = ' selected="selected"';
+         } else {
+            $selected = '';
+         }
+         if($e{0} != '.')
+            $o .= "<option value='php/templates/$e'$selected>$e</option>";
+      }
+      return $o;
+   }
+
 
    function ExitWiki($errormsg)
    {
@@ -453,7 +469,11 @@
 	 }
       }
 
-      $page = join('', file($templates[$template]));
+      if($template == 'BROWSE' and isset($hash['template'])) {
+         $page = join('', file($hash['template']));
+      } else {
+         $page = join('', file($templates[$template]));
+      }
       $page = str_replace('###', "$FieldSeparator#", $page);
 
       // valid for all pagetypes
@@ -475,6 +495,7 @@
       _dotoken('PAGENAME', htmlspecialchars($name), $page);
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
       _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page);
+      _dotoken('TEMPLATESELECT', ListTemplates($hash['template']), $page);
 
 			$GLOBALS['VARIABLES'] = Array();
 			$vars = explode(',', $hash['variables']);

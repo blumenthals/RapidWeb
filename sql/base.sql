@@ -189,3 +189,5 @@ ALTER TABLE archive add COLUMN `keywords` text;CREATE TABLE `settings` (
 INSERT INTO settings VALUES('default_title', 'Test Rapidweb');
 INSERT INTO settings VALUES('default_meta_keywords', 'Rapidweb, Olean, Content Management');
 INSERT INTO settings VALUES('default_meta_description', 'An easy content management system'); alter table wiki add variables text;
+ALTER TABLE wiki ADD template varchar(100);
+
