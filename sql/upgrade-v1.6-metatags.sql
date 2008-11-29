@@ -1,3 +1,6 @@
+# Upgrade 1.6 - Metatags
+# --------------------------------------------------------
+
 ALTER TABLE wiki add COLUMN `title` text;
 ALTER TABLE wiki add COLUMN `keywords` text;
 ALTER TABLE wiki add COLUMN `meta` text;
