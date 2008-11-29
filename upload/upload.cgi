@@ -16,8 +16,8 @@ $q = new CGI;
 # a url to uploaded file is shown automatically
 
 
-$site_url = "http://www.website.com/";
-$root_directory = '/home/user/public_html/';
+$site_url = 'http://'.$ENV{HTTP_HOST}.'/';
+$root_directory = $ENV{DOCUMENT_ROOT}.'/';
 #note root directory should not include www - we have divorced this from the
 #root directory for security reasons
 # remember to chmod the directory below to 777
