@@ -1,7 +1,8 @@
 The Zip File Contains:
 Virgin RapidWeb Files
-Base RapidWeb Database
-RapidWeb Install Instructions
+Base RapidWeb & Upgrade SQL Databases
+RapidWeb Installation Instructions
+RapidWeb Upgrade Instructions
 
 Steps to Install RapidWeb:
 ---------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ Add Content to empty RapidWeb SQL Database:
       (eg. _rw(0)  The '0' indicates there are 0 tables)
    b. Once the database structure has appeared, click on the 'Import' Tab.
    c. Default settings should be sufficient, Simply click 'Browse'
-   d. Navigate on your local machine to the 'BaseRW.sql' file included with
+   d. Navigate on your local machine to the 'base.sql' file included with
       these instructions or to the one you exported in step 2.
    e. Click 'Go' This will import the sql file into the empty database.
 
@@ -51,7 +52,7 @@ Section III
 ---------------------------------------------------------------------------------
 Modify RapidWeb Files:
 Several files need to be modified: admin.php, php/lib/config.php,
-upload/upload.cgi, upload/uploadmac.cgi
+upload/upload.cgi
 
 admin.php:
   1. Line 12: Change wikiadmin 'admin' to RapidWeb username, usually admin
@@ -72,15 +73,13 @@ php/lib/config.php:
      we set in Section I. (ie. linnwood_rw, linnwood_rw2, linnwood_rw3 etc.)
      NOTE: In Section II we named the Database 'rw' as well as the user 'rw'.
 
-upload/upload.cgi & upload/uploadmac.cgi:
-  Both of these are basically the same, and what needs changed is in the same
-  location for both files.
-  1. Line 19 Change site_url 'http://www.website.com/'
-     (ie. http://www.linnwoodplace.com/)
-  2. Line 20 Change root_directory '/home/user/public_html/'
-     (ie. /home/linnwood/public_html/
-     Note if this is RapidWeb is being installed in a sub-directory add its
-     subdirectory to the end (ie. /home/linnwood/public_html/linnwoodca/)
+upload/upload.cgi:
+Note: THIS ONLY NEEDS CHANGE IF THE RAPIDWEB IS INSTALLED IN A SUB-DIRECTORY.
+  1. Line 20 Change root_directory '$ENV{DOCUMENT_ROOT}.'/'' to the actual root
+     directory of the RapidWeb. (ie. /home/linnwood/public_html/linnwoodca/
+
+.htaccess
+  1. Line 11, 13, & 14: Change to proper address only changing the domain & .com
 
 ---------------------------------------------------------------------------------
 Section IV
@@ -90,16 +89,103 @@ Upload Rapidweb Files:
      'public_html' folder of the website.
   2. Modify the permissions for the images/upload folder to 777 or:
      Owner: rwx Group: rwx World: rwx  (Read, Write, Execute)
-  3. Modify the permissions for the upload folder, upload.cgi & uploadmac.cgi to
+  3. Modify the permissions for the upload folder, upload.cgi to
      755 or:  Owner: rwx Group: r-x World: r-x
 
 ---------------------------------------------------------------------------------
 Section V
 ---------------------------------------------------------------------------------
-Set Password Protect Upload CGI Folder:
+Set Password Protect Upload Folder:
   1. Go to the CPanel of the website.
   2. Click 'Password Protect Directories'
   3. Click 'upload' NOTE: if the upload is in a subdirectory, click on the icon.
   4. Click the checkbox for 'Directory requires a password...' & Click Save
   5. Click 'Go Back'
   6. Add rapid web user like we added in Section I.
+
+
+
+
+  
+Steps to Upgrade a RapidWeb:
+---------------------------------------------------------------------------------
+Section I
+---------------------------------------------------------------------------------
+Update Content to empty RapidWeb SQL Database:
+  1. Enter phpMyAdmin from the bottom of the MySQL Section of the site's CPanel
+  2. Backup the Current Database.
+   a. Select the database to backup from the left column.
+      (eg. _rw(6) The '6' indicates there are 6 tables)
+   b. Once the database structure has appeared, click on the 'Export' Tab.
+   c. Click 'Select All' to export all of the tables.
+   d. Select the 'SQL' radio button as the export type.
+   e. Check 'Save as file'
+   f. Leave all other settings as default, and click 'GO'
+   g. This will export the current RW database as an SQL file and ask you a
+      location to save it on your local machine.
+  2. Import Upgraded RW Content into the existing Database
+   a. In the left column select the newly created database.
+      (eg. _rw(0)  The '0' indicates there are 0 tables)
+   b. Once the database structure has appeared, click on the 'Import' Tab.
+   c. Default settings should be sufficient, Simply click 'Browse'
+   d. Navigate on your local machine to the desired upgrade file included with
+      these instructions and click 'Go' A description of each upgrade is below:
+---------------------------------------------------------------------------------
+Section II
+---------------------------------------------------------------------------------
+SQL Upgrade Descriptions
+  upgrade-v1.6-metatags.sql - Adds Individual Meta tag options for each RW Page.
+  upgrade-v1.7-settings.sql - Adds Default Meta Tag settings for the RW Site.
+  upgrade-v1.9-variables.sql - Adds the ability to add varibles to the page.
+    (Used by the Template)
+  upgrade-v1.10-template.sql - Adds the ability to assign a template to a RW page.   
+  upgrade-v1.11a-errorpgs-supportpg.sql - Adds 4 new Server Error Pages & the RW
+    Support Options Page. (NOTE: This will overwrite existing data in these pages.
+  upgrade-v1.11b-sitemap.sql - This replaces the existing sitemap with the new
+    default sitemap which includes the new Error Pages & Support Options Page.
+	
+---------------------------------------------------------------------------------
+Section III
+---------------------------------------------------------------------------------
+Modify RapidWeb Files:
+Several files need to be modified: admin.php, php/lib/config.php,
+upload/upload.cgi
+
+admin.php:
+  1. Line 12: Change wikiadmin 'admin' to RapidWeb username, usually admin
+  2. Line 13: Change adminpasswd 'password' to desired RapidWeb password.
+
+php/lib/config.php:
+  1. Line 25: Change ScriptUrl. This is not necessary as described in the
+     comments, but if necessary,you can ensure that reads the correct files by
+     using the format: 'http://www.linnwoodplace.com/index.php'
+  2. Line 29: Change AdminUrl. This is not necessary as described in the
+     comments, but if necessary,you can ensure that reads the correct files by
+     using the format: 'http://www.linnwoodplace.com/index.php'
+  3. Line 86: Change mysql_user 'user_rw' to the RapidWeb database's username
+     that we set in Section I. (ie. linnwood_rw, linnwood_rw2, linnwood_rw3 etc.)
+  4. Line 87: Change mysql_pwd 'password' to the RapidWeb database's password
+     that we set in Section I.
+  5. Line 88: Change mysql_db 'user_rw' to the RapidWeb database's name that
+     we set in Section I. (ie. linnwood_rw, linnwood_rw2, linnwood_rw3 etc.)
+     NOTE: In Section II we named the Database 'rw' as well as the user 'rw'.
+
+upload/upload.cgi:
+Note: THIS ONLY NEEDS CHANGE IF THE RAPIDWEB IS INSTALLED IN A SUB-DIRECTORY.
+  1. Line 20 Change root_directory '$ENV{DOCUMENT_ROOT}.'/'' to the actual root
+     directory of the RapidWeb. (ie. /home/linnwood/public_html/linnwoodca/
+
+.htaccess
+  1. Line 11, 13, & 14: Change to proper address only changing the domain & .com
+
+---------------------------------------------------------------------------------
+Section IV
+---------------------------------------------------------------------------------
+Upload Rapidweb Files:
+  1. Upload all of the RapidWeb files including the modfied ones but EXCLUDING
+     php\templates\browse.html to the 'public_html' folder of the website.
+  2. Modify the permissions for the images/upload folder to 777 or:
+     Owner: rwx Group: rwx World: rwx  (Read, Write, Execute)
+  3. Modify the permissions for the upload folder, upload.cgi to
+     755 or:  Owner: rwx Group: r-x World: r-x
+
