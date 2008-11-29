@@ -1,3 +1,27 @@
+commit 448ffb31243270b9f644d1ff8fa5c94f139f4c0c
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:16:52 2008 -0700
+
+    - add global files and merge in images directory
+
+commit 1ddd071934a499883842ef6b0976a62f58c32553
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:06:52 2008 -0700
+
+    - remove obsolete files
+
+commit f54ffb00bac97dfd06bb0ffa6fdc3329c0c3f6a5
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:52:42 2008 -0700
+
+    - add No Access index file
+
+commit aa2298acd74f007589b2944c5f5e1c196e075591
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:52:32 2008 -0700
+
+    - add ChangeLog
+
 commit 69751fc1f999c61184bf0d86c25027ced4f95337
 Author: Aredridel <aredridel@nbtsc.org>
 Date:   Sat Nov 29 13:46:52 2008 -0700
