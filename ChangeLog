@@ -1,3 +1,15 @@
+commit b4ac494b01aa2f1fc6e09efc45b4249ebd65a3e6
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:34:00 2008 -0700
+
+    - remove obsolete images and htaccess file
+
+commit 1b190ed8f3c254a7b37d40e3ec98550b74e222aa
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:22:48 2008 -0700
+
+    - update changelog
+
 commit 448ffb31243270b9f644d1ff8fa5c94f139f4c0c
 Author: Aredridel <aredridel@nbtsc.org>
 Date:   Sat Nov 29 14:16:52 2008 -0700
