@@ -1,3 +1,15 @@
+commit 18d1747b5927288944567c997a49e8b5282922b0
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:38:11 2008 -0700
+
+    - removed cgi-bin directory
+
+commit 18cef751e5296315d4a41e156d85c3414db09dc1
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:35:37 2008 -0700
+
+    - update changelog
+
 commit b4ac494b01aa2f1fc6e09efc45b4249ebd65a3e6
 Author: Aredridel <aredridel@nbtsc.org>
 Date:   Sat Nov 29 14:34:00 2008 -0700
