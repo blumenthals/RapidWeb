@@ -416,7 +416,7 @@
          //encapsulates transform.php into a proper function, so we can include it as part of an expression.
          global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
          if(is_array($page)) {
-           if($page[1]{0} == '$') {
+           if(preg_match('/^["\']|\\$/', $page[1])) {
              $pageName = eval("return ".$page[1].";");
            } else {
              $pageName = $page[1];
