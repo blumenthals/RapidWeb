@@ -483,7 +483,7 @@
       if($template == 'BROWSE' and isset($hash['template'])) {
          $page = get_include_contents($hash['template']);
       } else {
-         $page = join('', file($templates[$template]));
+         $page = get_include_contents($templates[$template]);
       }
       $page = str_replace('###', "$FieldSeparator#", $page);
 
