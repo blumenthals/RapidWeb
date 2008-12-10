@@ -3,22 +3,33 @@
    /*
       Standard functions for Wiki functionality
          ExitWiki($errormsg)
-         LinkExistingWikiWord($wikiword) 
-         LinkUnknownWikiWord($wikiword) 
+         LinkExistingWikiWord($wikiword)
+         LinkUnknownWikiWord($wikiword)
          LinkURL($url, $linktext)
          LinkImage($url, $alt)
          RenderQuickSearch($value)
          RenderFullSearch($value)
          RenderMostPopular()
-         CookSpaces($pagearray) 
+         CookSpaces($pagearray)
          class Stack (push(), pop(), cnt(), top())
          SetHTMLOutputMode($newmode, $depth)
-         UpdateRecentChanges($dbi, $pagename, $isnewpage) 
+         UpdateRecentChanges($dbi, $pagename, $isnewpage)
          ParseAndLink($bracketlink)
          ExtractWikiPageLinks($content)
          LinkRelatedPages($dbi, $pagename)
 	 GeneratePage($template, $content, $name, $hash)
    */
+
+   function get_include_contents($filename) {
+     if (is_file($filename)) {
+       ob_start();
+       include $filename;
+       $contents = ob_get_contents();
+       ob_end_clean();
+       return $contents;
+     }
+     return false;
+   }
 
    function ListTemplates($active)
    {
@@ -470,7 +481,7 @@
       }
 
       if($template == 'BROWSE' and isset($hash['template'])) {
-         $page = join('', file($hash['template']));
+         $page = get_include_contents($hash['template']);
       } else {
          $page = join('', file($templates[$template]));
       }
