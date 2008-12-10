@@ -103,7 +103,7 @@
       return "<img src=\"$url\" ALT=\"$alt\">";
    }
 
-   
+
    function RenderQuickSearch($value = '') {
       global $ScriptUrl;
       return "<form action=\"$ScriptUrl\">\n" .
@@ -122,21 +122,21 @@
 
    function RenderMostPopular() {
       global $ScriptUrl, $dbi;
-      
+
       $query = InitMostPopular($dbi, MOST_POPULAR_LIST_LENGTH);
       $result = "<DL>\n";
       while ($qhash = MostPopularNextMatch($dbi, $query)) {
 	 $result .= "<DD>$qhash[hits] ... " . LinkExistingWikiWord($qhash['pagename']) . "\n";
       }
       $result .= "</DL>\n";
-      
+
       return $result;
    }
 
 
    function ParseAdminTokens($line) {
       global $ScriptUrl;
-      
+
       while (preg_match("/%%ADMIN-INPUT-(.*?)-(\w+)%%/", $line, $matches)) {
 	 $head = str_replace('_', ' ', $matches[2]);
          $form = "<FORM ACTION=\"$ScriptUrl\" METHOD=POST>"
@@ -162,35 +162,35 @@
          $this->items[$this->size] = $item;
          $this->size++;
          return true;
-      }  
-   
+      }
+
       function pop() {
          if ($this->size == 0) {
             return false; // stack is empty
-         }  
+         }
          $this->size--;
          return $this->items[$this->size];
-      }  
-   
+      }
+
       function cnt() {
          return $this->size;
-      }  
+      }
 
       function top() {
          if($this->size)
             return $this->items[$this->size - 1];
          else
             return '';
-      }  
+      }
 
-   }  
+   }
    // end class definition
 
 
    // I couldn't move this to lib/config.php because it wasn't declared yet.
    $stack = new Stack;
 
-   /* 
+   /*
       Wiki HTML output can, at any given time, be in only one mode.
       It will be something like Unordered List, Preformatted Text,
       plain text etc. When we change modes we have to issue close tags
@@ -217,7 +217,7 @@
             $closetag = $stack->pop();
             $retvar .= "</$closetag>\n";
          }
-   
+
          if ($tag) {
             $retvar .= "<$tag>\n";
             $stack->push($tag);
@@ -244,7 +244,7 @@
 	       $retvar .= "</$closetag><$tag>\n";
 	       $stack->push($tag);
 	    }
-   
+
          } elseif ($level > $stack->cnt()) {
             // we add the diff to the stack
             // stack might be zero
@@ -256,7 +256,7 @@
                   ExitWiki(gettext ("Stack bounds exceeded in SetHTMLOutputMode"));
                }
             }
-   
+
          } else { // $level == $stack->cnt()
             if ($tag == $stack->top()) {
                return; // same tag? -> nothing to do
@@ -269,7 +269,7 @@
             }
          }
 
-   
+
       } else { // unknown $tagtype
          ExitWiki ("Passed bad tag type value in SetHTMLOutputMode");
       }
@@ -288,7 +288,7 @@
 
       // strip brackets and leading space
       preg_match("/(\[\s*)(.+?)(\s*\])/", $bracketlink, $match);
-      // match the contents 
+      // match the contents
       preg_match("/([^|]+)(\|)?([^|]+)?/", $match[2], $matches);
 
       if (isset($matches[3])) {
@@ -363,7 +363,7 @@
          }
       }
       return $wikilinks;
-   }      
+   }
 
 
    function LinkRelatedPages($dbi, $pagename)
@@ -404,7 +404,7 @@
 	    $txt .= LinkExistingWikiWord($name) . " ($score), ";
          }
       }
-      
+
       return $txt;
    }
 
@@ -496,12 +496,12 @@
       _dotoken('SCRIPTURL', $ScriptUrl, $page);
       _dotoken('ADMINURL', $AdminUrl, $page);
 
-      if (strlen($hash['title']) > 1) 
+      if (strlen($hash['title']) > 1)
           _dotoken('PAGE', htmlspecialchars($hash['title']), $page);
       elseif (strlen($hash['settings']['default_title']) > 1)
           _dotoken('PAGE', htmlspecialchars($hash['settings']['default_title']), $page);
-      else 
-          _dotoken('PAGE', htmlspecialchars($name), $page); 
+      else
+          _dotoken('PAGE', htmlspecialchars($name), $page);
 
       _dotoken('PAGENAME', htmlspecialchars($name), $page);
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
@@ -515,9 +515,9 @@
 				$GLOBALS['VARIABLES'][trim($k)] = trim($v);
 			}
 
-      if (strlen($hash['meta']) > 1) 
+      if (strlen($hash['meta']) > 1)
 	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
-      else 
+      else
         _dotoken('META', htmlspecialchars($hash['settings']['default_meta_description']), $page);
 
       if (strlen($hash['keywords']) > 1)
@@ -527,7 +527,7 @@
 
       _dotoken('ALLOWEDPROTOCOLS', $AllowedProtocols, $page);
       _dotoken('LOGO', $logo, $page);
-      
+
       // invalid for messages (search results, error messages)
       if ($template != 'MESSAGE') {
          _dotoken('PAGEURL', rawurlencode($name), $page);
