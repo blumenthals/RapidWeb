@@ -21,6 +21,7 @@
    */
 
    function get_include_contents($filename) {
+     global $VARIABLES;
      if (is_file($filename)) {
        ob_start();
        include $filename;
@@ -480,6 +481,15 @@
 	 }
       }
 
+		global $VARIABLES;
+
+			$VARIABLES = Array();
+			$vars = explode(',', $hash['variables']);
+			foreach($vars as $v) {
+				list($k, $v) = explode('=', $v);
+				$VARIABLES[trim($k)] = trim($v);
+			}
+
       if($template == 'BROWSE' and isset($hash['template'])) {
          $page = get_include_contents($hash['template']);
       } else {
@@ -507,13 +517,6 @@
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
       _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page);
       _dotoken('TEMPLATESELECT', ListTemplates($hash['template']), $page);
-
-			$GLOBALS['VARIABLES'] = Array();
-			$vars = explode(',', $hash['variables']);
-			foreach($vars as $v) {
-				list($k, $v) = explode('=', $v);
-				$GLOBALS['VARIABLES'][trim($k)] = trim($v);
-			}
 
       if (strlen($hash['meta']) > 1)
 	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
