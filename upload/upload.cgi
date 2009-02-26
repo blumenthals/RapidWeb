@@ -16,8 +16,8 @@ $q = new CGI;
 # a url to uploaded file is shown automatically
 
 
-$site_url = "http://www.website.com/";
-$root_directory = '/home/user/public_html/';
+$site_url = 'http://'.$ENV{HTTP_HOST}.'/';
+$root_directory = $ENV{DOCUMENT_ROOT}.'/';
 #note root directory should not include www - we have divorced this from the
 #root directory for security reasons
 # remember to chmod the directory below to 777
@@ -71,7 +71,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(../rw-global/images/edit/editpgbg.gif);
+	background-image: url(/rw-global/images/edit/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -92,17 +92,16 @@ body {
   <tr>
     <td align="center" valign="top"><table width="500" border="0" cellpadding="0" cellspacing="0">
         <tr>
-          <td width="197" height="154"><img src="../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
-          <td colspan="2"><h1 class="style1">File &amp; Image<br>
-              Upload Successful!</h1></td>
+          <td width="197" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+          <td colspan="2" align="right"><h1 class="style1">File &amp; Image<br>Upload Successful!</h1></td>
         </tr>
         <tr>
           <td height="74" colspan="2" valign="middle"><form>
               <input type="button" onClick="window.open('$site_url$start_directory/$info_outfile','Uploaded Image',' width=500,height=500, resizable=yes')" value="View $info_outfile">
           </form></td>
 		  <td width="168" align="right" valign="middle"><form>
-              <input type="button" class="buttons2" onClick="parent.location='/upload/upload.cgi'" value="Upload Another Image"><br>
-              <input type="button" class="buttons2" onClick="history.go(-2)" value="Back To Edit Page"></form></td>
+              <input type="button" class="buttons2" onClick="parent.location='upload.cgi'" value="Upload Another Image"><br>
+              <input type="button" class="buttons2" onClick="window.close()" value="Close Upload Window"></form></td>
         </tr>
         <tr>
           <td height="98" colspan="3"><p><br>
@@ -165,7 +164,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(../rw-global/images/edit/editpgbg.gif);
+	background-image: url(/rw-global/images/edit/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -184,16 +183,16 @@ body {
     <td align="center" valign="top"><form method='POST' enctype='multipart/form-data'>
         <table width="500" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="197" height="154"><img src="../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
-            <td colspan="2"><h1 class="style1">File &amp; Image<br>Upload Page</h1></td>
+            <td width="187" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+            <td colspan="2" align="right"><h1 class="style1">File &amp; Image<br>Upload Page</h1></td>
           </tr>
           <tr>
             <td height="62" colspan="2" valign="middle"><strong>To Upload:<br>
               </strong>1. Select the file with the browse button.<br>
               2. Fill in the description (1-5 words).<br>
               3. Click the Upload Button. </td>
-            <td width="146" height="62" align="right" valign="middle"><input type=submit class="buttons" value=Upload File><br>
-              <input type=reset class="buttons" value=Clear Fields><input type="button" class="buttons2" onClick="history.go(-1)" value="Cancel"></td>
+            <td width="197" height="62" align="right" valign="middle"><input type=submit class="buttons" value=Upload File><br>
+            <input type=reset class="buttons" value=Clear Fields><input type="button" class="buttons2" onClick="window.close()" value="Cancel"></td>
           </tr>
           <tr>
             <td height="98" colspan="3"><br>
@@ -202,17 +201,17 @@ body {
               <br>
               <br>
               File Description:<br>
-              <input name=note type=text size="45">
+              <input name=note type=text size="70" style="width:100%">
               <input type=hidden name=fileupload size = 40 value=images/upload>
-              <br>
-              <div align="right">
-              <input type="button" class="buttons2" onClick="history.go(-1)" value="Cancel">
+              <br><br>
+              <center>
+              <input type="button" class="buttons2" onClick="window.close()" value="Cancel">
               <input type=reset class="buttons" value=Clear fields>
-              <input type=submit class="buttons" value=Upload file></div>            </td>
+              <input type=submit class="buttons" value=Upload file></center></td>
           </tr>
           <tr>
             <td height="1"></td>
-            <td width="157" height="1"></td>
+            <td width="116" height="1"></td>
             <td height="1"></td>
           </tr>
         </table>

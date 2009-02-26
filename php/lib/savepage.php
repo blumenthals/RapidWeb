@@ -142,6 +142,12 @@
    $pagehash['meta'] = $_REQUEST['meta'];
    $pagehash['title'] = $_REQUEST['title'];
    $pagehash['keywords'] = $_REQUEST['metakeywords'];
+   $pagehash['variables'] = $_REQUEST['variables'];
+   if(isset($_REQUEST['template']) and !empty($_REQUEST['template'])) {
+		 $pagehash['template'] = $_REQUEST['template'];
+   } else {
+     unset($pagehash['template']);
+   }
 
    // create page header
    $enc_url = rawurlencode($pagename);

@@ -136,7 +136,7 @@
    // logo image (path relative to index.php)
    $logo = "images/logo.gif";
    // signature image which is shown after saving an edited page
-   $SignatureImg = "images/edit/thankyou.gif";
+   $SignatureImg = "/rw-global/images/edit/thankyou.gif";
 
    // date & time formats used to display modification times, etc.
    // formats are given as format strings to PHP date() function
@@ -226,9 +226,15 @@
    // you shouldn't have to edit anyting below this line
 
    if (empty($ScriptUrl)) {
-      $port = ($SERVER_PORT == 80) ? '' : ":$SERVER_PORT";
-      $ScriptUrl = "http://$SERVER_NAME$port$SCRIPT_NAME";
+      $port = ($_SERVER['SERVER_PORT'] == 80) ? '' : ":".$_SERVER['SERVER_PORT'];
+      $ScriptUrl = "http://".$_SERVER['SERVER_NAME']."$port".$_SERVER['SCRIPT_NAME'];
    }
+
+   if (empty($AdminUrl)) {
+      $port = ($_SERVER['SERVER_PORT'] == 80) ? '' : ":".$_SERVER['SERVER_PORT'];
+      $AdminUrl = str_replace('index.php', 'admin.php', $ScriptUrl);
+   }
+
    if (defined('WIKI_ADMIN') && !empty($AdminUrl))
       $ScriptUrl = $AdminUrl;
 
