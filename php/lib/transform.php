@@ -121,25 +121,6 @@
       }
 
       //////////////////////////////////////////////////////////
-      // Link Wiki words
-      // Wikiwords preceeded by a '!' are not linked
-
-      $oldn = $ntokens;
-      $tmpline = tokenize($tmpline, "!?$WikiNameRegexp", $replacements, $ntokens);
-      while ($oldn < $ntokens) {
-        $old = $replacements[$oldn];
-        if ($old[0] == '!') {
-	  $replacements[$oldn] = substr($old,1);
-	} elseif (IsWikiPage($dbi, $old)) {
-	  $replacements[$oldn] = LinkExistingWikiWord($old);
-	} else {
-	  $replacements[$oldn] = LinkUnknownWikiWord($old);
-	}
-	$oldn++;
-      }
-
-
-      //////////////////////////////////////////////////////////
       // escape HTML metachars
       $tmpline = str_replace('&', '&amp;', $tmpline);
       $tmpline = str_replace('>', '&gt;', $tmpline);

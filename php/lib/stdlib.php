@@ -37,6 +37,10 @@
       $o = '<option value="">Default</option>';
       $d = opendir("php/templates/");
       while($e = readdir($d)) {
+         if(strpos($e, 'browse') === 0) continue;
+         if(strpos($e, 'editpage') === 0) continue;
+         if(strpos($e, 'index') === 0) continue;
+         if(strpos($e, '.htm') === false) continue;
          if('php/templates/'.$e == $active) {
             $selected = ' selected="selected"';
          } else {
