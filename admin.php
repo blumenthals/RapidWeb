@@ -30,38 +30,50 @@
    // All requests require the database
    $dbi = OpenDataBase($WikiPageStore);
 
-   if (isset($lock) || isset($unlock)) {
+   if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
+      $lock = $_REQUEST['lock'];
+      $lock = $_REQUEST['unlock'];
       include ('php/admin/lockpage.php');
-   } elseif (isset($zip)) {
+   } elseif (isset($_REQUEST['zip'])) {
+      $zip = $_REQUEST['zip'];
       include ('php/lib/ziplib.php');
       include ('php/admin/zip.php');
       ExitWiki('');
-   } elseif (isset($dumpserial)) {
+   } elseif (isset($_REQUEST['dumpserial'])) {
+      $dumpserial = $_REQUEST['dumpserial'];
       include ('php/admin/dumpserial.php');
-   } elseif (isset($loadserial)) {
+   } elseif (isset($_REQUEST['loadserial'])) {
+      $loadserial = $_REQUEST['loadserial'];
       include ('php/admin/loadserial.php');
-   } elseif (isset($remove)) {
-      if (get_magic_quotes_gpc())
-         $remove = stripslashes($remove);
+   } elseif (isset($_REQUEST['remove'])) {
+      if (get_magic_quotes_gpc()) {
+         $remove = stripslashes($_REQUEST['remove']);
+      } else {
+         $remove = $_REQUEST['remove'];
+      }
       if (function_exists('RemovePage')) {
-         $html .= sprintf(gettext ("You are about to remove '%s' permanently!"), htmlspecialchars($remove));
-	 $html .= "\n<P>";
-	 $url = rawurlencode($remove);
-	 $html .= sprintf(gettext ("Click %shere%s to remove the page now."),
-		  "<A HREF=\"$ScriptUrl?removeok=$url\">", "</A>");
-	 $html .= "\n<P>";
-	 $html .= gettext ("Otherwise press the \"Back\" button of your browser.");
+        $html .= sprintf(gettext ("You are about to remove '%s' permanently!"), 
+          htmlspecialchars($remove));
+        $html .= "\n<P>";
+        $url = rawurlencode($remove);
+        $html .= sprintf(gettext ("Click %shere%s to remove the page now."),
+          "<A HREF=\"$ScriptUrl?removeok=$url\">", "</A>");
+        $html .= "\n<P>";
+        $html .= gettext ("Otherwise press the \"Back\" button of your browser.");
       } else {
          $html = gettext ("Function not yet implemented.");
       }
       GeneratePage('MESSAGE', $html, gettext ("Remove page"), 0);
       ExitWiki('');
-   } elseif (isset($removeok)) {
-      if (get_magic_quotes_gpc())
-	 $removeok = stripslashes($removeok);
+   } elseif (isset($_REQUEST['removeok'])) {
+      if (get_magic_quotes_gpc()) {
+        $removeok = stripslashes($_REQUEST['removeok']);
+      } else {
+        $removeok = $_REQUEST['removeok'];
+      }
       RemovePage($dbi, $removeok);
       $html = sprintf(gettext ("Removed page '%s' succesfully."),
-		      htmlspecialchars($removeok));
+        htmlspecialchars($removeok));
       GeneratePage('MESSAGE', $html, gettext ("Remove page"), 0);
       ExitWiki('');
    }
