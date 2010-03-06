@@ -14,7 +14,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(../../rw-global/images/edit/editpgbg.gif);
+	background-image: url(/rw-global/images/edit/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -40,7 +40,7 @@ body {
     <tr>
       <td align="center" valign="top"><table width="500" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="197" height="154"><img src="../../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+            <td width="197" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
             <td colspan="2"><h1 class="style1">Edit Default<br>
                 Meta Tags</h1></td>
           </tr>
@@ -107,7 +107,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(../../rw-global/images/edit/editpgbg.gif);
+	background-image: url(/rw-global/images/edit/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -128,7 +128,7 @@ body {
   <tr>
     <td align="center" valign="top"><table width="500" border="0" cellpadding="0" cellspacing="0">
         <tr>
-          <td width="197" height="154"><img src="../../rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+          <td width="197" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
           <td colspan="2"><h1 class="style1">Settings<br>
               Sucessfully<br>
               Edited!</h1></td>
