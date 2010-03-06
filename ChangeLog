@@ -1,0 +1,206 @@
+commit 18d1747b5927288944567c997a49e8b5282922b0
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:38:11 2008 -0700
+
+    - removed cgi-bin directory
+
+commit 18cef751e5296315d4a41e156d85c3414db09dc1
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:35:37 2008 -0700
+
+    - update changelog
+
+commit b4ac494b01aa2f1fc6e09efc45b4249ebd65a3e6
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:34:00 2008 -0700
+
+    - remove obsolete images and htaccess file
+
+commit 1b190ed8f3c254a7b37d40e3ec98550b74e222aa
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:22:48 2008 -0700
+
+    - update changelog
+
+commit 448ffb31243270b9f644d1ff8fa5c94f139f4c0c
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:16:52 2008 -0700
+
+    - add global files and merge in images directory
+
+commit 1ddd071934a499883842ef6b0976a62f58c32553
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 14:06:52 2008 -0700
+
+    - remove obsolete files
+
+commit f54ffb00bac97dfd06bb0ffa6fdc3329c0c3f6a5
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:52:42 2008 -0700
+
+    - add No Access index file
+
+commit aa2298acd74f007589b2944c5f5e1c196e075591
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:52:32 2008 -0700
+
+    - add ChangeLog
+
+commit 69751fc1f999c61184bf0d86c25027ced4f95337
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:46:52 2008 -0700
+
+    - use DOS filename for INSTALL
+
+commit 61b6af0f2fe2cb13bb846d53603f6ba0cd931d13
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:45:20 2008 -0700
+
+    - update installation instructions
+
+commit 38383efaa65de77c36f19320d9e3c5f950659943
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:43:50 2008 -0700
+
+    - convert to use DOS line-endings
+
+commit f40fc62e2b2e64e362a8c8837e8ab288db96f4db
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:42:01 2008 -0700
+
+    - make upload script guess the hostname, rather than require filling it in
+
+commit c39f848d227d3ada4a055d9466f65a2d3eaea807
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:41:40 2008 -0700
+
+    - correct default page title to not include the PAGEURL variable
+
+commit 23c6bf93512200a9a0410a605442b90afde2a650
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:41:22 2008 -0700
+
+    - make rapidwebs work in subdirectories
+
+commit f7f055ad6b4c2925c64108f302dd9cf566b241b5
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:39:30 2008 -0700
+
+    - change default settings
+
+commit 5fe94e6f63ca1a041427031823e46549687ece3e
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:38:53 2008 -0700
+
+    - fix formatting on SQL files
+    - add upgrade descriptions
+
+commit ef63a4f0581bb1013e94367253f773c80f317833
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:34:30 2008 -0700
+
+    - default sitemap updates
+
+commit b30e0ed3eeb903b487bc4acd6285953c22bb3d6f
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Sat Nov 29 13:21:45 2008 -0700
+
+    - add more error pages
+
+commit acdbd98ab6ab1570fa160e3419a06c9abc5675ce
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Wed Nov 26 20:49:22 2008 -0700
+
+    - add per-page templates
+
+commit b8b5c2db16e1397f34085fe4d04ee145056b4187
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Tue Nov 11 21:20:06 2008 -0700
+
+    - remove debugging
+
+commit aac10cc84a1ed1f4e5cc5f2943d1ed88675c4ba2
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Tue Nov 11 20:57:24 2008 -0700
+
+    - add Variables to edit page
+
+commit 83390698443c88d06f84c129b5206e9ca2d9a58d
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Tue Nov 11 19:00:00 2008 -0700
+
+    - whitespace fix
+
+commit 172092fe8975d12b3391132b47eab7341b938d8f
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Tue Nov 11 09:00:48 2008 -0700
+
+    - add htaccess file
+
+commit 82d966da7e4328863048acd61a5467c54478db78
+Merge: 4c863e9... 686bcc0...
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Mon Nov 10 23:34:10 2008 -0700
+
+    Merge branch 'master' of ssh://admin5.blumenthals.com/home/aria/public_html/rapidweb
+
+commit 4c863e9dec93438c54e12f134396dcb1cc614d50
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Mon Nov 10 23:31:08 2008 -0700
+
+    - add support for PAGECONTENT($expression here), as in
+      PAGECONTENT($GLOBALS['pagename']."-purchase-page")
+
+commit 1ebb4756fa633081b78dca8c4cc92b8a30abcf01
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Mon Nov 10 22:46:14 2008 -0700
+
+    - Add support for ###ADMINURL### and use it in default template
+
+commit be499a2a1ed9c710afff4d29ec042412a05192e0
+Author: Aredridel <aredridel@nbtsc.org>
+Date:   Mon Nov 10 22:45:32 2008 -0700
+
+    - set ScriptUrl and AdminUrl by default
+
+commit 686bcc0156d3caee5d7513b2594ec7eb0726a48d
+Author: Aria Stewart <aredridel@nbtsc.org>
+Date:   Tue Sep 16 12:32:00 2008 -0600
+
+    - added default htaccess
+
+commit 879f55dbea4a04203b4dca9fa268c48dee2864f1
+Author: Aria Stewart <aredridel@nbtsc.org>
+Date:   Tue Sep 16 12:21:12 2008 -0600
+
+    - add robots.txt
+
+commit c76a421575658cbac188dc6d7bb63ae3b142e708
+Author: Aria Stewart <aredridel@nbtsc.org>
+Date:   Tue Sep 16 10:37:11 2008 -0600
+
+    - chmod -x all files
+
+commit 0f55c98c739271f7c4c969da7f33a3934534f440
+Author: Aria Stewart <aredridel@nbtsc.org>
+Date:   Tue Sep 16 10:36:37 2008 -0600
+
+    - chmod -x INSTALL
+
+commit e87d16f3a00a7efef5b2c9f34567ef42974159c8
+Author: Aria Stewart <aria.stewart@theinternetco.net>
+Date:   Tue Sep 9 09:29:21 2008 -0600
+
+    - fix edit URL
+
+commit 401c8167a24879c274c56cdc93236c993c798dcd
+Author: Aria Stewart <aria.stewart@theinternetco.net>
+Date:   Tue Sep 9 09:19:36 2008 -0600
+
+    - Update to v1.6
+
+commit 768a0f846b2d71b543801892bc7f925a63925fef
+Author: Aria Stewart <aria.stewart@theinternetco.net>
+Date:   Tue Sep 9 09:12:36 2008 -0600
+
+    - initial import
