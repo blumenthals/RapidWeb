@@ -3,22 +3,54 @@
    /*
       Standard functions for Wiki functionality
          ExitWiki($errormsg)
-         LinkExistingWikiWord($wikiword) 
-         LinkUnknownWikiWord($wikiword) 
+         LinkExistingWikiWord($wikiword)
+         LinkUnknownWikiWord($wikiword)
          LinkURL($url, $linktext)
          LinkImage($url, $alt)
          RenderQuickSearch($value)
          RenderFullSearch($value)
          RenderMostPopular()
-         CookSpaces($pagearray) 
+         CookSpaces($pagearray)
          class Stack (push(), pop(), cnt(), top())
          SetHTMLOutputMode($newmode, $depth)
-         UpdateRecentChanges($dbi, $pagename, $isnewpage) 
+         UpdateRecentChanges($dbi, $pagename, $isnewpage)
          ParseAndLink($bracketlink)
          ExtractWikiPageLinks($content)
          LinkRelatedPages($dbi, $pagename)
 	 GeneratePage($template, $content, $name, $hash)
    */
+
+   function get_include_contents($filename) {
+     global $VARIABLES;
+     if (is_file($filename)) {
+       ob_start();
+       include $filename;
+       $contents = ob_get_contents();
+       ob_end_clean();
+       return $contents;
+     }
+     return false;
+   }
+
+   function ListTemplates($active)
+   {
+      $o = '<option value="">Default</option>';
+      $d = opendir("php/templates/");
+      while($e = readdir($d)) {
+         if(strpos($e, 'browse') === 0) continue;
+         if(strpos($e, 'editpage') === 0) continue;
+         if(strpos($e, 'index') === 0) continue;
+         if(strpos($e, '.htm') === false) continue;
+         if('php/templates/'.$e == $active) {
+            $selected = ' selected="selected"';
+         } else {
+            $selected = '';
+         }
+         if($e{0} != '.')
+            $o .= "<option value='php/templates/$e'$selected>$e</option>";
+      }
+      return $o;
+   }
 
 
    function ExitWiki($errormsg)
@@ -76,7 +108,7 @@
       return "<img src=\"$url\" ALT=\"$alt\">";
    }
 
-   
+
    function RenderQuickSearch($value = '') {
       global $ScriptUrl;
       return "<form action=\"$ScriptUrl\">\n" .
@@ -95,21 +127,21 @@
 
    function RenderMostPopular() {
       global $ScriptUrl, $dbi;
-      
+
       $query = InitMostPopular($dbi, MOST_POPULAR_LIST_LENGTH);
       $result = "<DL>\n";
       while ($qhash = MostPopularNextMatch($dbi, $query)) {
 	 $result .= "<DD>$qhash[hits] ... " . LinkExistingWikiWord($qhash['pagename']) . "\n";
       }
       $result .= "</DL>\n";
-      
+
       return $result;
    }
 
 
    function ParseAdminTokens($line) {
       global $ScriptUrl;
-      
+
       while (preg_match("/%%ADMIN-INPUT-(.*?)-(\w+)%%/", $line, $matches)) {
 	 $head = str_replace('_', ' ', $matches[2]);
          $form = "<FORM ACTION=\"$ScriptUrl\" METHOD=POST>"
@@ -135,35 +167,35 @@
          $this->items[$this->size] = $item;
          $this->size++;
          return true;
-      }  
-   
+      }
+
       function pop() {
          if ($this->size == 0) {
             return false; // stack is empty
-         }  
+         }
          $this->size--;
          return $this->items[$this->size];
-      }  
-   
+      }
+
       function cnt() {
          return $this->size;
-      }  
+      }
 
       function top() {
          if($this->size)
             return $this->items[$this->size - 1];
          else
             return '';
-      }  
+      }
 
-   }  
+   }
    // end class definition
 
 
    // I couldn't move this to lib/config.php because it wasn't declared yet.
    $stack = new Stack;
 
-   /* 
+   /*
       Wiki HTML output can, at any given time, be in only one mode.
       It will be something like Unordered List, Preformatted Text,
       plain text etc. When we change modes we have to issue close tags
@@ -190,7 +222,7 @@
             $closetag = $stack->pop();
             $retvar .= "</$closetag>\n";
          }
-   
+
          if ($tag) {
             $retvar .= "<$tag>\n";
             $stack->push($tag);
@@ -217,7 +249,7 @@
 	       $retvar .= "</$closetag><$tag>\n";
 	       $stack->push($tag);
 	    }
-   
+
          } elseif ($level > $stack->cnt()) {
             // we add the diff to the stack
             // stack might be zero
@@ -229,7 +261,7 @@
                   ExitWiki(gettext ("Stack bounds exceeded in SetHTMLOutputMode"));
                }
             }
-   
+
          } else { // $level == $stack->cnt()
             if ($tag == $stack->top()) {
                return; // same tag? -> nothing to do
@@ -242,7 +274,7 @@
             }
          }
 
-   
+
       } else { // unknown $tagtype
          ExitWiki ("Passed bad tag type value in SetHTMLOutputMode");
       }
@@ -261,7 +293,7 @@
 
       // strip brackets and leading space
       preg_match("/(\[\s*)(.+?)(\s*\])/", $bracketlink, $match);
-      // match the contents 
+      // match the contents
       preg_match("/([^|]+)(\|)?([^|]+)?/", $match[2], $matches);
 
       if (isset($matches[3])) {
@@ -336,7 +368,7 @@
          }
       }
       return $wikilinks;
-   }      
+   }
 
 
    function LinkRelatedPages($dbi, $pagename)
@@ -377,7 +409,7 @@
 	    $txt .= LinkExistingWikiWord($name) . " ($score), ";
          }
       }
-      
+
       return $txt;
    }
 
@@ -392,7 +424,7 @@
 
    function GeneratePage($template, $content, $name, $hash)
    {
-      global $ScriptUrl, $AllowedProtocols, $templates;
+      global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
       global $datetimeformat, $dbi, $logo, $FieldSeparator;
 
 	if (!function_exists('_pagecontent')) {
@@ -400,8 +432,13 @@
          //encapsulates transform.php into a proper function, so we can include it as part of an expression.
          global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
          if(is_array($page)) {
+           if(preg_match('/^["\']|\\$/', $page[1])) {
+             $pageName = eval("return ".$page[1].";");
+           } else {
+             $pageName = $page[1];
+           }
            $html = "";
-           $pagehash = RetrievePage($dbi, $page[1], $WikiPageStore);
+           $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
            if (is_array($pagehash)) {
                // transform.php returns $html containing all the HTML markup
                include("php/lib/transform.php");
@@ -448,7 +485,20 @@
 	 }
       }
 
-      $page = join('', file($templates[$template]));
+		global $VARIABLES;
+
+			$VARIABLES = Array();
+			$vars = explode(',', $hash['variables']);
+			foreach($vars as $v) {
+				list($k, $v) = explode('=', $v);
+				$VARIABLES[trim($k)] = trim($v);
+			}
+
+      if($template == 'BROWSE' and isset($hash['template'])) {
+         $page = get_include_contents($hash['template']);
+      } else {
+         $page = get_include_contents($templates[$template]);
+      }
       $page = str_replace('###', "$FieldSeparator#", $page);
 
       // valid for all pagetypes
@@ -458,20 +508,23 @@
       _iftoken('ADMIN', defined('WIKI_ADMIN'), $page);
 
       _dotoken('SCRIPTURL', $ScriptUrl, $page);
+      _dotoken('ADMINURL', $AdminUrl, $page);
 
-      if (strlen($hash['title']) > 1) 
+      if (strlen($hash['title']) > 1)
           _dotoken('PAGE', htmlspecialchars($hash['title']), $page);
       elseif (strlen($hash['settings']['default_title']) > 1)
           _dotoken('PAGE', htmlspecialchars($hash['settings']['default_title']), $page);
-      else 
-          _dotoken('PAGE', htmlspecialchars($name), $page); 
+      else
+          _dotoken('PAGE', htmlspecialchars($name), $page);
 
       _dotoken('PAGENAME', htmlspecialchars($name), $page);
       _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
+      _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page);
+      _dotoken('TEMPLATESELECT', ListTemplates($hash['template']), $page);
 
-      if (strlen($hash['meta']) > 1) 
-	_dotoken('META', htmlspecialchars($hash['meta']), $page);
-      else 
+      if (strlen($hash['meta']) > 1)
+	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
+      else
         _dotoken('META', htmlspecialchars($hash['settings']['default_meta_description']), $page);
 
       if (strlen($hash['keywords']) > 1)
@@ -481,7 +534,7 @@
 
       _dotoken('ALLOWEDPROTOCOLS', $AllowedProtocols, $page);
       _dotoken('LOGO', $logo, $page);
-      
+
       // invalid for messages (search results, error messages)
       if ($template != 'MESSAGE') {
          _dotoken('PAGEURL', rawurlencode($name), $page);
@@ -506,7 +559,7 @@
       }
       //Add secondardy WIKI content.
       //Sytax is PAGECONTENT(PAGENAME)
-      $page = preg_replace_callback('/PAGECONTENT\((.*)\)/', _pagecontent, $page);
+      $page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', _pagecontent, $page);
       _dotoken('CONTENT', $content, $page);
       print $page;
    }
