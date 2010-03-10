@@ -135,13 +135,27 @@
       $newpage = 0;
    }
 
+   $settings = RetrieveSettings();
+
    // set new pageinfo
    $pagehash['lastmodified'] = time();
    $pagehash['version']++;
    $pagehash['author'] = $remoteuser;
-   $pagehash['meta'] = $_REQUEST['meta'];
-   $pagehash['title'] = $_REQUEST['title'];
-   $pagehash['keywords'] = $_REQUEST['metakeywords'];
+   if($settings['default_meta_description'] == $_REQUEST['meta']) {
+      $pagehash['meta'] = null;
+   } else {
+      $pagehash['meta'] = $_REQUEST['meta'];
+   }
+   if($settings['default_title'] == $_REQUEST['title']) {
+      $pagehash['title'] = null;
+   } else {
+      $pagehash['title'] = $_REQUEST['title'];
+   }
+   if($settings['default_meta_keywords'] == $_REQUEST['metakeywords']) {
+      $pagehash['keywords'] = null;
+   } else {
+      $pagehash['keywords'] = $_REQUEST['metakeywords'];
+   }
    $pagehash['variables'] = $_REQUEST['variables'];
    if(isset($_REQUEST['template']) and !empty($_REQUEST['template'])) {
 		 $pagehash['template'] = $_REQUEST['template'];
