@@ -100,20 +100,6 @@
       $HitCountPageStore = "hitcount";
       include "phpwiki/lib/pgsql.php";
 
-   // MiniSQL (mSQL) settings -- see INSTALL.msql for details on using mSQL
-   } elseif ($WhichDatabase == 'msql') {
-      $msql_db = "wiki";
-      $WikiPageStore = array();
-      $ArchivePageStore = array();
-      $WikiPageStore['table']         = "wiki";
-      $WikiPageStore['page_table']    = "wikipages";
-      $ArchivePageStore['table']      = "archive";
-      $ArchivePageStore['page_table'] = "archivepages";
-      // should be the same as wikipages.line
-      define("MSQL_MAX_LINE_LENGTH", 128);
-      include "phpwiki/lib/msql.php";
-
-   // Filesystem DB settings
    } elseif ($WhichDatabase == 'file') {
       $DBdir = "/tmp/wiki";
       $WikiPageStore = "wiki";
