@@ -208,11 +208,7 @@
 
 
       //////////////////////////////////////////////////////////
-      // remaining modes: preformatted text, headings, normal text	
-
-      } elseif (preg_match("/^\s+/", $tmpline)) {
-         // this is preformatted text, i.e. <pre>
-         $html .= SetHTMLOutputMode('pre', ZERO_LEVEL, 0);
+      // remaining modes: headings, normal text	
 
       } elseif (preg_match("/^(!{1,3})[^!]/", $tmpline, $whichheading)) {
 	 // lines starting with !,!!,!!! are headings
