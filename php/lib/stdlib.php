@@ -422,68 +422,65 @@
    # $hash ... if called while creating a wiki page, $hash points to
    #           the $pagehash array of that wiki page.
 
+   function _pagecontent($page) {
+      //encapsulates transform.php into a proper function, so we can include it as part of an expression.
+      global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
+      if(is_array($page)) {
+        if(preg_match('/^["\']|\\$/', $page[1])) {
+          $pageName = eval("return ".$page[1].";");
+        } else {
+          $pageName = $page[1];
+        }
+        $html = "";
+        $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
+        if (is_array($pagehash)) {
+            // transform.php returns $html containing all the HTML markup
+            include("php/lib/transform.php");
+        }
+        $page = $html;
+      }
+      return $page;
+   }
+
+   function _dotoken ($id, $val, &$page, $FieldSeparator) {
+      $page = str_replace("$FieldSeparator#$id$FieldSeparator#",
+         $val, $page);
+   }
+   function _iftoken ($id, $condition, &$page) {
+      global $FieldSeparator;
+
+       // line based IF directive
+       $lineyes = "$FieldSeparator#IF $id$FieldSeparator#";
+       $lineno = "$FieldSeparator#IF !$id$FieldSeparator#";
+            // block based IF directive
+       $blockyes = "$FieldSeparator#IF:$id$FieldSeparator#";
+       $blockyesend = "$FieldSeparator#ENDIF:$id$FieldSeparator#";
+       $blockno = "$FieldSeparator#IF:!$id$FieldSeparator#";
+       $blocknoend = "$FieldSeparator#ENDIF:!$id$FieldSeparator#";
+
+       if ($condition) {
+          $page = str_replace($lineyes, '', $page);
+          $page = str_replace($blockyes, '', $page);
+          $page = str_replace($blockyesend, '', $page);
+          $page = preg_replace("/$blockno(.*?)$blocknoend/s", '', $page);
+          $page = ereg_replace("${lineno}[^\n]*\n", '', $page);
+            } else {
+          $page = str_replace($lineno, '', $page);
+          $page = str_replace($blockno, '', $page);
+          $page = str_replace($blocknoend, '', $page);
+          $page = preg_replace("/$blockyes(.*?)$blockyesend/s", '', $page);
+          $page = ereg_replace("${lineyes}[^\n]*\n", '', $page);
+       }
+   }
+
    function GeneratePage($template, $content, $name, $hash)
    {
       global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
       global $datetimeformat, $dbi, $logo, $FieldSeparator;
 
-	if (!function_exists('_pagecontent')) {
-      function _pagecontent($page) {
-         //encapsulates transform.php into a proper function, so we can include it as part of an expression.
-         global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
-         if(is_array($page)) {
-           if(preg_match('/^["\']|\\$/', $page[1])) {
-             $pageName = eval("return ".$page[1].";");
-           } else {
-             $pageName = $page[1];
-           }
-           $html = "";
-           $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
-           if (is_array($pagehash)) {
-               // transform.php returns $html containing all the HTML markup
-               include("php/lib/transform.php");
-           }
-           $page = $html;
-         }
-         return $page;
-      }
-	}
-
       if (!is_array($hash))
          unset($hash);
 
-      function _dotoken ($id, $val, &$page) {
-	 global $FieldSeparator;
-         $page = str_replace("$FieldSeparator#$id$FieldSeparator#",
-				$val, $page);
-      }
-
-      function _iftoken ($id, $condition, &$page) {
-         global $FieldSeparator;
-
-	 // line based IF directive
-	 $lineyes = "$FieldSeparator#IF $id$FieldSeparator#";
-	 $lineno = "$FieldSeparator#IF !$id$FieldSeparator#";
-         // block based IF directive
-	 $blockyes = "$FieldSeparator#IF:$id$FieldSeparator#";
-	 $blockyesend = "$FieldSeparator#ENDIF:$id$FieldSeparator#";
-	 $blockno = "$FieldSeparator#IF:!$id$FieldSeparator#";
-	 $blocknoend = "$FieldSeparator#ENDIF:!$id$FieldSeparator#";
-
-	 if ($condition) {
-	    $page = str_replace($lineyes, '', $page);
-	    $page = str_replace($blockyes, '', $page);
-	    $page = str_replace($blockyesend, '', $page);
-	    $page = preg_replace("/$blockno(.*?)$blocknoend/s", '', $page);
-	    $page = ereg_replace("${lineno}[^\n]*\n", '', $page);
-         } else {
-	    $page = str_replace($lineno, '', $page);
-	    $page = str_replace($blockno, '', $page);
-	    $page = str_replace($blocknoend, '', $page);
-	    $page = preg_replace("/$blockyes(.*?)$blockyesend/s", '', $page);
-	    $page = ereg_replace("${lineyes}[^\n]*\n", '', $page);
-	 }
-      }
 
 		global $VARIABLES;
 
@@ -507,46 +504,51 @@
 			($hash['flags'] & FLAG_PAGE_LOCKED)), $page);
       _iftoken('ADMIN', defined('WIKI_ADMIN'), $page);
 
-      _dotoken('SCRIPTURL', $ScriptUrl, $page);
-      _dotoken('ADMINURL', $AdminUrl, $page);
-
-      if (strlen($hash['title']) > 1)
-          _dotoken('PAGE', htmlspecialchars($hash['title']), $page);
-      elseif (strlen($hash['settings']['default_title']) > 1)
-          _dotoken('PAGE', htmlspecialchars($hash['settings']['default_title']), $page);
-      else
-          _dotoken('PAGE', htmlspecialchars($name), $page);
-
-      _dotoken('PAGENAME', htmlspecialchars($name), $page);
-      _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page);
-      _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page);
-      _dotoken('TEMPLATESELECT', ListTemplates($hash['template']), $page);
-
-      if (strlen($hash['meta']) > 1)
-	      _dotoken('META', htmlspecialchars($hash['meta']), $page);
-      else
-        _dotoken('META', htmlspecialchars($hash['settings']['default_meta_description']), $page);
+      if (strlen($hash['meta']) > 1) {
+         $meta = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['meta']));
+	      _dotoken('META', $meta, $page, $FieldSeparator);
+      } else {
+         $meta = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['settings']['default_meta_description']));
+        _dotoken('META', $meta, $page, $FieldSeparator);
+      }
 
       if (strlen($hash['keywords']) > 1)
-        _dotoken('METAKEYWORDS', htmlspecialchars($hash['keywords']), $page);
+        _dotoken('METAKEYWORDS', htmlspecialchars($hash['keywords']), $page, $FieldSeparator);
       else
-        _dotoken('METAKEYWORDS', htmlspecialchars($hash['settings']['default_meta_keywords']), $page);
+        _dotoken('METAKEYWORDS', htmlspecialchars($hash['settings']['default_meta_keywords']), $page, $FieldSeparator);
 
-      _dotoken('ALLOWEDPROTOCOLS', $AllowedProtocols, $page);
-      _dotoken('LOGO', $logo, $page);
+
+      _dotoken('SCRIPTURL', $ScriptUrl, $page, $FieldSeparator);
+      _dotoken('ADMINURL', $AdminUrl, $page, $FieldSeparator);
+
+      if (strlen($hash['title']) > 1)
+          _dotoken('PAGE', htmlspecialchars($hash['title']), $page, $FieldSeparator);
+      elseif (strlen($hash['settings']['default_title']) > 1) {
+         $title = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['settings']['default_title']));
+          _dotoken('PAGE', $title, $page, $FieldSeparator);
+      } else
+          _dotoken('PAGE', htmlspecialchars($name), $page, $FieldSeparator);
+
+      _dotoken('PAGENAME', htmlspecialchars($name), $page, $FieldSeparator);
+      _dotoken('USERTITLE', htmlspecialchars($hash['title']), $page, $FieldSeparator);
+      _dotoken('VARIABLES', htmlspecialchars($hash['variables']), $page, $FieldSeparator);
+      _dotoken('TEMPLATESELECT', ListTemplates($hash['template']), $page, $FieldSeparator);
+
+      _dotoken('ALLOWEDPROTOCOLS', $AllowedProtocols, $page, $FieldSeparator);
+      _dotoken('LOGO', $logo, $page, $FieldSeparator);
 
       // invalid for messages (search results, error messages)
       if ($template != 'MESSAGE') {
-         _dotoken('PAGEURL', rawurlencode($name), $page);
+         _dotoken('PAGEURL', rawurlencode($name), $page, $FieldSeparator);
          _dotoken('LASTMODIFIED',
-			date($datetimeformat, $hash['lastmodified']), $page);
-         _dotoken('LASTAUTHOR', $hash['author'], $page);
-         _dotoken('VERSION', $hash['version'], $page);
+			date($datetimeformat, $hash['lastmodified']), $page, $FieldSeparator);
+         _dotoken('LASTAUTHOR', $hash['author'], $page, $FieldSeparator);
+         _dotoken('VERSION', $hash['version'], $page, $FieldSeparator);
 	 if (strstr($page, "$FieldSeparator#HITS$FieldSeparator#")) {
-            _dotoken('HITS', GetHitCount($dbi, $name), $page);
+            _dotoken('HITS', GetHitCount($dbi, $name), $page, $FieldSeparator);
 	 }
 	 if (strstr($page, "$FieldSeparator#RELATEDPAGES$FieldSeparator#")) {
-            _dotoken('RELATEDPAGES', LinkRelatedPages($dbi, $name), $page);
+            _dotoken('RELATEDPAGES', LinkRelatedPages($dbi, $name), $page, $FieldSeparator);
 	 }
       }
 
@@ -554,13 +556,13 @@
       if ($template == 'EDITLINKS') {
 	 for ($i = 1; $i <= NUM_LINKS; $i++) {
             $ref = isset($hash['refs'][$i]) ? $hash['refs'][$i] : '';
-	    _dotoken("R$i", $ref, $page);
+	    _dotoken("R$i", $ref, $page, $FieldSeparator);
          }
       }
       //Add secondardy WIKI content.
       //Sytax is PAGECONTENT(PAGENAME)
       $page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', _pagecontent, $page);
-      _dotoken('CONTENT', $content, $page);
+      _dotoken('CONTENT', $content, $page, $FieldSeparator);
       print $page;
    }
 ?>
