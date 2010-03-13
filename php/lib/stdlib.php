@@ -17,7 +17,7 @@
          ParseAndLink($bracketlink)
          ExtractWikiPageLinks($content)
          LinkRelatedPages($dbi, $pagename)
-	 GeneratePage($template, $content, $name, $hash)
+         GeneratePage($template, $content, $name, $hash)
    */
 
    function get_include_contents($filename) {
@@ -353,26 +353,26 @@
       $numlines = count($content);
       for($l = 0; $l < $numlines; $l++)
       {
-	 // remove escaped '['
+         // remove escaped '['
          $line = str_replace('[[', ' ', $content[$l]);
 
-	 // bracket links (only type wiki-* is of interest)
-	 $numBracketLinks = preg_match_all("/\[\s*([^\]|]+\|)?\s*(.+?)\s*\]/", $line, $brktlinks);
-	 for ($i = 0; $i < $numBracketLinks; $i++) {
-	    $link = ParseAndLink($brktlinks[0][$i]);
-	    if (preg_match("#^wiki#", $link['type']))
-	       $wikilinks[$brktlinks[2][$i]] = 1;
+         // bracket links (only type wiki-* is of interest)
+         $numBracketLinks = preg_match_all("/\[\s*([^\]|]+\|)?\s*(.+?)\s*\]/", $line, $brktlinks);
+         for ($i = 0; $i < $numBracketLinks; $i++) {
+            $link = ParseAndLink($brktlinks[0][$i]);
+            if (preg_match("#^wiki#", $link['type']))
+               $wikilinks[$brktlinks[2][$i]] = 1;
 
             $brktlink = preg_quote($brktlinks[0][$i]);
             $line = preg_replace("|$brktlink|", '', $line);
-	 }
+         }
 
          // BumpyText old-style wiki links
          if (preg_match_all("/!?$WikiNameRegexp/", $line, $link)) {
             for ($i = 0; isset($link[0][$i]); $i++) {
                if($link[0][$i][0] <> '!')
                   $wikilinks[$link[0][$i]] = 1;
-	    }
+            }
          }
       }
       return $wikilinks;
@@ -393,7 +393,7 @@
       for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
          if(isset($links['in'][$i])) {
             list($name, $score) = $links['in'][$i];
-	    $txt .= LinkExistingWikiWord($name) . " ($score), ";
+            $txt .= LinkExistingWikiWord($name) . " ($score), ";
          }
       }
 
@@ -403,8 +403,8 @@
       for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
          if(isset($links['out'][$i])) {
             list($name, $score) = $links['out'][$i];
-	    if(IsWikiPage($dbi, $name))
-	       $txt .= LinkExistingWikiWord($name) . " ($score), ";
+            if(IsWikiPage($dbi, $name))
+               $txt .= LinkExistingWikiWord($name) . " ($score), ";
          }
       }
 
@@ -414,7 +414,7 @@
       for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
          if(isset($links['popular'][$i])) {
             list($name, $score) = $links['popular'][$i];
-	    $txt .= LinkExistingWikiWord($name) . " ($score), ";
+            $txt .= LinkExistingWikiWord($name) . " ($score), ";
          }
       }
 
@@ -490,14 +490,14 @@
          unset($hash);
 
 
-		global $VARIABLES;
+         global $VARIABLES;
 
-			$VARIABLES = Array();
-			$vars = explode(',', $hash['variables']);
-			foreach($vars as $v) {
-				list($k, $v) = explode('=', $v);
-				$VARIABLES[trim($k)] = trim($v);
-			}
+         $VARIABLES = Array();
+         $vars = explode(',', $hash['variables']);
+         foreach($vars as $v) {
+            list($k, $v) = explode('=', $v);
+            $VARIABLES[trim($k)] = trim($v);
+         }
 
       if($template == 'BROWSE' and isset($hash['template'])) {
          $page = get_include_contents($hash['template']);
@@ -508,13 +508,13 @@
 
       // valid for all pagetypes
       _iftoken('COPY', isset($hash['copy']), $page);
-      _iftoken('LOCK',	(isset($hash['flags']) &&
-			($hash['flags'] & FLAG_PAGE_LOCKED)), $page);
+      _iftoken('LOCK', (isset($hash['flags']) &&
+         ($hash['flags'] & FLAG_PAGE_LOCKED)), $page);
       _iftoken('ADMIN', defined('WIKI_ADMIN'), $page);
 
       if (strlen($hash['meta']) > 1) {
          $meta = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['meta']));
-	      _dotoken('META', $meta, $page, $FieldSeparator);
+         _dotoken('META', $meta, $page, $FieldSeparator);
       } else {
          $meta = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['settings']['default_meta_description']));
         _dotoken('META', $meta, $page, $FieldSeparator);
@@ -549,22 +549,22 @@
       if ($template != 'MESSAGE') {
          _dotoken('PAGEURL', rawurlencode($name), $page, $FieldSeparator);
          _dotoken('LASTMODIFIED',
-			date($datetimeformat, $hash['lastmodified']), $page, $FieldSeparator);
+         date($datetimeformat, $hash['lastmodified']), $page, $FieldSeparator);
          _dotoken('LASTAUTHOR', $hash['author'], $page, $FieldSeparator);
          _dotoken('VERSION', $hash['version'], $page, $FieldSeparator);
-	 if (strstr($page, "$FieldSeparator#HITS$FieldSeparator#")) {
-            _dotoken('HITS', GetHitCount($dbi, $name), $page, $FieldSeparator);
-	 }
-	 if (strstr($page, "$FieldSeparator#RELATEDPAGES$FieldSeparator#")) {
-            _dotoken('RELATEDPAGES', LinkRelatedPages($dbi, $name), $page, $FieldSeparator);
-	 }
-      }
+       if (strstr($page, "$FieldSeparator#HITS$FieldSeparator#")) {
+          _dotoken('HITS', GetHitCount($dbi, $name), $page, $FieldSeparator);
+       }
+       if (strstr($page, "$FieldSeparator#RELATEDPAGES$FieldSeparator#")) {
+          _dotoken('RELATEDPAGES', LinkRelatedPages($dbi, $name), $page, $FieldSeparator);
+       }
+    }
 
       // valid only for EditLinks
       if ($template == 'EDITLINKS') {
-	 for ($i = 1; $i <= NUM_LINKS; $i++) {
+          for ($i = 1; $i <= NUM_LINKS; $i++) {
             $ref = isset($hash['refs'][$i]) ? $hash['refs'][$i] : '';
-	    _dotoken("R$i", $ref, $page, $FieldSeparator);
+            _dotoken("R$i", $ref, $page, $FieldSeparator);
          }
       }
       //Add secondardy WIKI content.
