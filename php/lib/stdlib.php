@@ -73,31 +73,32 @@
    }
 
 
-   function LinkExistingWikiWord($wikiword, $linktext='') {
+   function LinkExistingWikiWord($wikiword, $linktext='', $target = '') {
       global $ScriptUrl;
       $enc_word = rawurlencode($wikiword);
       if(empty($linktext))
          $linktext = htmlspecialchars($wikiword);
-      return "<a href=\"$ScriptUrl?$enc_word\">$linktext</a>";
+      if($target) $target = " target='$target'";
+      return "<a href=\"$ScriptUrl?$enc_word\"$target>$linktext</a>";
    }
 
-   function LinkUnknownWikiWord($wikiword, $linktext='') {
+   function LinkUnknownWikiWord($wikiword, $linktext='', $target = '') {
       global $ScriptUrl;
       global $AdminUrl;
       $enc_word = rawurlencode($wikiword);
       if(empty($linktext))
          $linktext = htmlspecialchars($wikiword);
-      return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\">?</a>";
+      return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\"$target>?</a>";
    }
 
-   function LinkURL($url, $linktext='') {
+   function LinkURL($url, $linktext='', $target = '') {
       global $ScriptUrl;
       if(ereg("[<>\"]", $url)) {
          return "<b><u>BAD URL -- remove all of &lt;, &gt;, &quot;</u></b>";
       }
       if(empty($linktext))
          $linktext = htmlspecialchars($url);
-      return "<a href=\"$url\">$linktext</a>";
+      return "<a href=\"$url\"$target>$linktext</a>";
    }
 
    function LinkImage($url, $alt='[External Image]') {
@@ -291,6 +292,13 @@
       // $bracketlink will start and end with brackets; in between
       // will be either a page name, a URL or both separated by a pipe.
 
+      $target = "";
+
+      // strip annotations
+      if(preg_match("/\(new window\)/", $bracketlink)) {
+         $target = "_blank";
+      }
+
       // strip brackets and leading space
       preg_match("/(\[\s*)(.+?)(\s*\])/", $bracketlink, $match);
       // match the contents
@@ -300,37 +308,37 @@
          // named link of the form  "[some link name | http://blippy.com/]"
          $URL = trim($matches[3]);
          $linkname = htmlspecialchars(trim($matches[1]));
-	 $linktype = 'named';
+         $linktype = 'named';
       } else {
          // unnamed link of the form "[http://blippy.com/] or [wiki page]"
          $URL = trim($matches[1]);
-	 $linkname = '';
-	 $linktype = 'simple';
+         $linkname = '';
+         $linktype = 'simple';
       }
 
       if (IsWikiPage($dbi, $URL)) {
          $link['type'] = "wiki-$linktype";
-         $link['link'] = LinkExistingWikiWord($URL, $linkname);
+         $link['link'] = LinkExistingWikiWord($URL, $linkname, $target);
       } elseif (preg_match("#^($AllowedProtocols):#", $URL)) {
         // if it's an image, embed it; otherwise, it's a regular link
          if (preg_match("/($InlineImages)$/i", $URL)) {
-	    $link['type'] = "image-$linktype";
+            $link['type'] = "image-$linktype";
             $link['link'] = LinkImage($URL, $linkname);
          } else {
-	    $link['type'] = "url-$linktype";
-            $link['link'] = LinkURL($URL, $linkname);
-	 }
+            $link['type'] = "url-$linktype";
+            $link['link'] = LinkURL($URL, $linkname, $target);
+         }
       } elseif (preg_match("#^phpwiki:(.*)#", $URL, $match)) {
-	 $link['type'] = "url-wiki-$linktype";
-	 if(empty($linkname))
-	    $linkname = htmlspecialchars($URL);
-	 $link['link'] = "<a href=\"$ScriptUrl$match[1]\">$linkname</a>";
+         $link['type'] = "url-wiki-$linktype";
+         if(empty($linkname))
+            $linkname = htmlspecialchars($URL);
+         $link['link'] = LinkUrl("$ScriptUrl$match[1]", $linkname, $target);
       } elseif (preg_match("#^\d+$#", $URL)) {
          $link['type'] = "reference-$linktype";
-	 $link['link'] = $URL;
+         $link['link'] = $URL;
       } else {
-	 $link['type'] = "wiki-unknown-$linktype";
-         $link['link'] = LinkUnknownWikiWord($URL, $linkname);
+         $link['type'] = "wiki-unknown-$linktype";
+         $link['link'] = LinkUnknownWikiWord($URL, $linkname, $target);
       }
 
       return $link;

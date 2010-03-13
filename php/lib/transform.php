@@ -99,7 +99,7 @@
 
       // match anything else between brackets 
       $oldn = $ntokens;
-      $tmpline = tokenize($tmpline, '\[.+?\]', $replacements, $ntokens);
+      $tmpline = tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $replacements, $ntokens);
       while ($oldn < $ntokens) {
 	$link = ParseAndLink($replacements[$oldn]);	
 	$replacements[$oldn] = $link['link'];
