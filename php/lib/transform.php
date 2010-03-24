@@ -48,8 +48,37 @@
       return in_array($tag, $this->tagstack);
    }
 
-   function DoInlineMarkup($line) {
-      return $line;
+   function DoInlineMarkup($tmpline) {
+      //////////////////////////////////////////////////////////
+      // escape HTML metachars
+      $tmpline = str_replace('&', '&amp;', $tmpline);
+      $tmpline = str_replace('>', '&gt;', $tmpline);
+      $tmpline = str_replace('<', '&lt;', $tmpline);
+
+      // four or more dashes to <hr>
+      $tmpline = ereg_replace("^-{4,}", '<hr>', $tmpline);
+
+      // %%% are linebreaks
+      $tmpline = str_replace('%%%', '<br>', $tmpline);
+
+      // bold italics (old way)
+      $tmpline = preg_replace("|(''''')(.*?)(''''')|",
+                              "<strong><em>\\2</em></strong>", $tmpline);
+
+      // bold (old way)
+      $tmpline = preg_replace("|(''')(.*?)(''')|",
+                              "<strong>\\2</strong>", $tmpline);
+
+      // bold
+      $tmpline = preg_replace("|(__)(.*?)(__)|",
+                              "<strong>\\2</strong>", $tmpline);
+
+      // italics
+      $tmpline = preg_replace("|('')(.*?)('')|",
+                              "<em>\\2</em>", $tmpline);
+
+
+      return $tmpline;
    }
 
    function parse($str) {
@@ -165,8 +194,6 @@
 	$oldn++;
       }
 
-      $tmpline = $this->DoInlineMarkup($tmpline);
-
       //////////////////////////////////////////////////////////
       // replace all URL's with tokens, so we don't confuse them
       // with Wiki words later. Wiki words in URL's break things.
@@ -181,34 +208,7 @@
         $oldn++;
       }
 
-      //////////////////////////////////////////////////////////
-      // escape HTML metachars
-      $tmpline = str_replace('&', '&amp;', $tmpline);
-      $tmpline = str_replace('>', '&gt;', $tmpline);
-      $tmpline = str_replace('<', '&lt;', $tmpline);
-
-      // four or more dashes to <hr>
-      $tmpline = ereg_replace("^-{4,}", '<hr>', $tmpline);
-
-      // %%% are linebreaks
-      $tmpline = str_replace('%%%', '<br>', $tmpline);
-
-      // bold italics (old way)
-      $tmpline = preg_replace("|(''''')(.*?)(''''')|",
-                              "<strong><em>\\2</em></strong>", $tmpline);
-
-      // bold (old way)
-      $tmpline = preg_replace("|(''')(.*?)(''')|",
-                              "<strong>\\2</strong>", $tmpline);
-
-      // bold
-      $tmpline = preg_replace("|(__)(.*?)(__)|",
-                              "<strong>\\2</strong>", $tmpline);
-
-      // italics
-      $tmpline = preg_replace("|('')(.*?)('')|",
-                              "<em>\\2</em>", $tmpline);
-
+      $tmpline = $this->DoInlineMarkup($tmpline);
 
       //////////////////////////////////////////////////////////
       // unordered, ordered, and dictionary list  (using TAB)
