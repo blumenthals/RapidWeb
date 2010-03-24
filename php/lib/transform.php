@@ -43,9 +43,10 @@
       $d = $this->tagdata[$tag];
 
       $o = '';
-      while($this->tagstack and $t = array_pop($this->tagstack) != $tag) {
+      while($t = array_pop($this->tagstack)) {
          $d = $this->tagdata[$t];
          $o .= $d[1];
+         if($t == $tag) break;
       }
       return($o);
    }
