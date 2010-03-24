@@ -1,6 +1,12 @@
 <?php rcs_id('$Id: transform.php,v 1.8 2001/01/04 18:34:15 ahollosi Exp $');
-   // expects $pagehash and $html to be set
-   if(!function_exists('tokenize')) {
+
+   class Parser {
+      private $pagehash;
+
+      function __construct($pagehash) {
+         $this->pagehash = $pagehash;
+      }
+      // expects $pagehash and $html to be set
       function tokenize($str, $pattern, &$orig, &$ntokens) {
          global $FieldSeparator;
          // Find any strings in $str that match $pattern and
@@ -16,17 +22,47 @@
          $new .= $str;
          return $new;
       }
+
+      private $tagstack = Array();
+      private $tagdata = array("columns" => "table", "column" => "td", "table" => "table", "tr" => "tr", "td" => "td");
+
+   function AddOutputWrapper($tag) {
+      $d = $this->tagdata[$tag];
+
+      $this->tagstack[] = $tag;
+      return("<$d>");
    }
+
+   function CloseOutputWrapper($tag) {
+      $d = $this->tagdata[$tag];
+
+      $o = '';
+      while($this->tagstack and $t = array_pop($this->tagstack) != $tag) {
+         $d = $this->tagdata[$t];
+         $o .= "</$d>";
+      }
+      return($o);
+   }
+
+   function InOutputWrapper($tag) {
+      return in_array($tag, $this->tagstack);
+   }
+
+   function DoInlineMarkup($line) {
+      return $line;
+   }
+
+   function parse($str) {
 
    // Prepare replacements for references [\d+]
    for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
-      if (! empty($pagehash['refs'][$i])) {
-         if (preg_match("/($InlineImages)$/i", $pagehash['refs'][$i])) {
+      if (! empty($this->pagehash['refs'][$i])) {
+         if (preg_match("/($InlineImages)$/i", $this->pagehash['refs'][$i])) {
             // embed images
-            $embedded[$i] = LinkImage($pagehash['refs'][$i]);
+            $embedded[$i] = LinkImage($this->pagehash['refs'][$i]);
          } else {
             // ordinary link
-            $embedded[$i] = LinkURL($pagehash['refs'][$i], "[$i]");
+            $embedded[$i] = LinkURL($this->pagehash['refs'][$i], "[$i]");
          }
       }
    }
@@ -39,7 +75,7 @@
 
 
    // Loop over all lines of the page and apply transformation rules
-   $numlines = count($pagehash["content"]);
+   $numlines = count($this->pagehash["content"]);
 
    for ($index = 0; $index < $numlines; $index++) {
       unset($tokens);
@@ -47,15 +83,30 @@
       $ntokens = 0;
       $replacements = array();
       
-      $tmpline = $pagehash['content'][$index];
+      $tmpline = $str[$index];
 
-      if (!strlen($tmpline) || $tmpline == "\r") {
-         // this is a blank line, send <p>
-         $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
+      // Handle column tables
+      if (preg_match("/^START\s*COLUMNS.*/", $tmpline, $matches)) {
+         $html .= $this->AddOutputWrapper('columns');
+         $html .= $this->AddOutputWrapper('column');
+         continue;
+      } elseif ($this->InOutputWrapper('columns') and preg_match("/^NEW\s*COLUMN.*/", $tmpline, $matches)) {
+         $html .= $this->CloseOutputWrapper("column");
+         $html .= $this->AddOutputWrapper("column");
+         continue;
+      } elseif (preg_match("/^END\s*COLUMNS.*/", $tmpline, $matches)) {
+         $html .= $this->CloseOutputWrapper("columns");
          continue;
       }
+
+      if (preg_match("/^STARTTABLE.*/", $tmpline, $matches)) {
+         $html .= $this->AddOutputWrapper("table");
+      } elseif(preg_match("/^ENDTABLE/", $tmpline, $matches)) {
+         $html .= $this->CloseOutputWrapper("table");
+      }
+
 		//Block HTML
-		elseif (preg_match("/^STARTHTML.*/", $tmpline, $matches)) {
+		if (preg_match("/^STARTHTML.*/", $tmpline, $matches)) {
 			$htmlmode = true;
 			continue;	
 		}
@@ -68,6 +119,14 @@
 			$html .= $tmpline;
 			continue;
 		}
+
+      elseif (!strlen($tmpline) || $tmpline == "\r") {
+         // this is a blank line, send <p>
+         $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
+         continue;
+      }
+
+
       elseif (preg_match("/(^\|)(.*)/", $tmpline, $matches)) {
          // HTML mode
          $html .= SetHTMLOutputMode("", ZERO_LEVEL, 0);
@@ -83,13 +142,13 @@
 	
       // First need to protect [[. 
       $oldn = $ntokens;
-      $tmpline = tokenize($tmpline, '\[\[', $replacements, $ntokens);
+      $tmpline = $this->tokenize($tmpline, '\[\[', $replacements, $ntokens);
       while ($oldn < $ntokens)
          $replacements[$oldn++] = '[';
 
       // Now process the [\d+] links which are numeric references	
       $oldn = $ntokens;
-      $tmpline = tokenize($tmpline, '\[\s*\d+\s*\]', $replacements, $ntokens);
+      $tmpline = $this->tokenize($tmpline, '\[\s*\d+\s*\]', $replacements, $ntokens);
       while ($oldn < $ntokens) {
 	 $num = (int) substr($replacements[$oldn], 1);
          if (! empty($embedded[$num]))
@@ -99,19 +158,21 @@
 
       // match anything else between brackets 
       $oldn = $ntokens;
-      $tmpline = tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $replacements, $ntokens);
+      $tmpline = $this->tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $replacements, $ntokens);
       while ($oldn < $ntokens) {
 	$link = ParseAndLink($replacements[$oldn]);	
 	$replacements[$oldn] = $link['link'];
 	$oldn++;
       }
 
+      $tmpline = $this->DoInlineMarkup($tmpline);
+
       //////////////////////////////////////////////////////////
       // replace all URL's with tokens, so we don't confuse them
       // with Wiki words later. Wiki words in URL's break things.
       // URLs preceeded by a '!' are not linked
 
-      $tmpline = tokenize($tmpline, "!?\b($AllowedProtocols):[^\s<>\[\]\"'()]*[^\s<>\[\]\"'(),.?]", $replacements, $ntokens);
+      $tmpline = $this->tokenize($tmpline, "!?\b($AllowedProtocols):[^\s<>\[\]\"'()]*[^\s<>\[\]\"'(),.?]", $replacements, $ntokens);
       while ($oldn < $ntokens) {
         if($replacements[$oldn][0] == '!')
 	   $replacements[$oldn] = substr($replacements[$oldn], 1);
@@ -241,4 +302,12 @@
    }
 
    $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
+
+      return $html;
+   }
+}
+
+$p = new Parser($pagehash);
+$html = $p->parse($pagehash['content']);
+
 ?>
