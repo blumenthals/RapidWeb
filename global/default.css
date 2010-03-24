@@ -104,3 +104,7 @@ a:active {
 	border-bottom-style: solid;
 	border-bottom-color: #C9500D;
 }
+
+td.rw-column {
+	vertical-align: top;
+}

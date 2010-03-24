@@ -24,13 +24,19 @@
       }
 
       private $tagstack = Array();
-      private $tagdata = array("columns" => "table", "column" => "td", "table" => "table", "tr" => "tr", "td" => "td");
+      private $tagdata = array(
+         "columns" => array("<table class='rw-columns'><tr>", "</tr></table>"), 
+         "column" => array("<td class='rw-column'>", "</td>"),
+         "table" => array("<table>", "</table>"), 
+         "tr" => array("<tr>", "</tr>"),
+         "td" => array("<td>", "</td>")
+      );
 
    function AddOutputWrapper($tag) {
       $d = $this->tagdata[$tag];
 
       $this->tagstack[] = $tag;
-      return("<$d>");
+      return($d[0]);
    }
 
    function CloseOutputWrapper($tag) {
@@ -39,7 +45,7 @@
       $o = '';
       while($this->tagstack and $t = array_pop($this->tagstack) != $tag) {
          $d = $this->tagdata[$t];
-         $o .= "</$d>";
+         $o .= $d[1];
       }
       return($o);
    }
