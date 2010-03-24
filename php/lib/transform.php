@@ -128,10 +128,19 @@
          continue;
       }
 
-      if (preg_match("/^STARTTABLE.*/", $tmpline, $matches)) {
+      if (preg_match("/^START\s*TABLE(.*)/", $tmpline, $matches)) {
          $html .= $this->AddOutputWrapper("table");
-      } elseif(preg_match("/^ENDTABLE/", $tmpline, $matches)) {
+         continue;
+      } elseif(preg_match("/^END\s*TABLE/", $tmpline, $matches)) {
          $html .= $this->CloseOutputWrapper("table");
+         continue;
+      } elseif($this->InOutputWrapper("table")) {
+         $t = explode('|', $tmpline);
+         foreach($t as $k => $v) {
+            $t[$k] = "<td>".$this->DoInlineMarkup($v)."</td>";
+         }
+         $html .= "<tr>".join($t, '')."</tr>";
+         continue;
       }
 
 		//Block HTML
