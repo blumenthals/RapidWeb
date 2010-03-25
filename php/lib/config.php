@@ -19,6 +19,12 @@
    // Constants and settings. Edit the values below for your site.
    /////////////////////////////////////////////////////////////////////
 
+   // set these to your preferences. For heaven's sake
+   // pick a good password!
+   $USERS = array(
+      'admin' => 'rwdev',
+      'user' => 'rwuser'
+   );
 
    // URL of index.php e.g. http://yoursite.com/phpwiki/index.php
    // you can leave this empty - it will be calculated automatically
