@@ -63,7 +63,7 @@
       $tmpline = str_replace('<', '&lt;', $tmpline);
 
       // four or more dashes to <hr>
-      $tmpline = ereg_replace("^-{4,}", '<hr>', $tmpline);
+      $tmpline = preg_replace("/^-{4,}/", '<hr>', $tmpline);
 
       // %%% are linebreaks
       $tmpline = str_replace('%%%', '<br>', $tmpline);

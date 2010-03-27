@@ -471,13 +471,13 @@
           $page = str_replace($blockyes, '', $page);
           $page = str_replace($blockyesend, '', $page);
           $page = preg_replace("/$blockno(.*?)$blocknoend/s", '', $page);
-          $page = ereg_replace("${lineno}[^\n]*\n", '', $page);
+          $page = preg_replace("/${lineno}[^\n]*\n/", '', $page);
             } else {
           $page = str_replace($lineno, '', $page);
           $page = str_replace($blockno, '', $page);
           $page = str_replace($blocknoend, '', $page);
           $page = preg_replace("/$blockyes(.*?)$blockyesend/s", '', $page);
-          $page = ereg_replace("${lineyes}[^\n]*\n", '', $page);
+          $page = preg_replace("/${lineyes}[^\n]*\n/", '', $page);
        }
    }
 
