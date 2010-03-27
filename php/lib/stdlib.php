@@ -93,7 +93,7 @@
 
    function LinkURL($url, $linktext='', $target = '') {
       global $ScriptUrl;
-      if(ereg("[<>\"]", $url)) {
+      if(preg_match("/[<>\"]/", $url)) {
          return "<b><u>BAD URL -- remove all of &lt;, &gt;, &quot;</u></b>";
       }
       if(empty($linktext))
