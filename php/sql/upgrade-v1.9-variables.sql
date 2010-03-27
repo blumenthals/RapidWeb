@@ -2,3 +2,4 @@
 # --------------------------------------------------------
 
 alter table wiki add variables text;
+alter table archive add variables text;

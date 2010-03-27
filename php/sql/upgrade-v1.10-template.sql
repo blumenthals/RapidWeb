@@ -2,3 +2,4 @@
 # --------------------------------------------------------
 
 alter table wiki add template varchar(100);
+alter table archive add template varchar(100);
