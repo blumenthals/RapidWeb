@@ -8,7 +8,7 @@
    include("php/lib/stdlib.php");
 
    // from the manual, Chapter 16
-   if (!$_SERVER['PHP_AUTH_USER'] or $USERS[$_SERVER['PHP_AUTH_USER']] != $_SERVER["PHP_AUTH_PW"]) {
+   if (!$_SERVER['PHP_AUTH_USER'] or !isset($USERS[$_SERVER['PHP_AUTH_USER']]) or  $USERS[$_SERVER['PHP_AUTH_USER']] != $_SERVER["PHP_AUTH_PW"]) {
       Header("WWW-Authenticate: Basic realm=\"RapidWeb Admin\"");
       Header("HTTP/1.0 401 Unauthorized");
       echo gettext ("You entered an invalid login or password.");
