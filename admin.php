@@ -2,6 +2,8 @@
 
    function rcs_id($id) {}   // otherwise this gets in the way
 
+   ob_start();
+
    define('WIKI_ADMIN', true);	// has to be before includes
 
    include("php/lib/config.php");
@@ -19,8 +21,6 @@
    $dbi = OpenDataBase($WikiPageStore);
 
    if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
-      $lock = $_REQUEST['lock'];
-      $lock = $_REQUEST['unlock'];
       include ('php/admin/lockpage.php');
    } elseif (isset($_REQUEST['zip'])) {
       $zip = $_REQUEST['zip'];
