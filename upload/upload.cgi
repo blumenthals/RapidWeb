@@ -115,7 +115,10 @@ body {
               |&lt;img src=$site_url$start_directory/$info_outfile align=&quot;right&quot; alt=&quot;$info_note&quot;&gt;</p>
 		    <p align="center"><strong>OR</strong></p>
 		    <p align="left"><strong>PDF File:</strong><br>
-		      [$info_note (pdf)|$site_url$start_directory/$info_outfile]</p></td>
+		      [$info_note (pdf)|$site_url$start_directory/$info_outfile]</p>
+		    <p align="left"><strong>PDF File in a new window:</strong><br>
+		      [$info_note (pdf)|$site_url$start_directory/$info_outfile] (new window)</p>
+          </td>
         </tr>
         <tr>
           <td height="0"></td>

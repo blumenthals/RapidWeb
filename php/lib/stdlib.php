@@ -78,8 +78,8 @@
       $enc_word = rawurlencode($wikiword);
       if(empty($linktext))
          $linktext = htmlspecialchars($wikiword);
-      if($target) $target = " target='$target'";
-      return "<a href=\"$ScriptUrl?$enc_word\"$target>$linktext</a>";
+      if($target) $dtarget = " target='$target'";
+      return "<a href=\"$ScriptUrl?$enc_word\"$dtarget>$linktext</a>";
    }
 
    function LinkUnknownWikiWord($wikiword, $linktext='', $target = '') {
@@ -88,7 +88,8 @@
       $enc_word = rawurlencode($wikiword);
       if(empty($linktext))
          $linktext = htmlspecialchars($wikiword);
-      return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\"$target>?</a>";
+      if($target) $dtarget = " target='$target'";
+      return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\"$dtarget>?</a>";
    }
 
    function LinkURL($url, $linktext='', $target = '') {
@@ -98,7 +99,8 @@
       }
       if(empty($linktext))
          $linktext = htmlspecialchars($url);
-      return "<a href=\"$url\"$target>$linktext</a>";
+      if($target) $dtarget = " target='$target'";
+      return "<a href=\"$url\"$dtarget>$linktext</a>";
    }
 
    function LinkImage($url, $alt='[External Image]') {
@@ -291,6 +293,9 @@
 
       // $bracketlink will start and end with brackets; in between
       // will be either a page name, a URL or both separated by a pipe.
+      // After may be the annotation (new window):
+      //     [Name|URL] (new window)
+      //     [Name] (new window)
 
       $target = "";
 
