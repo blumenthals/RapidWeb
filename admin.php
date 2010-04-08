@@ -19,9 +19,8 @@
    $dbi = OpenDataBase($WikiPageStore);
 
    if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
-      $lock = $_REQUEST['lock'];
-      $lock = $_REQUEST['unlock'];
       include ('php/admin/lockpage.php');
+      ExitWiki('');
    } elseif (isset($_REQUEST['zip'])) {
       $zip = $_REQUEST['zip'];
       include ('php/lib/ziplib.php');
