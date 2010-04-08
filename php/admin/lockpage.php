@@ -2,7 +2,8 @@
    /* $Id: lockpage.php,v 1.1 2000/11/08 15:30:16 ahollosi Exp $ */
 
 
-   $pagename = rawurldecode(isset($_REQUEST['lock']) ? $_REQUEST['lock'] : $_REQUEST['unlock']);
+   $page = isset($_REQUEST['lock']) ? $_REQUEST['lock'] : $_REQUEST['unlock'];
+   $pagename = rawurldecode($page);
    $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
    if (! is_array($pagehash))
       ExitWiki("Unknown page '".htmlspecialchars($pagename)."'\n");
