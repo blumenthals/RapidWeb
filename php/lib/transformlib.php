@@ -89,7 +89,7 @@
    }
 
    function parse($str) {
-      global $FieldSeparator;
+      global $FieldSeparator, $AllowedProtocols;
 
    // Prepare replacements for references [\d+]
    for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
