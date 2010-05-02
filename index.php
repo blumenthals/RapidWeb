@@ -14,6 +14,10 @@
       $dbi = OpenDataBase($WikiPageStore);
    }
 
+	if(get_magic_quotes_gpc()) {
+		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);
+	}
+
    // Allow choice of submit buttons to determine type of search:
    if (isset($searchtype) && ($searchtype == 'full'))
       $full = $searchstring;

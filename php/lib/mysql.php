@@ -60,12 +60,9 @@
    // prepare $pagehash for storing in mysql
    function MakeDBHash($pagename, $pagehash)
    {
-      $pagehash["pagename"] = addslashes($pagename);
       if (!isset($pagehash["flags"]))
          $pagehash["flags"] = 0;
-      $pagehash["author"] = addslashes($pagehash["author"]);
       $pagehash["content"] = implode("\n", $pagehash["content"]);
-      $pagehash["content"] = addslashes($pagehash["content"]);
       if (!isset($pagehash["refs"]))
          $pagehash["refs"] = array();
       $pagehash["refs"] = serialize($pagehash["refs"]);
@@ -88,7 +85,7 @@
 
    // Return hash of page + attributes or default
    function RetrievePage($dbi, $pagename, $pagestore) {
-      $pagename = addslashes($pagename);
+      $pagename = mysql_real_escape_string($pagename, $dbi['dbc']);
       if ($res = mysql_query("select * from $pagestore where pagename='$pagename'", $dbi['dbc'])) {
          if ($dbhash = mysql_fetch_array($res)) {
             return MakePageHash($dbhash);
@@ -113,15 +110,26 @@
       $COLUMNS = "author, content, created, flags, " .
                  "lastmodified, pagename, refs, version, title, meta, keywords, variables, template";
 
-      $VALUES =  "'$pagehash[author]', '$pagehash[content]', " .
-                 "$pagehash[created], $pagehash[flags], " .
-                 "$pagehash[lastmodified], '$pagehash[pagename]', " .
-                 "'$pagehash[refs]', $pagehash[version], '$pagehash[title]', '$pagehash[meta]', '$pagehash[keywords]', '$pagehash[variables]'";
+			$VALUES = array($pagehash[author], $pagehash[content],
+				$pagehash[created], $pagehash[flags], 
+				$pagehash[lastmodified], $pagehash[pagename], 
+				$pagehash[refs], $pagehash[version],
+				$pagehash[title], $pagehash[meta],
+				$pagehash[keywords], $pagehash[variables]);
 			if(isset($pagehash['template'])) {
-         $VALUES .= ", '$pagehash[template]'";
-      } else {
-         $VALUES .= ", NULL";
-      }
+				array_push($VALUES, $pagehash[template]);
+			} else {
+				array_push($VALUES, 'NULL');
+			}
+
+			foreach($VALUES as $k => $v) {
+				if($v === null || $v === 'NULL') {
+					$VALUES[$k] = 'NULL';
+				} else {
+					$VALUES[$k] = "'".mysql_real_escape_string($v, $dbi['dbc'])."'";
+				}
+			}
+			$VALUES = join($VALUES, ', ');
       if (!mysql_query("replace into $dbi[table] ($COLUMNS) values ($VALUES)",
       			$dbi['dbc'])) {
             $msg = sprintf(gettext ("Error writing page '%s'"), $pagename);

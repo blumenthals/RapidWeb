@@ -174,10 +174,6 @@
    $html .= "<br>\n";
 
    if (! empty($content)) {
-      // patch from Grant Morgan <grant@ryuuguu.com> for magic_quotes_gpc
-      if (get_magic_quotes_gpc())
-         $content = stripslashes($content);
-
       $pagehash['content'] = preg_split('/[ \t\r]*\n/', chop($content));
 
       // convert spaces to tabs at user request
