@@ -1,6 +1,6 @@
 <?php
 
-	require_once('php/lib/transformlib.php');
+	require_once('rw-includes/transformlib.php');
 
 	$p = new Parser($pagehash);
 	$html = $p->parse($pagehash['content']);

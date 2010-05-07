@@ -1,6 +1,6 @@
 <!-- $Id: setupwiki.php,v 1.3 2000/10/22 19:33:35 ahollosi Exp $ -->
 <?php
-require "php/lib/ziplib.php";
+require "rw-includes/ziplib.php";
 
 function SavePage ($dbi, $page, $source)
 {

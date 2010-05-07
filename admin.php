@@ -4,8 +4,8 @@
 
    define('WIKI_ADMIN', true);	// has to be before includes
 
-   include("php/lib/config.php");
-   include("php/lib/stdlib.php");
+   include("rw-includes/config.php");
+   include("rw-includes/stdlib.php");
 
    // from the manual, Chapter 16
    if (!$_SERVER['PHP_AUTH_USER'] or !isset($USERS[$_SERVER['PHP_AUTH_USER']]) or  $USERS[$_SERVER['PHP_AUTH_USER']] != $_SERVER["PHP_AUTH_PW"]) {
@@ -19,19 +19,19 @@
    $dbi = OpenDataBase($WikiPageStore);
 
    if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
-      include ('php/admin/lockpage.php');
+      include ('rw-admin/lockpage.php');
       ExitWiki('');
    } elseif (isset($_REQUEST['zip'])) {
       $zip = $_REQUEST['zip'];
-      include ('php/lib/ziplib.php');
-      include ('php/admin/zip.php');
+      include ('rw-includes/ziplib.php');
+      include ('rw-admin/zip.php');
       ExitWiki('');
    } elseif (isset($_REQUEST['dumpserial'])) {
       $dumpserial = $_REQUEST['dumpserial'];
-      include ('php/admin/dumpserial.php');
+      include ('rw-admin/dumpserial.php');
    } elseif (isset($_REQUEST['loadserial'])) {
       $loadserial = $_REQUEST['loadserial'];
-      include ('php/admin/loadserial.php');
+      include ('rw-admin/loadserial.php');
    } elseif (isset($_REQUEST['remove'])) {
       if (get_magic_quotes_gpc()) {
          $remove = stripslashes($_REQUEST['remove']);

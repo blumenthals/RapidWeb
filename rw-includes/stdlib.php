@@ -32,22 +32,22 @@
      return false;
    }
 
-   function ListTemplates($active)
-   {
+   function ListTemplates($active) {
+	global $TemplateName;
       $o = '<option value="">Default</option>';
-      $d = opendir("php/templates/");
+      $d = opendir("rw-content/templates/$TemplateName/");
       while($e = readdir($d)) {
          if(strpos($e, 'browse') === 0) continue;
          if(strpos($e, 'editpage') === 0) continue;
          if(strpos($e, 'index') === 0) continue;
          if(strpos($e, '.htm') === false) continue;
-         if('php/templates/'.$e == $active) {
+         if("rw-content/templates/$TemplateName/".$e == $active) {
             $selected = ' selected="selected"';
          } else {
             $selected = '';
          }
          if($e{0} != '.')
-            $o .= "<option value='php/templates/$e'$selected>$e</option>";
+            $o .= "<option value='rw-content/templates/$TemplateName/$e'$selected>$e</option>";
       }
       return $o;
    }
@@ -448,7 +448,7 @@
         $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
         if (is_array($pagehash)) {
             // transform.php returns $html containing all the HTML markup
-            include("php/lib/transform.php");
+            include("rw-includes/transform.php");
         }
         $page = $html;
       }
@@ -509,6 +509,7 @@
       } else {
          $page = get_include_contents($templates[$template]);
       }
+	if(!$page) die("template not loaded");
       $page = str_replace('###', "$FieldSeparator#", $page);
 
       // valid for all pagetypes

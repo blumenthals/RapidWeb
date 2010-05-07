@@ -207,7 +207,7 @@
    }
 
    $html .= "</td></tr></table><hr noshade>";
-   include('php/lib/transform.php');
+   include('rw-includes/transform.php');
 
    GeneratePage('BROWSE', $html, $pagename, $pagehash);
 ?>

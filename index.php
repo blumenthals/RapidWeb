@@ -7,8 +7,8 @@
    */
 
    if (!defined('WIKI_ADMIN')) { // index.php not included by admin.php?
-      include "php/lib/config.php";
-      include "php/lib/stdlib.php";
+      include "rw-includes/config.php";
+      include "rw-includes/stdlib.php";
 
       // All requests require the database
       $dbi = OpenDataBase($WikiPageStore);
@@ -26,34 +26,34 @@
 
    if (isset($_REQUEST['edit']) && defined('WIKI_ADMIN')) {
       $edit = $_REQUEST['edit'];
-      include "php/lib/editpage.php";
+      include "rw-includes/editpage.php";
    } elseif (isset($_REQUEST['links']) && defined('WIKI_ADMIN')) {
       $links = $_REQUEST['links'];
-      include "php/lib/editlinks.php";
+      include "rw-includes/editlinks.php";
    } elseif (isset($_REQUEST['settings']) && defined('WIKI_ADMIN')) {
       $settings = $_REQUEST['settings'];
-      include "php/lib/settings.php";
+      include "rw-includes/settings.php";
    } elseif (isset($_REQUEST['copy']) && defined('WIKI_ADMIN')) {
       $links = $_REQUEST['copy'];
-      include "php/lib/editpage.php";
+      include "rw-includes/editpage.php";
    } elseif (isset($_REQUEST['search'])) {
       $search = $_REQUEST['search'];
-      include "php/lib/search.php";
+      include "rw-includes/search.php";
    } elseif (isset($_REQUEST['full'])) {
       $full = $_REQUEST['full'];
-      include "php/lib/fullsearch.php";
+      include "rw-includes/fullsearch.php";
    } elseif (isset($_REQUEST['post']) && defined('WIKI_ADMIN')) {
       $post = $_REQUEST['post'];
       $content = $_REQUEST['content'];
-      include "php/lib/savepage.php";
+      include "rw-includes/savepage.php";
    } elseif (isset($_REQUEST['info'])) {
       $info = $_REQUEST['info'];
-      include "php/lib/pageinfo.php";
+      include "rw-includes/pageinfo.php";
    } elseif (isset($_REQUEST['diff']) && defined('WIKI_ADMIN')) {
       $diff = $_REQUEST['diff'];
-      include "php/lib/diff.php";
+      include "rw-includes/diff.php";
    } else {
-      include "php/lib/display.php"; // defaults to FrontPage
+      include "rw-includes/display.php"; // defaults to FrontPage
    }
 
    CloseDataBase($dbi);

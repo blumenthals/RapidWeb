@@ -19,7 +19,7 @@
    // we render the page if it exists, else ask the user to write one.
    if (is_array($pagehash)) {
       // transform.php returns $html containing all the HTML markup
-      include("php/lib/transform.php");
+      include("rw-includes/transform.php");
    } else {
       $html .= sprintf(gettext(""),
 		       "$pagename<a href='$ScriptUrl?edit=$enc_name'>?</a>");
