@@ -89,9 +89,9 @@
       $WikiScoreStore = "wikiscore";
       $HitCountStore = "hitcount";
       $mysql_server = 'localhost';
-      $mysql_user = 'user_rw';
-      $mysql_pwd = 'password';
-      $mysql_db = 'user_rw';
+      $mysql_user = 'aria_rw';
+      $mysql_pwd = 'B2QU9eBbRh1T';
+      $mysql_db = 'aria_rw';
       include "php/lib/mysql.php";
 
    // PostgreSQL settings -- see INSTALL.pgsql for more details
