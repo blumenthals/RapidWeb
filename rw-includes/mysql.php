@@ -101,7 +101,7 @@
    {
       global $WikiPageStore; // ugly hack
 
-      if ($dbi['table'] == $WikiPageStore) { // HACK
+      if ($dbi['table'] == $dbi['prefix']."wiki") { // HACK
          $linklist = ExtractWikiPageLinks($pagehash['content']);
 	 SetWikiPageLinks($dbi, $pagename, $linklist);
       }
@@ -131,11 +131,11 @@
 				}
 			}
 			$VALUES = join($VALUES, ', ');
-      if (!mysql_query("replace into $dbi[table] ($COLUMNS) values ($VALUES)",
+      if (!mysql_query($q = "replace into ${$dbi[prefix]}wiki ($COLUMNS) values ($VALUES)",
       			$dbi['dbc'])) {
             $msg = sprintf(gettext ("Error writing page '%s'"), $pagename);
 	    $msg .= "<BR>";
-	    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
+	    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error()." in $q");
             ExitWiki($msg);
       }
    }
