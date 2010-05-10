@@ -66,6 +66,7 @@
       if (!isset($pagehash["refs"]))
          $pagehash["refs"] = array();
       $pagehash["refs"] = serialize($pagehash["refs"]);
+      if(!isset($pagehash['pagename'])) $pagehash['pagename'] = $pagename;
  
       return $pagehash;
    }
