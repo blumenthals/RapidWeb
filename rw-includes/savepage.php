@@ -106,7 +106,7 @@
 
 
 
-   $pagename = rawurldecode($post);
+   $pagename = rawurldecode($_REQUEST['post']);
    $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
 
    // if this page doesn't exist yet, now's the time!
