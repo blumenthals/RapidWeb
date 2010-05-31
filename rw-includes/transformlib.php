@@ -7,14 +7,14 @@
          $this->pagehash = $pagehash;
       }
       // expects $pagehash and $html to be set
-      function tokenize($str, $pattern, &$orig, &$ntokens) {
+      function tokenize($str, $pattern, &$orig) {
          global $FieldSeparator;
          // Find any strings in $str that match $pattern and
          // store them in $orig, replacing them with tokens
-         // starting at number $ntokens - returns tokenized string
+         // starting at number $this->ntokens - returns tokenized string
          $new = '';      
          while (preg_match("/^(.*?)($pattern)/", $str, $matches)) {
-            $linktoken = $FieldSeparator . $FieldSeparator . ($ntokens++) . $FieldSeparator;
+            $linktoken = $FieldSeparator . $FieldSeparator . ($this->ntokens++) . $FieldSeparator;
             $new .= $matches[1] . $linktoken;
             $orig[] = $matches[2];
             $str = substr($str, strlen($matches[0]));
@@ -53,6 +53,67 @@
 
    function InOutputWrapper($tag) {
       return in_array($tag, $this->tagstack);
+   }
+
+   function StartLinks($tmpline) {
+      global $FieldSeparator;
+      //////////////////////////////////////////////////////////
+      // New linking scheme: links are in brackets. This will
+      // emulate typical HTML linking as well as Wiki linking.
+	
+      // First need to protect [[. 
+      $this->oldn = $this->ntokens;
+      $tmpline = $this->tokenize($tmpline, '\[\[', $this->replacements, $this->ntokens);
+      while ($this->oldn < $this->ntokens)
+         $this->replacements[$this->oldn++] = '[';
+
+      // Now process the [\d+] links which are numeric references	
+      $this->oldn = $this->ntokens;
+      $tmpline = $this->tokenize($tmpline, '\[\s*\d+\s*\]', $this->replacements, $this->ntokens);
+      while ($this->oldn < $this->ntokens) {
+	 $num = (int) substr($this->replacements[$this->oldn], 1);
+         if (! empty($embedded[$num]))
+            $this->replacements[$this->oldn] = $embedded[$num];
+	 $this->oldn++;
+      }
+
+      // match anything else between brackets 
+      $this->oldn = $this->ntokens;
+      $tmpline = $this->tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $this->replacements, $this->ntokens);
+      while ($this->oldn < $this->ntokens) {
+	$link = ParseAndLink($this->replacements[$this->oldn]);	
+	$this->replacements[$this->oldn] = $link['link'];
+	$this->oldn++;
+      }
+
+      //////////////////////////////////////////////////////////
+      // replace all URL's with tokens, so we don't confuse them
+      // with Wiki words later. Wiki words in URL's break things.
+      // URLs preceeded by a '!' are not linked
+
+      $tmpline = $this->tokenize($tmpline, "!?\b($AllowedProtocols):[^\s<>\[\]\"'()]*[^\s<>\[\]\"'(),.?]", $this->replacements, $this->ntokens);
+      while ($this->oldn < $this->ntokens) {
+        if($this->replacements[$this->oldn][0] == '!')
+	   $this->replacements[$this->oldn] = substr($this->replacements[$this->oldn], 1);
+	else
+	   $this->replacements[$this->oldn] = LinkURL($this->replacements[$this->oldn]);
+        $this->oldn++;
+      }
+
+      return $tmpline;
+
+   }
+
+   function FinishLinks($tmpline) {
+      global $FieldSeparator;
+      ///////////////////////////////////////////////////////
+      // Replace tokens
+
+      for ($i = 0; $i < $this->ntokens; $i++)
+	  $tmpline = str_replace($FieldSeparator.$FieldSeparator.$i.$FieldSeparator, $this->replacements[$i], $tmpline);
+
+      return $tmpline;
+
    }
 
    function DoInlineMarkup($tmpline) {
@@ -116,9 +177,8 @@
 
    for ($index = 0; $index < $numlines; $index++) {
       unset($tokens);
-      unset($replacements);
-      $ntokens = 0;
-      $replacements = array();
+      $this->ntokens = 0;
+      $this->replacements = array();
       
       $tmpline = $str[$index];
 
@@ -145,7 +205,10 @@
       } elseif($this->InOutputWrapper("table")) {
          $t = explode('|', $tmpline);
          foreach($t as $k => $v) {
-            $t[$k] = "<td>".$this->DoInlineMarkup($v)."</td>";
+            $v = $this->StartLinks($v);
+            $v = $this->DoInlineMarkup($v);
+            $v = $this->FinishLinks($v);
+            $t[$k] = "<td>$v</td>";
          }
          $html .= "<tr>".join($t, '')."</tr>";
          continue;
@@ -180,51 +243,7 @@
          continue;
       }
 
-
-
-      //////////////////////////////////////////////////////////
-      // New linking scheme: links are in brackets. This will
-      // emulate typical HTML linking as well as Wiki linking.
-	
-      // First need to protect [[. 
-      $oldn = $ntokens;
-      $tmpline = $this->tokenize($tmpline, '\[\[', $replacements, $ntokens);
-      while ($oldn < $ntokens)
-         $replacements[$oldn++] = '[';
-
-      // Now process the [\d+] links which are numeric references	
-      $oldn = $ntokens;
-      $tmpline = $this->tokenize($tmpline, '\[\s*\d+\s*\]', $replacements, $ntokens);
-      while ($oldn < $ntokens) {
-	 $num = (int) substr($replacements[$oldn], 1);
-         if (! empty($embedded[$num]))
-            $replacements[$oldn] = $embedded[$num];
-	 $oldn++;
-      }
-
-      // match anything else between brackets 
-      $oldn = $ntokens;
-      $tmpline = $this->tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $replacements, $ntokens);
-      while ($oldn < $ntokens) {
-	$link = ParseAndLink($replacements[$oldn]);	
-	$replacements[$oldn] = $link['link'];
-	$oldn++;
-      }
-
-      //////////////////////////////////////////////////////////
-      // replace all URL's with tokens, so we don't confuse them
-      // with Wiki words later. Wiki words in URL's break things.
-      // URLs preceeded by a '!' are not linked
-
-      $tmpline = $this->tokenize($tmpline, "!?\b($AllowedProtocols):[^\s<>\[\]\"'()]*[^\s<>\[\]\"'(),.?]", $replacements, $ntokens);
-      while ($oldn < $ntokens) {
-        if($replacements[$oldn][0] == '!')
-	   $replacements[$oldn] = substr($replacements[$oldn], 1);
-	else
-	   $replacements[$oldn] = LinkURL($replacements[$oldn]);
-        $oldn++;
-      }
-
+      $tmpline = $this->StartLinks($tmpline);
       $tmpline = $this->DoInlineMarkup($tmpline);
 
       //////////////////////////////////////////////////////////
@@ -308,11 +327,7 @@
          $tmpline = ParseAdminTokens($tmpline);
 
 
-      ///////////////////////////////////////////////////////
-      // Replace tokens
-
-      for ($i = 0; $i < $ntokens; $i++)
-	  $tmpline = str_replace($FieldSeparator.$FieldSeparator.$i.$FieldSeparator, $replacements[$i], $tmpline);
+      $tmpline = $this->FinishLinks($tmpline);
 
 
       $html .= $tmpline . "\n";
