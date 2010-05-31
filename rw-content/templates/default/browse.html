@@ -54,14 +54,19 @@ body {background-image: url(/rw-global/images/browse-default/bg.gif);}
                       <td><img src="/rw-global/images/browse-default/menutop.gif" width="175" height="43"></td>
                     </tr>
                     <tr>
-                      <td background="/rw-global/images/browse-default/menubg.gif" class="menu"><a href="###SCRIPTURL###?home">Home</a><br>
-                        <a href="###SCRIPTURL###?ContactUs">Contact Us</a><br>
-                        <a href="###SCRIPTURL###?FindPage">Search</a><br>
-                        <a href="###ADMINURL###?###PAGEURL###">Admin</a><br>
-                        <a href="###SCRIPTURL###?SiteMap">Sitemap</a><br>
-                        <a href="###SCRIPTURL###?RecentChanges">Recent Changes</a><br>
-                        <a href="http://www.rapidweb.info/index.php?TryIt">Editing Help</a><br>
-                        <a href="###SCRIPTURL###?BlumenthalsSupport">Support</a></td>
+                      <td background="/rw-global/images/browse-default/menubg.gif" class="menu">
+                        <ul class='rw-menu'>
+                          <li><a href="###SCRIPTURL###?home">Home</a></li>
+                          <li><a href="###SCRIPTURL###?ContactUs">Contact Us</a></li>
+                          <li><a href="###SCRIPTURL###?FindPage">Search</a></li>
+                          <li><a href="###ADMINURL###?###PAGEURL###">Admin</a></li>
+                          <li><a href="###SCRIPTURL###?SiteMap">Sitemap</a></li>
+                          <li><a href="###SCRIPTURL###?RecentChanges">Recent Changes</a></li>
+                          <li><a href="http://www.rapidweb.info/index.php?TryIt">Editing Help</a></li>
+                          <li><a href="###SCRIPTURL###?BlumenthalsSupport">Support</a></li>
+                          PAGECONTENT(navigation, UL)
+                         </ul>
+                      </td>
                     </tr>
                     <tr>
                       <td><img src="/rw-global/images/browse-default/menubottom.gif" width="175" height="43"><br>

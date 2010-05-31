@@ -11,8 +11,6 @@
          RenderFullSearch($value)
          RenderMostPopular()
          CookSpaces($pagearray)
-         class Stack (push(), pop(), cnt(), top())
-         SetHTMLOutputMode($newmode, $depth)
          UpdateRecentChanges($dbi, $pagename, $isnewpage)
          ParseAndLink($bracketlink)
          ExtractWikiPageLinks($content)
@@ -162,129 +160,7 @@
    }
 
 
-   class Stack {
-      var $items = array();
-      var $size = 0;
 
-      function push($item) {
-         $this->items[$this->size] = $item;
-         $this->size++;
-         return true;
-      }
-
-      function pop() {
-         if ($this->size == 0) {
-            return false; // stack is empty
-         }
-         $this->size--;
-         return $this->items[$this->size];
-      }
-
-      function cnt() {
-         return $this->size;
-      }
-
-      function top() {
-         if($this->size)
-            return $this->items[$this->size - 1];
-         else
-            return '';
-      }
-
-   }
-   // end class definition
-
-
-   // I couldn't move this to lib/config.php because it wasn't declared yet.
-   $stack = new Stack;
-
-   /*
-      Wiki HTML output can, at any given time, be in only one mode.
-      It will be something like Unordered List, Preformatted Text,
-      plain text etc. When we change modes we have to issue close tags
-      for one mode and start tags for another.
-
-      $tag ... HTML tag to insert
-      $tagtype ... ZERO_LEVEL - close all open tags before inserting $tag
-		   NESTED_LEVEL - close tags until depths match
-      $level ... nesting level (depth) of $tag
-		 nesting is arbitrary limited to 10 levels
-   */
-
-   function SetHTMLOutputMode($tag, $tagtype, $level)
-   {
-      global $stack;
-      $retvar = '';
-
-      if ($tagtype == ZERO_LEVEL) {
-         // empty the stack until $level == 0;
-         if ($tag == $stack->top()) {
-            return; // same tag? -> nothing to do
-         }
-         while ($stack->cnt() > 0) {
-            $closetag = $stack->pop();
-            $retvar .= "</$closetag>\n";
-         }
-
-         if ($tag) {
-            $retvar .= "<$tag>\n";
-            $stack->push($tag);
-         }
-
-
-      } elseif ($tagtype == NESTED_LEVEL) {
-         if ($level < $stack->cnt()) {
-            // $tag has fewer nestings (old: tabs) than stack,
-	    // reduce stack to that tab count
-            while ($stack->cnt() > $level) {
-               $closetag = $stack->pop();
-               if ($closetag == false) {
-                  //echo "bounds error in tag stack";
-                  break;
-               }
-               $retvar .= "</$closetag>\n";
-            }
-
-	    // if list type isn't the same,
-	    // back up one more and push new tag
-	    if ($tag != $stack->top()) {
-	       $closetag = $stack->pop();
-	       $retvar .= "</$closetag><$tag>\n";
-	       $stack->push($tag);
-	    }
-
-         } elseif ($level > $stack->cnt()) {
-            // we add the diff to the stack
-            // stack might be zero
-            while ($stack->cnt() < $level) {
-               $retvar .= "<$tag>\n";
-               $stack->push($tag);
-               if ($stack->cnt() > 10) {
-                  // arbitrarily limit tag nesting
-                  ExitWiki(gettext ("Stack bounds exceeded in SetHTMLOutputMode"));
-               }
-            }
-
-         } else { // $level == $stack->cnt()
-            if ($tag == $stack->top()) {
-               return; // same tag? -> nothing to do
-            } else {
-	       // different tag - close old one, add new one
-               $closetag = $stack->pop();
-               $retvar .= "</$closetag>\n";
-               $retvar .= "<$tag>\n";
-               $stack->push($tag);
-            }
-         }
-
-
-      } else { // unknown $tagtype
-         ExitWiki ("Passed bad tag type value in SetHTMLOutputMode");
-      }
-
-      return $retvar;
-   }
-   // end SetHTMLOutputMode
 
 
 
@@ -444,11 +320,19 @@
         } else {
           $pageName = $page[1];
         }
-        $html = "";
+
+	if(preg_match('/,/', $pageName)) {
+		list($pageName, $tagcontext) = explode(',', $pageName);
+		$pageName = trim($pageName);
+		$tagcontext = trim($tagcontext);
+	}
+        $html = "Page $pageName doesn't exist";
         $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
         if (is_array($pagehash)) {
-            // transform.php returns $html containing all the HTML markup
-            include("rw-includes/transform.php");
+            require_once('rw-includes/transformlib.php');
+            $p = new Parser($pagehash);
+            $html = $p->parse($pagehash['content'], $tagcontext);
+
         }
         $page = $html;
       }
@@ -574,7 +458,7 @@
          }
       }
       //Add secondardy WIKI content.
-      //Sytax is PAGECONTENT(PAGENAME)
+      //Sytax is PAGECONTENT(PAGENAME[, tagcontext])
       $page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', _pagecontent, $page);
       _dotoken('CONTENT', $content, $page, $FieldSeparator);
       print $page;

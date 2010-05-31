@@ -1,7 +1,15 @@
 <?php rcs_id('$Id: transform.php,v 1.8 2001/01/04 18:34:15 ahollosi Exp $');
+   /*
+         class Stack { push(), pop(), cnt(), top() }
+         class Parser {
+             ....
+             SetHTMLOutputMode($newmode, $depth)
+         }
+    */
 
    class Parser {
       private $pagehash;
+      private $stack;
 
       function __construct($pagehash) {
          $this->pagehash = $pagehash;
@@ -149,8 +157,10 @@
       return $tmpline;
    }
 
-   function parse($str) {
+   function parse($str, $tagcontext = null) {
       global $FieldSeparator, $AllowedProtocols;
+      $this->stack = new Stack;
+      $this->tagcontext = strtolower($tagcontext);
 
    // Prepare replacements for references [\d+]
    for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
@@ -231,14 +241,14 @@
 
       elseif (!strlen($tmpline) || $tmpline == "\r") {
          // this is a blank line, send <p>
-         $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
+         $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
          continue;
       }
 
 
       elseif (preg_match("/(^\|)(.*)/", $tmpline, $matches)) {
          // HTML mode
-         $html .= SetHTMLOutputMode("", ZERO_LEVEL, 0);
+         $html .= $this->SetHTMLOutputMode("", ZERO_LEVEL, 0);
          $html .= $matches[2];
          continue;
       }
@@ -252,7 +262,7 @@
       if (preg_match("/(^\t+)(.*?)(:\t)(.*$)/", $tmpline, $matches)) {
          // this is a dictionary list (<dl>) item
          $numtabs = strlen($matches[1]);
-         $html .= SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
+         $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
 	 $tmpline = '';
 	 if(trim($matches[2]))
             $tmpline = '<dt>' . $matches[2];
@@ -267,7 +277,7 @@
             $listtag = 'ol'; // a rather tacit assumption. oh well.
          }
          $tmpline = preg_replace("/^(\t+)(\*|\d+|#)/", "", $tmpline);
-         $html .= SetHTMLOutputMode($listtag, NESTED_LEVEL, $numtabs);
+         $html .= $this->SetHTMLOutputMode($listtag, NESTED_LEVEL, $numtabs);
          $html .= '<li>';
 
 
@@ -282,7 +292,7 @@
          // this is part of an unordered list
          $numtabs = strlen($matches[1]);
          $tmpline = preg_replace("/^([#*]*\*)/", '', $tmpline);
-         $html .= SetHTMLOutputMode('ul', NESTED_LEVEL, $numtabs);
+         $html .= $this->SetHTMLOutputMode('ul', NESTED_LEVEL, $numtabs);
          $html .= '<li>';
 
       // ordered lists <OL>: "#"
@@ -290,14 +300,14 @@
          // this is part of an ordered list
          $numtabs = strlen($matches[1]);
          $tmpline = preg_replace("/^([#*]*\#)/", "", $tmpline);
-         $html .= SetHTMLOutputMode('ol', NESTED_LEVEL, $numtabs);
+         $html .= $this->SetHTMLOutputMode('ol', NESTED_LEVEL, $numtabs);
          $html .= '<li>';
 
       // definition lists <DL>: ";text:text"
       } elseif (preg_match("/(^;+)(.*?):(.*$)/", $tmpline, $matches)) {
          // this is a dictionary list item
          $numtabs = strlen($matches[1]);
-         $html .= SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
+         $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
 	 $tmpline = '';
 	 if(trim($matches[2]))
             $tmpline = '<dt>' . $matches[2];
@@ -313,11 +323,11 @@
 	 elseif($whichheading[1] == '!!') $heading = 'h2';
 	 elseif($whichheading[1] == '!!!') $heading = 'h1';
 	 $tmpline = preg_replace("/^!+/", '', $tmpline);
-	 $html .= SetHTMLOutputMode($heading, ZERO_LEVEL, 0);
+	 $html .= $this->SetHTMLOutputMode($heading, ZERO_LEVEL, 0);
 
       } else {
          // it's ordinary output if nothing else
-         $html .= SetHTMLOutputMode('p', ZERO_LEVEL, 0);
+         $html .= $this->SetHTMLOutputMode('p', ZERO_LEVEL, 0);
       }
 
       $tmpline = str_replace('%%Search%%', $quick_search_box, $tmpline);
@@ -333,11 +343,135 @@
       $html .= $tmpline . "\n";
    }
 
-   $html .= SetHTMLOutputMode('', ZERO_LEVEL, 0);
+   $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
 
       return $html;
    }
+
+   /*
+      Wiki HTML output can, at any given time, be in only one mode.
+      It will be something like Unordered List, Preformatted Text,
+      plain text etc. When we change modes we have to issue close tags
+      for one mode and start tags for another.
+
+      $tag ... HTML tag to insert
+      $tagtype ... ZERO_LEVEL - close all open tags before inserting $tag
+		   NESTED_LEVEL - close tags until depths match
+      $level ... nesting level (depth) of $tag
+		 nesting is arbitrary limited to 10 levels
+   */
+
+   function SetHTMLOutputMode($tag, $tagtype, $level)
+   {
+      $retvar = '';
+
+      if ($tagtype == ZERO_LEVEL) {
+         // empty the stack until $level == 0;
+         if ($tag == $this->stack->top()) {
+            return; // same tag? -> nothing to do
+         }
+         while ($this->stack->cnt() > 0) {
+            $closetag = $this->stack->pop();
+            if($this->stack->cnt() > 0 || $closetag != $this->tagcontext) 
+              $retvar .= "</$closetag>\n";
+         }
+
+         if ($tag) {
+            if($this->stack->cnt() > 0 || $tag != $this->tagcontext) 
+              $retvar .= "<$tag>\n";
+            $this->stack->push($tag);
+         }
+
+
+      } elseif ($tagtype == NESTED_LEVEL) {
+         if ($level < $this->stack->cnt()) {
+            // $tag has fewer nestings (old: tabs) than stack,
+	    // reduce stack to that tab count
+            while ($this->stack->cnt() > $level) {
+               $closetag = $this->stack->pop();
+               if ($closetag == false) {
+                  //echo "bounds error in tag stack";
+                  break;
+               }
+               if($this->stack->cnt() > 0 || $closetag != $this->tagcontext) 
+                 $retvar .= "</$closetag>\n";
+            }
+
+	    // if list type isn't the same,
+	    // back up one more and push new tag
+	    if ($tag != $this->stack->top()) {
+	       $closetag = $this->stack->pop();
+	       $retvar .= "</$closetag><$tag>\n";
+	       $this->stack->push($tag);
+	    }
+
+         } elseif ($level > $this->stack->cnt()) {
+            // we add the diff to the stack
+            // stack might be zero
+            while ($this->stack->cnt() < $level) {
+	       if($this->stack->cnt() > 0 || $tag != $this->tagcontext) 
+                  $retvar .= "<$tag>\n";
+               $this->stack->push($tag);
+               if ($this->stack->cnt() > 10) {
+                  // arbitrarily limit tag nesting
+                  ExitWiki(gettext ("Stack bounds exceeded in SetHTMLOutputMode"));
+               }
+            }
+
+         } else { // $level == $this->stack->cnt()
+            if ($tag == $this->stack->top()) {
+               return; // same tag? -> nothing to do
+            } else {
+	       // different tag - close old one, add new one
+               $closetag = $this->stack->pop();
+               $retvar .= "</$closetag>\n";
+               $retvar .= "<$tag>\n";
+               $this->stack->push($tag);
+            }
+         }
+
+
+      } else { // unknown $tagtype
+         ExitWiki ("Passed bad tag type value in SetHTMLOutputMode");
+      }
+
+      return $retvar;
+   }
+   // end SetHTMLOutputMode
 }
+// end class definition
+
+class Stack {
+	private $items = array();
+	private $size = 0;
+
+	function push($item) {
+		$this->items[$this->size] = $item;
+		$this->size++;
+		return true;
+	}
+
+	function pop() {
+		if ($this->size == 0) {
+			return false; // stack is empty
+		}
+		$this->size--;
+		return $this->items[$this->size];
+	}
+
+	function cnt() {
+		return $this->size;
+	}
+
+	function top() {
+		if($this->size)
+			return $this->items[$this->size - 1];
+		else
+			return '';
+	}
+}
+// end class definition
+
 
 $p = new Parser($pagehash);
 $html = $p->parse($pagehash['content']);
