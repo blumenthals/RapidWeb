@@ -203,14 +203,14 @@
          $html .= $this->CloseOutputWrapper("table");
          continue;
       } elseif($this->InOutputWrapper("table")) {
+	 $tmpline = $this->StartLinks($tmpline);
          $t = explode('|', $tmpline);
          foreach($t as $k => $v) {
-            $v = $this->StartLinks($v);
             $v = $this->DoInlineMarkup($v);
-            $v = $this->FinishLinks($v);
             $t[$k] = "<td>$v</td>";
          }
-         $html .= "<tr>".join($t, '')."</tr>";
+	 $tmpline = $this->FinishLinks(join($t, ''));
+         $html .= "<tr>$tmpline</tr>";
          continue;
       }
 
