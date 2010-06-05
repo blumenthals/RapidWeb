@@ -88,12 +88,22 @@
 	}
 	// end of localization function
 
+	function rw_pathsearch($paths, $basename, $suffixes = array('.php', '.html')) {
+		foreach($paths as $path) {
+			foreach($suffixes as $suffix) {
+				$name = "$path/$basename$suffix";
+				if(@stat($name)) return $name;
+			}
+		}
+		return false;
+	}
+
 	// Template files (filenames are relative to script position)
 	$templates = array(
-		"BROWSE" =>    gettext("rw-content/templates/$TemplateName/browse.html"),
-		"EDITPAGE" =>  gettext("rw-content/templates/$TemplateName/editpage.html"),
-		"EDITLINKS" => gettext("rw-content/templates/$TemplateName/editlinks.html"),
-		"MESSAGE" =>   gettext("rw-content/templates/$TemplateName/browse.html")
+		"BROWSE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('browse')),
+		"EDITPAGE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('editpage')),
+		"EDITLINKS" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('editlinks')),
+		"MESSAGE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('browse')),
 	);
 
    //////////////////////////////////////////////////////////////////////
