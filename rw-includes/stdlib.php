@@ -320,22 +320,23 @@
         } else {
           $pageName = $page[1];
         }
-
-	if(preg_match('/,/', $pageName)) {
-		list($pageName, $tagcontext) = explode(',', $pageName);
-		$pageName = trim($pageName);
-		$tagcontext = trim($tagcontext);
-	}
-        $html = "Page $pageName doesn't exist";
-        $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
-        if (is_array($pagehash)) {
-            require_once('rw-includes/transformlib.php');
-            $p = new Parser($pagehash);
-            $html = $p->parse($pagehash['content'], $tagcontext);
-
-        }
-        $page = $html;
+      } else {
+        $pageName = $page;
       }
+
+      if(preg_match('/,/', $pageName)) {
+        list($pageName, $tagcontext) = explode(',', $pageName);
+        $pageName = trim($pageName);
+        $tagcontext = trim($tagcontext);
+      }
+      $html = "Page $pageName doesn't exist";
+      $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
+      if (is_array($pagehash)) {
+          require_once('rw-includes/transformlib.php');
+          $p = new Parser($pagehash);
+          $html = $p->parse($pagehash['content'], $tagcontext);
+      }
+      $page = $html;
       return $page;
    }
 
@@ -463,4 +464,72 @@
       _dotoken('CONTENT', $content, $page, $FieldSeparator);
       print $page;
    }
+
+
+function wp_nav_menu($args) { ?>
+	<div class='<?php echo $args['container_class']; ?>'>
+	<?php
+	$doc = new DOMDocument();
+	$doc->loadHTML($p= _pagecontent('navigation'));	
+	$uls = $doc->getElementsByTagName('ul');
+	$theUl = $uls->item(0);
+	$theUl->setAttribute('class', 'menu');
+	$uls = $theUl->getElementsByTagName('ul');
+	for($i = 0; $i < $uls->length; $i++) {
+		$uls->item($i)->setAttribute('class', 'sub-menu');
+	} 
+	$lis = $theUl->getElementsByTagName('li');
+	for($i = 0; $i < $lis->length; $i++) {
+		$lis->item($i)->setAttribute('class', 'menu-item');
+	} 
+	echo $doc->saveXML($theUl);
+	?>
+	</div>
+<?php }
+
+$rw_have_posts = true;
+
+function have_posts() {
+	global $rw_have_posts;
+	return $rw_have_posts;
+}
+
+function the_post() {
+	global $rw_have_posts;
+	$rw_have_posts = 0;
+}
+
+function the_content() {
+	echo '###CONTENT###';
+}
+
+function bloginfo($arg) {
+	global $templates, $TemplateName;
+	if($arg == 'template_directory') {
+		echo "rw-content/templates/$TemplateName/";
+	} else if($arg == 'stylesheet_directory') {
+		echo "rw-content/templates/$TemplateName/";
+	} else if($arg == 'name') {
+		echo RW_SITE_TITLE;
+	} else {
+		echo "unsupported bloginfo";
+	}
+}
+
+function single_post_title($arg = '') {
+	echo '###PAGE###';
+}
+
+
+function add_action($name, $args) {
+	// Not supported yet
+}
+
+function get_template_part($slug, $name) {
+	die('not implemented');
+}
+
+if($templates['functions.php']) include($templates['functions.php']);
+
+
 ?>

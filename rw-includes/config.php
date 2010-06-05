@@ -92,23 +92,25 @@
 		foreach($paths as $path) {
 			foreach($suffixes as $suffix) {
 				$name = "$path/$basename$suffix";
-				if(@stat($name)) return $name;
+				if(file_exists($name)) return $name;
 			}
 		}
 		return false;
 	}
 
-	define('TEMPLATEPATH', "rw-content/templates/$TemplateName/");
 	define('TEMPLATEFSBASE', realpath(dirname(__FILE__))."/../rw-content/templates/");
-	define('TEMPLATEFSPATH', TEMPLATEFSBASE."$TemplateName/");
+	define('TEMPLATEPATH', TEMPLATEFSBASE."$TemplateName/");
 
 	// Template files (filenames are relative to script position)
 	$templates = array(
-		"BROWSE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
-		"EDITPAGE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('editpage')),
-		"EDITLINKS" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('editlinks')),
-		"MESSAGE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
+		"BROWSE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
+		"EDITPAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('editpage')),
+		"EDITLINKS" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('editlinks')),
+		"MESSAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
+		"functions.php" => rw_pathsearch($p=array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'functions.php', array(''))
 	);
+
+	define('RAPIDWEB', true);
 
    //////////////////////////////////////////////////////////////////////
    // you shouldn't have to edit anyting below this line
