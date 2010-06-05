@@ -98,12 +98,16 @@
 		return false;
 	}
 
+	define('TEMPLATEPATH', "rw-content/templates/$TemplateName/");
+	define('TEMPLATEFSBASE', realpath(dirname(__FILE__))."/../rw-content/templates/");
+	define('TEMPLATEFSPATH', TEMPLATEFSBASE."$TemplateName/");
+
 	// Template files (filenames are relative to script position)
 	$templates = array(
-		"BROWSE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('browse')),
-		"EDITPAGE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('editpage')),
-		"EDITLINKS" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('editlinks')),
-		"MESSAGE" =>    rw_pathsearch(array("rw-content/templates/$TemplateName", "rw-content/templates/default"), gettext('browse')),
+		"BROWSE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
+		"EDITPAGE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('editpage')),
+		"EDITLINKS" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('editlinks')),
+		"MESSAGE" =>    rw_pathsearch(array(TEMPLATEFSPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
 	);
 
    //////////////////////////////////////////////////////////////////////
