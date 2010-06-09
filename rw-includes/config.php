@@ -7,10 +7,6 @@
    set_magic_quotes_runtime(0);
    error_reporting(E_ALL ^ E_NOTICE);
 
-   if (!function_exists('rcs_id')) {
-      function rcs_id($id) { echo "<!-- $id -->\n"; };
-   }
-   rcs_id('$Id: config.php,v 1.24 2001/01/31 07:38:10 ahollosi Exp $');
    // end essential internal stuff
 
    include('rw-config.php');

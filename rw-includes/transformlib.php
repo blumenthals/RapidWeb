@@ -1,4 +1,4 @@
-<?php rcs_id('$Id: transform.php,v 1.8 2001/01/04 18:34:15 ahollosi Exp $');
+<?php
    /*
          class Stack { push(), pop(), cnt(), top() }
          class Parser {

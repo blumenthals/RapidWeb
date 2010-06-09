@@ -1,4 +1,4 @@
-<?php rcs_id('$Id: stdlib.php,v 1.21 2001/01/15 12:32:57 ahollosi Exp $');
+<?php
 
    /*
       Standard functions for Wiki functionality
