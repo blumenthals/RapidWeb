@@ -5,6 +5,7 @@
    define('WIKI_ADMIN', true);	// has to be before includes
 
    include("rw-includes/config.php");
+   include("rw-includes/templating.php");
    include("rw-includes/stdlib.php");
 
    // from the manual, Chapter 16

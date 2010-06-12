@@ -6,6 +6,7 @@
 
    if (!defined('WIKI_ADMIN')) { // index.php not included by admin.php?
       include "rw-includes/config.php";
+      include "rw-includes/templating.php";
       include "rw-includes/stdlib.php";
 
       // All requests require the database
