@@ -74,4 +74,6 @@ function dynamic_sidebar($n) {
 	}
 }
 
+define('ABSPATH', realpath(dirname(__FILE__)."/../"));
+
 ?>
