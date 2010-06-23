@@ -473,6 +473,7 @@ function wp_nav_menu($args) { ?>
 	$doc->loadHTML($p= _pagecontent('navigation'));	
 	$uls = $doc->getElementsByTagName('ul');
 	$theUl = $uls->item(0);
+	if(!$theUL) return;
 	$theUl->setAttribute('class', 'menu');
 	$uls = $theUl->getElementsByTagName('ul');
 	for($i = 0; $i < $uls->length; $i++) {
