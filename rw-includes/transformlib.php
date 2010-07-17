@@ -64,7 +64,7 @@
    }
 
    function StartLinks($tmpline) {
-      global $FieldSeparator;
+      global $FieldSeparator, $AllowedProtocols;
       //////////////////////////////////////////////////////////
       // New linking scheme: links are in brackets. This will
       // emulate typical HTML linking as well as Wiki linking.
