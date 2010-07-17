@@ -195,19 +195,5 @@
    InsertPage($dbi, $pagename, $pagehash);
    UpdateRecentChanges($dbi, $pagename, $newpage);
 
-   $html .= gettext ("Your careful attention to detail is much appreciated.");
-   $html .= "\n";
-
-   // fixme: no test for flat file db system
-   if ($WikiPageStore == "/tmp/wikidb") {
-      $html .= "<P><B>Warning: the Wiki DBM file still lives in the " .
-		"/tmp directory. Please read the INSTALL file and move " .
-		"the DBM file to a permanent location or risk losing " .
-		"all the pages!</B>\n";
-   }
-
-   $html .= "</td></tr></table><hr noshade>";
-   include('rw-includes/transform.php');
-
-   GeneratePage('BROWSE', $html, $pagename, $pagehash);
+   Header("Location: $ScriptUrl?$pagename");
 ?>
