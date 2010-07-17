@@ -19,9 +19,9 @@ function the_content() {
 function bloginfo($arg) {
 	global $templates, $TemplateName;
 	if($arg == 'template_directory') {
-		echo "rw-content/templates/$TemplateName/";
+		echo "rw-content/templates/$TemplateName";
 	} else if($arg == 'stylesheet_directory') {
-		echo "rw-content/templates/$TemplateName/";
+		echo "rw-content/templates/$TemplateName";
 	} else if($arg == 'name') {
 		echo RW_SITE_TITLE;
 	} else {
