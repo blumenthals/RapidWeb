@@ -74,6 +74,24 @@ function dynamic_sidebar($n) {
 	}
 }
 
+if(!function_exists('wp_footer')) {
+function wp_footer() {
+}
+}
+
+function wp_head() {
+}
+
+function get_search_form() { ?>
+	<form role='search' action='<?php echo $_SERVER['PHP_SELF']; ?>' method='get' id="searchform">
+		<div><label class="screen-reader-text" for="s">Search for:</label>
+			<input type="text" value="" name="s" id="s" />
+			<input type='hidden' name='searchtype' value='full' />
+			<input type="submit" id="searchsubmit" value="Search" />
+		</div>
+	</form>     
+<?php }
+
 define('ABSPATH', realpath(dirname(__FILE__)."/../"));
 
 ?>

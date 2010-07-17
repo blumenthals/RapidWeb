@@ -18,10 +18,10 @@
 	}
 
    // Allow choice of submit buttons to determine type of search:
-   if (isset($searchtype) && ($searchtype == 'full'))
-      $full = $searchstring;
-   elseif (isset($searchstring))     // default to title search
-      $search = $searchstring;
+   if (isset($_REQUEST['searchtype']) && ($_REQUEST['searchtype'] == 'full'))
+      $full = $_REQUEST['s'];
+   elseif (isset($_REQUEST['s']))     // default to title search
+      $search = $_REQUEST['s'];
 
    if (isset($_REQUEST['edit']) && defined('WIKI_ADMIN')) {
       $edit = $_REQUEST['edit'];
@@ -35,11 +35,9 @@
    } elseif (isset($_REQUEST['copy']) && defined('WIKI_ADMIN')) {
       $links = $_REQUEST['copy'];
       include "rw-includes/editpage.php";
-   } elseif (isset($_REQUEST['search'])) {
-      $search = $_REQUEST['search'];
+   } elseif (isset($search)) {
       include "rw-includes/search.php";
-   } elseif (isset($_REQUEST['full'])) {
-      $full = $_REQUEST['full'];
+   } elseif (isset($full)) {
       include "rw-includes/fullsearch.php";
    } elseif (isset($_REQUEST['post']) && defined('WIKI_ADMIN')) {
       $post = $_REQUEST['post'];
