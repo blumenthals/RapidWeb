@@ -12,4 +12,6 @@
 	$mysql_db = 'user_rw';
 	$TemplateName = 'default';
 
+//	define('RW_CONTACT_EMAIL', 'admin@rapidweb.info');
+
 ?>
