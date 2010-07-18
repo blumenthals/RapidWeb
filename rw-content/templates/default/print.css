@@ -1,0 +1,7 @@
+body {
+	background: white;
+}
+
+.menu, .sub-menu, .rw-menu, .controls {
+	display: none
+}
