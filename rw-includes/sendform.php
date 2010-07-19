@@ -8,7 +8,7 @@
 		$message .= "$k: $v\n";
 	}
 
-	mail(RW_CONTACT_EMAIL, 'Form from your RapidWeb site', $message);
+	mail(RW_CONTACT_EMAIL, ($_REQUEST['formname'] ? $_REQUEST['formname']." ": "").'Form from your RapidWeb site', $message);
 
 	if(isset($_REQUEST['after'])) {
 		$after = $_REQUEST['after'];
