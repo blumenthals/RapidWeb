@@ -55,5 +55,5 @@
       $pagehash["author"] = '';
    }
 
-   GeneratePage('EDITPAGE', $textarea, $pagename, $pagehash);   
+   GeneratePage('EDITPAGE', htmlspecialchars($textarea), $pagename, $pagehash);   
 ?>
