@@ -10,18 +10,18 @@
 <meta name="language" 		content="en-us">
 <meta name="Classification" content="">
 
-<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>rollovers.js"></script>
-<link href="<?php bloginfo('template_directory'); ?>style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
+<link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body onLoad="MM_preloadImages('/rw-global/images/edit/edit-over.gif','/rw-global/images/edit/delete-over.gif','/rw-global/images/edit/backup-over.gif','/rw-global/images/edit/upload-over.gif','/rw-global/images/edit/meta_tags-over.gif','/rw-global/images/edit/logout-over.gif')">
 <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="center" valign="top"><table width="775" height="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td height="154" colspan="2" align="left" valign="middle"><h1><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>images/logo-orange.gif" hspace="8" border=0 align="absmiddle"></a> <span class="headertitle">###PAGE###</span></h1></td>
+          <td height="154" colspan="2" align="left" valign="middle"><h1><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/images/logo-orange.gif" hspace="8" border=0 align="absmiddle"></a> <span class="headertitle">###PAGE###</span></h1></td>
         </tr>
         <tr>
-          <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>/images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr class='controls'>
                 <td height="76" align="right" valign="middle">
                 ###IF:ADMIN###
@@ -48,10 +48,10 @@
               <tr>
                 <td width="175" class='menu' valign="top"><table width="175" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>images/menutop.gif" width="175" height="43"></td>
+                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menutop.gif" width="175" height="43"></td>
                     </tr>
                     <tr>
-                      <td background="<?php bloginfo('template_directory'); ?>images/menubg.gif">
+                      <td background="<?php bloginfo('template_directory'); ?>/images/menubg.gif">
                         <ul class='rw-menu'>
                           <li><a href="###SCRIPTURL###?home">Home</a></li>
                           <li><a href="###SCRIPTURL###?ContactUs">Contact Us</a></li>
@@ -66,7 +66,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>images/menubottom.gif" width="175" height="43"><br>
+                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menubottom.gif" width="175" height="43"><br>
                         <span class="addtlinfo">Last Edited:<br>
                         ###LASTMODIFIED### by ###LASTAUTHOR###<br>
                         <br>
