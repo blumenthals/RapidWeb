@@ -5,7 +5,7 @@ body {
 	background-repeat: repeat-x;
 	margin-top: 0px;
 	/* background-image: url(images/edit/editpgbg.gif); */
-	background-image: url(/rw-global/images/browse-default/bg.gif);
+	background-image: url(images/bg.gif);
 	margin-left: 0px;
 	margin-right: 0px;
 	margin-bottom: 0px;
@@ -54,18 +54,24 @@ body, td, th {
 	cursor:hand;
 	cursor:pointer;
 }
-.menu, .menu a:link, .menu a:visited, .menu a:active {
+.rw-menu, .rw-menu a:link, .rw-menu a:visited, .rw-menu a:active {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 14px;
+	font-size: 12px;
 	font-weight: bold;
 	color: #003366;
 	line-height: 30px;
-	padding-left: 5px;
 	text-decoration: none;
 }
-.menu a:hover {
+ul.rw-menu, ul.rw-menu li {
+	list-style-type: none;
+	padding-left: 5px;
+	border-bottom: 1px solid #edd ;
+}
+.rw-menu {
+	width: 150px;
+}
+.rw-menu a:hover {
 	color: #C9500D;
-	font-size: 15px;
 	text-decoration: none;
 }
 .bodycopy {

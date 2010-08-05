@@ -1,27 +1,27 @@
+<!doctype html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>###PAGE###</title>
 <meta name="description" 	content="###META###">
 <meta name="keywords" 	 	content="###METAKEYWORDS###">
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <meta name="author" 		content="Blumenthals.com">
 <meta name="copyright" 		content="">
 <meta name="language" 		content="en-us">
 <meta name="Classification" content="">
 
-<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>rollovers.js"></script>
-<link href="<?php bloginfo('template_directory'); ?>style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
+<link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body onLoad="MM_preloadImages('/rw-global/images/edit/edit-over.gif','/rw-global/images/edit/delete-over.gif','/rw-global/images/edit/backup-over.gif','/rw-global/images/edit/upload-over.gif','/rw-global/images/edit/meta_tags-over.gif','/rw-global/images/edit/logout-over.gif')">
 <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="center" valign="top"><table width="775" height="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td height="154" colspan="2" align="left" valign="middle"><h1><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>images/logo-orange.gif" hspace="8" border=0 align="absmiddle"></a> <span class="headertitle">###PAGE###</span></h1></td>
+          <td height="154" colspan="2" align="left" valign="middle"><h1><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/images/logo-orange.gif" hspace="8" border=0 align="absmiddle"></a> <span class="headertitle">###PAGE###</span></h1></td>
         </tr>
         <tr>
-          <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>/images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr class='controls'>
                 <td height="76" align="right" valign="middle">
                 ###IF:ADMIN###
@@ -29,18 +29,22 @@
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
                         <td>
-                        <a onClick="window.open('upload/upload.cgi','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','/rw-global/images/edit/upload-over.gif',1)"><img src="/rw-global/images/edit/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
-                        <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','/rw-global/images/edit/meta_tags-over.gif',1)"><img src="/rw-global/images/edit/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
+                          <!--<a href="#" onclick="changeid()" onmouseover="MM_swapImage('edit2','','/rw-global/images/edit/element-over.gif',1)" onmouseout="MM_swapImgRestore()"><img src="/rw-global/images/edit/element.gif" alt="Edit Template Elements" name="edit2" border="0" id="edit2" /></a>-->
+                          <a href="###ADMINURL###?edit=###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit','','/rw-global/images/edit/edit-over.gif',1)"><img src="/rw-global/images/edit/edit.gif" alt="Edit Page" name="edit" border="0" id="edit" /></a>
+                          <a href="###ADMINURL###?remove=###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('delete','','/rw-global/images/edit/delete-over.gif',1)"><img src="/rw-global/images/edit/delete.gif" alt="Delete Page" name="delete" border="0"></a>
+                          <!--<a href="/cgi-bin/webdata_pro.pl" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('database','','/rw-global/images/edit/data-over.gif',1)"><img src="/rw-global/images/edit/data.gif" alt="Database" name="database" border="0"></a>-->
+                          <a href="index.php?###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('logout','','/rw-global/images/edit/logout-over.gif',1)"><img src="/rw-global/images/edit/logout.gif" alt="Logout" name="logout" border="0"></a>
+                        </td>
                         <td align="right">
-                        <a href="###ADMINURL###?edit=###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit','','/rw-global/images/edit/edit-over.gif',1)"><img src="/rw-global/images/edit/edit.gif" alt="Edit Page" name="edit" border="0"></a>
-                        <a href="###ADMINURL###?remove=###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('delete','','/rw-global/images/edit/delete-over.gif',1)"><img src="/rw-global/images/edit/delete.gif" alt="Delete Page" name="delete" border="0"></a>
-                        <a href="###ADMINURL###?BackUp" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('backup','','/rw-global/images/edit/backup-over.gif',1)"><img src="/rw-global/images/edit/backup.gif" alt="Backup Pages" name="backup" border="0"></a>
-                        <!--<a href="/cgi-bin/webdata_pro.pl" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('database','','/rw-global/images/edit/data-over.gif',1)"><img src="/rw-global/images/edit/data.gif" alt="Database" name="database" border="0"></a>-->
-                        <a href="index.php?###PAGEURL###" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('logout','','/rw-global/images/edit/logout-over.gif',1)"><img src="/rw-global/images/edit/logout.gif" alt="Logout" name="logout" border="0"></a>                        </td>
+                          <!--<a onClick="window.open('/rapidflip/admin/','RapidFlip_Administration',' width=680, height=600, resizable=yes,scrollbars=1')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('rapidflip','','/rw-global/images/edit/admin_flip-over.gif',1)"><img src="rw-global/images/edit/admin_flip.gif" alt="RapidFlip" name="rapidflip" border="0"></a>-->
+                          <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','/rw-global/images/edit/meta_tags-over.gif',1)" style="cursor: hand;"><img src="/rw-global/images/edit/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" border="0"></a>
+                          <a href="###ADMINURL###?BackUp" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('backup','','/rw-global/images/edit/backup-over.gif',1)"><img src="/rw-global/images/edit/backup.gif" alt="Backup Pages" name="backup" border="0" /></a>
+                        </td>
                       </tr>
                     </table>
-                </form>
-                ###ENDIF:ADMIN###
+                  </form>
+                  <hr noshade>
+                  ###ENDIF:ADMIN###
                 </td>
               </tr>
             </table>
@@ -48,10 +52,10 @@
               <tr>
                 <td width="175" class='menu' valign="top"><table width="175" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>images/menutop.gif" width="175" height="43"></td>
+                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menutop.gif" width="175" height="43"></td>
                     </tr>
                     <tr>
-                      <td background="<?php bloginfo('template_directory'); ?>images/menubg.gif">
+                      <td background="<?php bloginfo('template_directory'); ?>/images/menubg.gif">
                         <ul class='rw-menu'>
                           <li><a href="###SCRIPTURL###?home">Home</a></li>
                           <li><a href="###SCRIPTURL###?ContactUs">Contact Us</a></li>
@@ -66,7 +70,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>images/menubottom.gif" width="175" height="43"><br>
+                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menubottom.gif" width="175" height="43"><br>
                         <span class="addtlinfo">Last Edited:<br>
                         ###LASTMODIFIED### by ###LASTAUTHOR###<br>
                         <br>
