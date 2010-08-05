@@ -55,17 +55,17 @@ body {
             <td height="183" colspan="3" valign="top"><label for=default_title> <br>
               Default Page Title</label>
               :<br>
-              <input name=default_title type=text value='<? echo $settings['default_title'] ?>' size="60">
+              <input name=default_title type=text value='<?php echo $settings['default_title'] ?>' size="60">
               <br>
               <br>
               <label for=default_meta_description> Default Meta Description</label>
               :<br>
-              <textarea name=default_meta_description cols=60><? echo $settings['default_meta_description'] ?></textarea>
+              <textarea name=default_meta_description cols=60><?php echo $settings['default_meta_description'] ?></textarea>
               <br>
               <br>
               <label for=default_meta_keywords> Default Meta Keywords</label>
               :<br>
-              <textarea type=text name=default_meta_keywords cols=60><? echo $settings['default_meta_keywords'] ?></textarea>
+              <textarea type=text name=default_meta_keywords cols=60><?php echo $settings['default_meta_keywords'] ?></textarea>
               </br>
             </td>
           </tr>
