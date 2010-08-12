@@ -26,6 +26,8 @@
       SetWikiPageLinks($dbi, $pagename, $linklist)
    */
 
+	define('RAPIDWEB_DB_VERSION', 1);
+
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
 
@@ -46,8 +48,76 @@
       }
       $dbi['dbc'] = $dbc;
       $dbi['table'] = $dbname;
+
+	$db_version = rw_db_get_version();
+
+	if($db_version < RAPIDWEB_DB_VERSION) {
+		echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
+		do {
+			$last = $db_version;
+			$func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
+			if(function_exists($func)) {
+				call_user_func('rw_upgrade_database_'.$db_version.'_'.($db_version + 1));
+				$db_version = rw_db_get_version();
+				if($db_version == $last) die("Upgrade failed, version still at $db_version");
+			} else {
+				die("Can't upgrade database");
+			}
+		} while($db_version < RAPIDWEB_DB_VERSION);
+		die("Database now at $db_version");
+	}
+
       return $dbi;
    }
+
+	function rw_db_get_version() {
+		$db_version = -1;
+
+		if($r = mysql_query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'")) {
+			$row = mysql_fetch_assoc($r);
+			if($row) {
+				$db_version = $row['value'];
+			} else {
+				$db_version = 0;
+			}
+		} else {
+			$e = mysql_error();
+			if(preg_match("/doesn't exist/", $e)) {
+				$db_version = 0;
+			} else {
+				die("Database error: $e");
+			}
+		}
+		return $db_version;
+	}
+   function rw_upgrade_database_0_1() {
+	rw_db_canexist(rw_db_query("CREATE TABLE rapidwebinfo (name  varchar(32) not null primary key, value text)"));
+	rw_db_query("REPLACE INTO rapidwebinfo (name, value) VALUES ('db_version', 0)");
+	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `title` text"));
+	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `keywords` text"));
+	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `meta` text"));
+	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `meta` text"));
+	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `title` text"));
+	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `keywords` text"));
+	rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 1)");
+   }
+
+   function rw_db_query($sql) {
+	if(!$r = mysql_query($sql)) echo("Query failed (".mysql_error()."): $sql");
+	return $r;
+   }
+
+	function rw_db_canexist($result) {
+		if(!$result) {
+			if(preg_match("/Duplicate column name/", mysql_error()) || preg_match("/Table.*already exists/", mysql_error())) {
+				return $result;
+			} else {
+				die(mysql_error());
+			}
+		} else {
+			return $result;
+		}	
+	}
 
 
    function CloseDataBase($dbi) {
