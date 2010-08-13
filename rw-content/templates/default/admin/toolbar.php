@@ -3,10 +3,10 @@
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
       <td>
-        <?php include 'admin/toolbar-left.php' ?>
+        <?php include 'toolbar-left.php' ?>
       </td>
       <td align="right">
-        <?php include 'admin/toolbar-right.php' ?>
+        <?php include 'toolbar-right.php' ?>
       </td>
     </tr>
   </table>
