@@ -38,8 +38,31 @@ function add_action($name, $args) {
 	// Not supported yet
 }
 
-function get_template_part($slug, $name) {
-	die('not implemented');
+function get_template_part($slug, $name = false) {
+	global $TemmplateName;
+	$try = array();
+	$templates = array($TemplateName, 'default');
+	
+	if($name) {
+		array_push($try, $slug."-".$name.".php");
+	}
+	array_push($try, $slug.".php");
+	if($template = rw_find_template($templates, $try)) {
+		require($template);
+	} else  {
+		die("Could not load template part");
+	}
+}
+
+function rw_find_template($templates, $names) {
+	foreach($templates as $template) {
+		foreach($names as $name ) {
+			if(file_exists($f = 'rw-content/templates/'.$template.'/'.$name)) {
+				return $f;
+			}
+		}
+	}
+	return false;
 }
 
 function wp_nav_menu($args) {
