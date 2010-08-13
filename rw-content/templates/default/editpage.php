@@ -6,7 +6,7 @@
 <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
 <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
 </head>
-<body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('/rw-global/images/edit/upload-over.gif','/rw-global/images/edit/arrow-over.gif','/rw-global/images/edit/meta_tags-over.gif')">
+<body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif')">
 <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="center" valign="top"><table width="775" border="0" cellspacing="0" cellpadding="0">
@@ -14,13 +14,13 @@
           <td><form method="POST" action="###SCRIPTURL###">
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td width="26%" height="155" align="left" valign="middle"><a href="###SCRIPTURL###"><img src="/rw-global/images/edit/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
+                  <td width="26%" height="155" align="left" valign="middle"><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
                   <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Edit ###PAGEURL###</span></h1></td>
                 </tr>
                 <tr>
                   <td height="60" colspan="2">
-                  <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','/rw-global/images/edit/upload-over.gif',1)"><img src="/rw-global/images/edit/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
-                  <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','/rw-global/images/edit/meta_tags-over.gif',1)"><img src="/rw-global/images/edit/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a></td> 
+                  <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
+                  <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a></td> 
                   <td width="55%" align="right"><input type="submit" value=" Save "><br>
                     <input type="button" value="Cancel" onClick="history.go(-1)" name="back2"></td>
                 </tr>
@@ -65,7 +65,7 @@
             //5) Instance.defaultExpanded(indices)- Sets contents that should be expanded by default (ie: 0, 1). Persistence feature overrides this setting!
             //6) Instance.init() REQUIRED
             var advancedediting=new switchcontent("switchgroup2", "div") //Limit scanning of switch contents to just "div" elements
-            advancedediting.setStatus('<img src="/rw-global/images/edit/arrow-over.gif" align="absmiddle"/> Less Page Settings', '<img src="/rw-global/images/edit/arrow-down.gif" align="absmiddle"/> More Page Settings (Meta Tags, Variables, Template)')
+            advancedediting.setStatus('<img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif" align="absmiddle"/> Less Page Settings', '<img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-down.gif" align="absmiddle"/> More Page Settings (Meta Tags, Variables, Template)')
             advancedediting.setColor('000000', 'c54808')
             advancedediting.setPersist(false)
             advancedediting.collapsePrevious(true) //Only one content open at any given time
@@ -130,14 +130,14 @@
                 <td valign="top" bgcolor="#f6f4e7" class="editing"><p>[http://www.blumenthals.com/<br>
                     images/upload/logo2.gif]<br>
                   </p></td>
-                <td valign="top" bgcolor="#f6f4e7" class="editing"><img src="/rw-global/images/edit/logo1.gif" width="172" height="41"></td>
+                <td valign="top" bgcolor="#f6f4e7" class="editing"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo1.gif" width="172" height="41"></td>
               </tr>
               <tr>
                 <td width="70" valign="top" class="style1">Advanced Image:</td>
                 <td valign="top" class="editing">Use standard html markup. By changing the align value from right to left you can adjust the placement. Adding an alt value will allow the image to be picked up by search engines &amp; screen readers (for the impaired) (NOTE: there are no linebreaks)</td>
                 <td valign="top" class="editing">|&lt;img src =http://www.blumenthals.com/<br>
                   images/upload/logo3.gif align=&quot;right&quot; alt=&quot;RapidWeb&quot;&gt;</td>
-                <td valign="top" class="editing"><img src="/rw-global/images/edit/logo2.gif" alt="RapidWeb" width="174" height="59" align="right"></td>
+                <td valign="top" class="editing"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo2.gif" alt="RapidWeb" width="174" height="59" align="right"></td>
               </tr>
               <tr>
                 <td width="70" valign="top" bgcolor="#f6f4e7" class="editing"><strong>Links:</strong></td>
@@ -207,16 +207,16 @@
                     If you would like to use several lines of html, preceed the block with STARTHTML and end the block with ENDHTML <br>
                     <br>
                     (NOTE: there are no linebreaks)</td>
-                  <td width="200" valign="top" class="editing"><p>|&lt;img src=&quot;/rw-global/images/edit/logo2.gif&quot; width=&quot;172&quot; height=&quot;41&quot;&gt;</p>
+                  <td width="200" valign="top" class="editing"><p>|&lt;img src=&quot;<?php bloginfo('template_directory'); ?>/../default/admin/logo2.gif&quot; width=&quot;172&quot; height=&quot;41&quot;&gt;</p>
                     <p><br>
                       STARTHTML<br>
-                      &lt;img src=&quot;/rw-global/images/edit/logo2.gif&quot; width=&quot;172&quot; height=&quot;41&quot;&gt;<br>
-                      &lt;img src=&quot;/rw-global/images/edit/logo3.gif&quot; width=&quot;174&quot; height=&quot;59&quot;&gt;<br>
+                      &lt;img src=&quot;<?php bloginfo('template_directory'); ?>/../default/admin/logo2.gif&quot; width=&quot;172&quot; height=&quot;41&quot;&gt;<br>
+                      &lt;img src=&quot;<?php bloginfo('template_directory'); ?>/../default/admin/logo3.gif&quot; width=&quot;174&quot; height=&quot;59&quot;&gt;<br>
                       ENDHTML</p></td>
-                  <td width="200" valign="top" class="editing"><img src="/rw-global/images/edit/logo1.gif" width="172" height="41"><br>
+                  <td width="200" valign="top" class="editing"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo1.gif" width="172" height="41"><br>
                     <br>
-                    <img src="/rw-global/images/edit/logo1.gif" width="172" height="41"><br>
-                    <img src="/rw-global/images/edit/logo2.gif" width="174" height="59"></td>
+                    <img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo1.gif" width="172" height="41"><br>
+                    <img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo2.gif" width="174" height="59"></td>
                 </tr>
                 <tr>
                   <td width="70" valign="top" bgcolor="#f6f4e7" class="editing"><strong>Indented Paragraphs:</strong></td>
@@ -253,7 +253,7 @@
             //5) Instance.defaultExpanded(indices)- Sets contents that should be expanded by default (ie: 0, 1). Persistence feature overrides this setting!
             //6) Instance.init() REQUIRED
             var advancedediting=new switchcontent("switchgroup1", "div") //Limit scanning of switch contents to just "div" elements
-            advancedediting.setStatus('<img src="/rw-global/images/edit/arrow-over.gif" align="absmiddle"/> Less Editing Techniques', '<img src="/rw-global/images/edit/arrow-down.gif" align="absmiddle"/> More Editing Techniques')
+            advancedediting.setStatus('<img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif" align="absmiddle"/> Less Editing Techniques', '<img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-down.gif" align="absmiddle"/> More Editing Techniques')
             advancedediting.setColor('000000', 'c54808')
             advancedediting.setPersist(false)
             advancedediting.collapsePrevious(true) //Only one content open at any given time
