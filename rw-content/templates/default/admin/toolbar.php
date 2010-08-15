@@ -3,5 +3,5 @@
 	<div style='float: left'> <?php include 'toolbar-left.php' ?> </div>
 	<div style='float: right'> <?php include 'toolbar-right.php' ?> </div>
 </div>
-<hr noshade>
+<hr noshade style='clear:both'>
 <?php endif; ?>
