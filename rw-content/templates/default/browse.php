@@ -59,7 +59,7 @@
                         ###RELATEDPAGES###</span></td>
                     </tr>
                   </table></td>
-                <td valign="top" class="bodycopy">###CONTENT###</td>
+                <td valign="top" class="bodycopy" align='left'>###CONTENT###</td>
               </tr>
             </table></td>
         </tr>
