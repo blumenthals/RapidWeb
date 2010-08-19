@@ -10,10 +10,14 @@
    class Parser {
       private $pagehash;
       private $stack;
+      private $nforms;
 
       function __construct($pagehash) {
          $this->pagehash = $pagehash;
+         $this->tagdata["emailform"] = array(array($this, 'StartEmailForm'), "</form>");
+         $this->nforms = 0;
       }
+
       // expects $pagehash and $html to be set
       function tokenize($str, $pattern, &$orig) {
          global $FieldSeparator;
@@ -37,22 +41,31 @@
          "column" => array("<td class='rw-column'>", "</td>"),
          "table" => array("<table>", "</table>"), 
          "tr" => array("<tr>", "</tr>"),
-         "td" => array("<td>", "</td>")
+         "td" => array("<td>", "</td>"),
       );
 
-   function AddOutputWrapper($tag) {
-      $d = $this->tagdata[$tag];
+   function AddOutputWrapper($tag, $data = null) {
+      if(is_array($this->tagdata[$tag][0])) {
+         $o = call_user_func($this->tagdata[$tag][0], $data);
+      } else {
+         $d = $this->tagdata[$tag];
+         $o = $d[0];
+      }
 
       $this->tagstack[] = $tag;
-      return($d[0]);
+      return($o);
    }
 
-   function CloseOutputWrapper($tag) {
+   function CloseOutputWrapper($tag, $data = null) {
       $d = $this->tagdata[$tag];
 
       $o = '';
       while($t = array_pop($this->tagstack)) {
-         $d = $this->tagdata[$t];
+         if(is_array($this->tagdata[$t][1])) {
+           $o .= call_user_func($this->tagdata[$t][1], $data);
+         } else {
+           $d = $this->tagdata[$t];
+         }
          $o .= $d[1];
          if($t == $tag) break;
       }
@@ -61,6 +74,20 @@
 
    function InOutputWrapper($tag) {
       return in_array($tag, $this->tagstack);
+   }
+
+   function StartEmailForm($matches) {
+      $err = '';
+      $args = rw_parse_intent($matches[1]);
+      if(!$args['to'] && !defined('RW_CONTACT_EMAIL')) {
+         $err = 'This form has nobody to receive it';
+      }
+      $args = array();
+      $args['sendform'] = 1;
+      $args['frompage'] = $this->pagehash['pagename'];
+      $args['formno'] = $this->nforms++;
+      $args = rw_make_query_string($args);
+      return "$err<form action='{$_SERVER['PHP_SELF']}?$args' method=POST>";
    }
 
    function StartLinks($tmpline) {
@@ -204,6 +231,12 @@
       } elseif (preg_match("/^END\s*COLUMNS.*/", $tmpline, $matches)) {
          $html .= $this->CloseOutputWrapper("columns");
          continue;
+      } elseif (preg_match("/^EMAIL\s*FORM\s*(.*)/", $tmpline, $matches)) {
+         $html .= $this->AddOutputWrapper('emailform', $matches);
+         continue;
+      } elseif (preg_match("/^END\s*EMAIL\s*FORM.*/", $tmpline, $matches)) {
+         $html .= $this->CloseOutputWrapper('emailform', $matches);
+         continue;
       }
 
       if (preg_match("/^START\s*TABLE(.*)/", $tmpline, $matches)) {
@@ -225,13 +258,13 @@
       }
 
 		//Block HTML
-		if (preg_match("/^STARTHTML.*/", $tmpline, $matches)) {
+		if (preg_match("/^START\s*HTML.*/", $tmpline, $matches)) {
 			$htmlmode = true;
 			continue;	
 		}
 
 		elseif ($htmlmode == true) {
-			if (preg_match("/ENDHTML.*/", $tmpline, $matches)) {
+			if (preg_match("/END\s*HTML.*/", $tmpline, $matches)) {
 				$htmlmode = false;
 				continue;
 			}

@@ -351,4 +351,41 @@
        }
    }
 
+   function rw_make_query_string($args) {
+      $o = array();
+      foreach($args as $k => $v) {
+         $o[] = "$k=$v";
+      }
+      return join('&', $o);
+   }
+
+   function rw_parse_intent($line) {
+      $o = array();
+      $expect = 'key';
+      $key = '';
+      $value = '';
+      $item = '';
+      while(!empty($line)) {
+         if(preg_match('/^\s*"([^"]+)"/', $line, $matches)) {
+            $item = $matches[1];
+         } elseif(preg_match('/^\s*([^[:space:]]+)/', $line, $matches)) {
+            $item = $matches[1];
+         } elseif(preg_match('/^\s+/', $line, $matches)) {
+         } else {
+            echo "Can't figure out what you meant at ".htmlspecialchars($line);
+            return array();
+         }
+         $line = substr($line, strlen($matches[0]));
+         if($expect == 'key') {
+            $expect = 'value';
+            $key = $item;
+         } elseif($expect == 'value') {
+            $expect = 'key';
+            $value = $item;
+            $o[$key] = $value;
+         }
+      }
+      return $o;
+   }
+
 ?>
