@@ -1,5 +1,7 @@
 <?php 
 	require('../rw-config.php'); 
+	require('../rw-includes/stdlib.php'); 
+	require('../rw-includes/wp-compat.php'); 
 	require('require-authentication.php'); 
 ?>
 <html>
@@ -17,7 +19,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(/rw-global/images/edit/editpgbg.gif);
+	background-image: url(../<?php bloginfo('template_directory'); ?>/../default/admin/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -37,7 +39,7 @@ body {
 <form method='POST' enctype='multipart/form-data'>
         <table width="500" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="187" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+            <td width="187" height="154"><img src="../<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
             <td colspan="2" align="right"><h1 class="style1">File &amp; Image<br>Upload Page</h1></td>
           </tr>
 <?php
