@@ -17,6 +17,12 @@
 		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);
 	}
 
+   // Backward Compatibility
+   if(isset($_REQUEST['full'])) {
+      $_REQUEST['searchtype'] = 'full';
+      $_REQUEST['s'] = $_REQUEST['full'];
+   }
+
    // Allow choice of submit buttons to determine type of search:
    if (isset($_REQUEST['searchtype']) && ($_REQUEST['searchtype'] == 'full'))
       $full = $_REQUEST['s'];
