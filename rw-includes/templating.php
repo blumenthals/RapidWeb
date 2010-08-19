@@ -22,7 +22,7 @@ require('rw-includes/wp-compat.php');
       return $o;
    }
 
-function GeneratePage($template, $content, $name, $hash) {
+function GeneratePage($template, $content, $name, $hash, $return = false) {
 	global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
 	global $datetimeformat, $dbi, $logo, $FieldSeparator;
 
@@ -110,7 +110,11 @@ function GeneratePage($template, $content, $name, $hash) {
 	//Sytax is PAGECONTENT(PAGENAME[, tagcontext])
 	$page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', '_pagecontent', $page);
 	_dotoken('CONTENT', $content, $page, $FieldSeparator);
-	print $page;
+	if($return) {
+		return $page;
+	} else {
+		print $page;
+	}
 }
 
 	define('TEMPLATEFSBASE', realpath(dirname(__FILE__))."/../rw-content/templates/");
@@ -126,6 +130,17 @@ function GeneratePage($template, $content, $name, $hash) {
 	);
 
 define('RAPIDWEB', true);
+
+function rw_apply_template() {
+	$content = ob_get_contents();
+	ob_end_clean();
+	GeneratePage($GLOBALS['RW_TEMPLATE_ARGS'][0], $content, $GLOBALS['RW_TEMPLATE_ARGS'][1], array());
+}
+
+function rw_template($template, $name) {
+	$GLOBALS['RW_TEMPLATE_ARGS'] = array($template, $name);
+	ob_start();
+}
 
 if($templates['functions.php']) include($templates['functions.php']);
 
