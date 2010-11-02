@@ -58,7 +58,7 @@
    } elseif (isset($_REQUEST['sendform'])) {
       include "rw-includes/sendform.php";
    } else {
-      include "rw-includes/display.php"; // defaults to FrontPage
+      include "rw-includes/display.php"; // defaults to 'home'
    }
 
    CloseDataBase($dbi);
