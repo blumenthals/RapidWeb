@@ -1,16 +1,13 @@
-# DirectoryIndex index.php
-
 ErrorDocument 401 /index.php?401-AuthorizationRequired
 ErrorDocument 403 /index.php?403-Restricted
 ErrorDocument 404 /index.php?404-FileNotFound
 ErrorDocument 500 /index.php?500-ServerError
 
 Options +FollowSymlinks
+RewriteEngine On
+RewriteCond %{HTTP_HOST} !^www\.csi-janitorial\.com [NC]
+RewriteCond %{HTTP_HOST} !^$
+RewriteRule ^(.*)$ http://www.csi-janitorial.com/$1 [r=301,nc]
 
-# RewriteEngine On
-# RewriteCond %{HTTP_HOST} !^www\.website\.com [NC]
-# RewriteCond %{HTTP_HOST} !^$
-# RewriteRule ^(.*)$ http://www.website.com/$1 [r=301,nc]
-# RewriteRule ^(.*)$ "http\:\/\/www\.website\.com\/" [R=301,L]
-
-PHP_Value register_globals On
+RewriteCond %{QUERY_STRING} (^home$|^$)
+RewriteRule index.php /? [R=301]
