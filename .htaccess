@@ -5,3 +5,5 @@ ErrorDocument 500 /index.php?500-ServerError
 
 Options +FollowSymlinks
 RewriteEngine On
+
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
