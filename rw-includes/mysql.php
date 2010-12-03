@@ -169,7 +169,7 @@
    {
       if (!isset($pagehash["flags"]))
          $pagehash["flags"] = 0;
-      $pagehash["content"] = implode("\n", $pagehash["content"]);
+      $pagehash["content"] = implode("\n", $pagehash['content']);
       if (!isset($pagehash["refs"]))
          $pagehash["refs"] = array();
       $pagehash["refs"] = serialize($pagehash["refs"]);
