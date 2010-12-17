@@ -5,7 +5,7 @@
    // if we got GET data, the first item is always a page name
    // if it wasn't this file would not have been included
 
-   if (!empty($_SERVER['argv'][0])) {
+   if (!empty($_SERVER['QUERY_STRING'])) {
       $args = explode('&', rawurldecode($_SERVER['argv'][0]));
       if(!strstr($args[0], '=')) $pagename = $args[0];
    }

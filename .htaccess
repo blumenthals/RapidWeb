@@ -5,9 +5,5 @@ ErrorDocument 500 /index.php?500-ServerError
 
 Options +FollowSymlinks
 RewriteEngine On
-RewriteCond %{HTTP_HOST} !^www\.csi-janitorial\.com [NC]
-RewriteCond %{HTTP_HOST} !^$
-RewriteRule ^(.*)$ http://www.csi-janitorial.com/$1 [r=301,nc]
 
-RewriteCond %{QUERY_STRING} (^home$|^$)
-RewriteRule index.php /? [R=301]
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
