@@ -4,6 +4,10 @@
 		var el = document.createElement('script')
 		el.src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'
 		document.getElementsByTagName('head').item(0).appendChild(el)
+		el.onload = function() {
+			jQuery.noConflict()
+			jQuery('.rw-edit-element').hide()
+		}
 	}
 </script>
 		
