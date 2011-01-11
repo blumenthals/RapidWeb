@@ -3,7 +3,7 @@
 	if($_REQUEST['frompage']) {
 		$page= RetrievePage($dbi, $_REQUEST['frompage'], 'wiki');
 		if(!$page) die('frompage not found');
-		if (preg_match_all("/^EMAIL\s*FORM\s*(.*)/", join("\n", $page['content']), $matches)) {
+		if (preg_match_all("/^EMAIL\s*FORM\s*(.*)$/m", join("\n", $page['content']), $matches)) {
 			if(isset($_REQUEST['formno'])) {
 				$line = $matches[1][(int)$_REQUEST['formno']];
 			} else {

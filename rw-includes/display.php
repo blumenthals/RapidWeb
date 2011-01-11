@@ -5,11 +5,12 @@
    // if we got GET data, the first item is always a page name
    // if it wasn't this file would not have been included
 
-   if (!empty($_SERVER['argv'][0])) {
-      list($pagename, $_) = explode('&', rawurldecode($_SERVER['argv'][0]));
-   } else { 
-      $pagename = gettext("home");
+   if (!empty($_SERVER['QUERY_STRING'])) {
+      $args = explode('&', rawurldecode($_SERVER['argv'][0]));
+      if(!strstr($args[0], '=')) $pagename = $args[0];
    }
+
+   if(!isset($pagename)) $pagename = gettext("home");
 
    $html = "";
    $enc_name = rawurlencode($pagename);
