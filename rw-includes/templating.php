@@ -10,7 +10,7 @@ require('rw-includes/wp-compat.php');
          if(strpos($e, 'browse') === 0) continue;
          if(strpos($e, 'editpage') === 0) continue;
          if(strpos($e, 'index') === 0) continue;
-         if(strpos($e, '.htm') === false) continue;
+         if(!preg_match('/\.html?$|\.php$/', $e)) continue;
          if("rw-content/templates/$TemplateName/".$e == $active) {
             $selected = ' selected="selected"';
          } else {
