@@ -18,10 +18,11 @@ function the_content() {
 
 function bloginfo($arg) {
 	global $templates, $TemplateName;
+	$myroot = dirname(str_replace($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT'], ''));
 	if($arg == 'template_directory') {
-		echo "rw-content/templates/$TemplateName";
+		echo $myroot."/rw-content/templates/$TemplateName";
 	} else if($arg == 'stylesheet_directory') {
-		echo "rw-content/templates/$TemplateName";
+		echo $myroot."/rw-content/templates/$TemplateName";
 	} else if($arg == 'name') {
 		echo RW_SITE_TITLE;
 	} else {
