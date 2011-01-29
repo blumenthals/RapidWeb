@@ -9,6 +9,7 @@
 <meta name="copyright" 		content="">
 <meta name="language" 		content="en-us">
 <meta name="Classification" content="">
+###METANOINDEX###
 
 <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
 <link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css">

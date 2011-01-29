@@ -64,6 +64,8 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
 	else
 	_dotoken('METAKEYWORDS', htmlspecialchars($hash['settings']['default_meta_keywords']), $page, $FieldSeparator);
 
+	_dotoken('NOINDEX', $hash['noindex'] ? 'checked="checked" ' : '', $page, $FieldSeparator);
+	_dotoken('METANOINDEX', $hash['noindex'] ? '<meta name="robots" content="noindex">' : '', $page, $FieldSeparator);
 
 	_dotoken('SCRIPTURL', $ScriptUrl, $page, $FieldSeparator);
 	_dotoken('ADMINURL', $AdminUrl, $page, $FieldSeparator);

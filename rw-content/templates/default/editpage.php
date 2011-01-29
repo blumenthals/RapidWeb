@@ -54,6 +54,9 @@
                     <td width="70" valign="top"><strong>Page Template </strong> </td>
                     <td><select name='template'>###TEMPLATESELECT###</select>                    </td>
                   </tr>
+                  <tr>
+                    <td width="70" valign="top"><strong>Don't Index This Page </strong> </td>
+                    <td><input type='checkbox' value='true' name='noindex' ###NOINDEX###></td></tr>
                 </table>
               </div>
             <script type="text/javascript">
