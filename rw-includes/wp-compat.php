@@ -19,6 +19,7 @@ function the_content() {
 function bloginfo($arg) {
 	global $templates, $TemplateName;
 	$myroot = dirname($_SERVER['SCRIPT_NAME']);
+        if($myroot == '/') $myroot = '';
 	if($arg == 'template_directory') {
 		echo $myroot."/rw-content/templates/$TemplateName";
 	} else if($arg == 'stylesheet_directory') {
