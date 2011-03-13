@@ -2,7 +2,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Edit: ###PAGEURL###</title>
-<script type="text/javascript" src="/rw-global/switchcontent.js"></script>
+<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/switchcontent.js"></script>
 <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
 <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
 </head>
@@ -54,6 +54,9 @@
                     <td width="70" valign="top"><strong>Page Template </strong> </td>
                     <td><select name='template'>###TEMPLATESELECT###</select>                    </td>
                   </tr>
+                  <tr>
+                    <td width="70" valign="top"><strong>Don't Index This Page </strong> </td>
+                    <td><input type='checkbox' value='true' name='noindex' ###NOINDEX###></td></tr>
                 </table>
               </div>
             <script type="text/javascript">

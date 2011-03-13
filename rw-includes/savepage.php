@@ -151,6 +151,9 @@
    } else {
       $pagehash['title'] = $_REQUEST['title'];
    }
+
+   $pagehash['noindex'] = $_REQUEST['noindex'] ? 1 : 0;
+
    if($settings['default_meta_keywords'] == $_REQUEST['metakeywords']) {
       $pagehash['keywords'] = null;
    } else {

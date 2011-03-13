@@ -14,7 +14,7 @@ body, td, th {
 	color: #FFFFFF;
 }
 body {
-	background-image: url(/rw-global/images/edit/editpgbg.gif);
+	background-image: url(<?php bloginfo('template_directory'); ?>/../default/admin/editpgbg.gif);
 	background-repeat: repeat-x;
 	margin-left: 0px;
 	margin-top: 0px;
@@ -40,7 +40,7 @@ body {
     <tr>
       <td align="center" valign="top"><table width="500" border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="197" height="154"><img src="/rw-global/images/edit/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
+            <td width="197" height="154"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" alt="Blumenthals RapidWeb" width="176" height="107"><br></td>
             <td colspan="2"><h1 class="style1">Edit Default<br>
                 Meta Tags</h1></td>
           </tr>
@@ -55,17 +55,17 @@ body {
             <td height="183" colspan="3" valign="top"><label for=default_title> <br>
               Default Page Title</label>
               :<br>
-              <input name=default_title type=text value='<?php echo $settings['default_title'] ?>' size="60">
+              <input name=default_title type=text value='<?php echo htmlspecialchars($settings['default_title'], ENT_QUOTES) ?>' size="60">
               <br>
               <br>
               <label for=default_meta_description> Default Meta Description</label>
               :<br>
-              <textarea name=default_meta_description cols=60><?php echo $settings['default_meta_description'] ?></textarea>
+              <textarea name=default_meta_description cols=60><?php echo htmlspecialchars($settings['default_meta_description'], ENT_QUOTES) ?></textarea>
               <br>
               <br>
               <label for=default_meta_keywords> Default Meta Keywords</label>
               :<br>
-              <textarea type=text name=default_meta_keywords cols=60><?php echo $settings['default_meta_keywords'] ?></textarea>
+              <textarea type=text name=default_meta_keywords cols=60><?php echo htmlspecialchars($settings['default_meta_keywords'], ENT_QUOTES) ?></textarea>
               </br>
             </td>
           </tr>

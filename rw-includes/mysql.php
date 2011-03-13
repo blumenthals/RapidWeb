@@ -26,7 +26,7 @@
       SetWikiPageLinks($dbi, $pagename, $linklist)
    */
 
-	define('RAPIDWEB_DB_VERSION', 6);
+	define('RAPIDWEB_DB_VERSION', 7);
 
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
@@ -142,7 +142,10 @@
 		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 6)");
 	}
 
-	function rw_upgrade_database_6_7() { }
+	function rw_upgrade_database_6_7() { 
+		rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
+		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 7)");
+	}
 
    function rw_db_query($sql) {
 	if(!$r = mysql_query($sql)) echo("Query failed (".mysql_error()."): $sql");
@@ -174,7 +177,7 @@
    {
       if (!isset($pagehash["flags"]))
          $pagehash["flags"] = 0;
-      $pagehash["content"] = implode("\n", $pagehash["content"]);
+      $pagehash["content"] = implode("\n", $pagehash['content']);
       if (!isset($pagehash["refs"]))
          $pagehash["refs"] = array();
       $pagehash["refs"] = serialize($pagehash["refs"]);
@@ -221,14 +224,15 @@
       $pagehash = MakeDBHash($pagename, $pagehash);
 
       $COLUMNS = "author, content, created, flags, " .
-                 "lastmodified, pagename, refs, version, title, meta, keywords, variables, template";
+                 "lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template";
 
 			$VALUES = array($pagehash[author], $pagehash[content],
 				$pagehash[created], $pagehash[flags], 
 				$pagehash[lastmodified], $pagehash[pagename], 
 				$pagehash[refs], $pagehash[version],
 				$pagehash[title], $pagehash[meta],
-				$pagehash[keywords], $pagehash[variables]);
+				$pagehash[keywords], $pagehash[variables],
+				$pagehash[noindex]);
 			if(isset($pagehash['template'])) {
 				array_push($VALUES, $pagehash[template]);
 			} else {
