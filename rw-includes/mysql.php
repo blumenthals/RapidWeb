@@ -26,7 +26,7 @@
       SetWikiPageLinks($dbi, $pagename, $linklist)
    */
 
-	define('RAPIDWEB_DB_VERSION', 6);
+	define('RAPIDWEB_DB_VERSION', 7);
 
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
@@ -136,9 +136,15 @@
 		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('BlumenthalsSupport', 1, 0, 'admin', 1222318661, 1222318661, '!!Blumenthals  Olean NY Web Hosting Support Options\n\nFor the quickest response post on our [Ticket Reporting System|http://tickets.blumenthals.com].\n\nWeb Hosting, Web Design, Email Support:%%%\n[Blumenthals  WebHosting, Web Design - Olean Office|http://www.blumenthals.com]%%%\n201 N Union St. Suite 317%%%\nOlean, NY 14760 %%%\n716-372-4008\n\nBilling & Invoicing Questions:%%%\nBlumenthals.com%%%\n6 Valleybrook Drive%%%\nBradford PA 16701%%%\n814-368-4057', 'a:0:{}', '', '', '', NULL, NULL)");
 		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 5)");
 	}
+
 	function rw_upgrade_database_5_6() {
-		rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
+		rw_db_query("UPDATE settings SET value = '' WHERE name = 'default_title' AND value = 'Blumenthals.com Rapidweb Website'"); 
 		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 6)");
+	}
+
+	function rw_upgrade_database_6_7() { 
+		rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
+		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 7)");
 	}
 
    function rw_db_query($sql) {

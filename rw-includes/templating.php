@@ -75,7 +75,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
 	elseif (strlen($hash['settings']['default_title']) > 1) {
 	 $title = str_replace('###', "$FieldSeparator#", htmlspecialchars($hash['settings']['default_title']));
 	  _dotoken('PAGE', $title, $page, $FieldSeparator);
-	} else
+	}
 	  _dotoken('PAGE', htmlspecialchars($name), $page, $FieldSeparator);
 
 	_dotoken('PAGENAME', htmlspecialchars($name), $page, $FieldSeparator);
