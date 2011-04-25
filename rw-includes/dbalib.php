@@ -139,7 +139,7 @@
          $page = $pos['key'];
          $pos['key'] = dba_nextkey($dbi['wiki']);
 
-         if (eregi($pos['search'], $page)) {
+         if (preg_match("/".preg_quote($pos['search'])."/i", $page)) {
             return $page;
          }
       }

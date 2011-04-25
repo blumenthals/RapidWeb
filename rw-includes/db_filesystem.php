@@ -124,7 +124,7 @@
    // iterating through database
    function TitleSearchNextMatch($dbi, &$pos) { 
       while (list($key, $page) = each($pos['data'])) {
-         if (eregi($pos['search'], $page)) {
+         if (preg_match("/".preg_quote($pos['search'])."/i", $page)) {
             return $page;
          }
       }
@@ -141,7 +141,7 @@
       global $WikiPageStore;
       while (list($key, $page) = each($pos['data'])) {
          $pagedata = RetrievePage($dbi, $page, $WikiPageStore);
-         if (eregi($pos['search'], serialize($pagedata))) {
+         if (preg_match("/".preg_quote($pos['search'])."/", serialize($pagedata))) {
 	        return $pagedata;
 		 }
 	  }
