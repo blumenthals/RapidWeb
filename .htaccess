@@ -6,18 +6,3 @@ ErrorDocument 500 /index.php?500-ServerError
 Options +FollowSymlinks
 
 RewriteEngine On
-
-RewriteCond %{HTTP_HOST} !^www\.mlfcu\.net$ [NC]
-RewriteRule (.*) http://www.mlfcu.net/$1 [R=301,NC,NE,QSA]
-
-RewriteCond %{QUERY_STRING} ^home$
-RewriteRule ^index.php$|^$ http://www.mlfcu.net/? [R=301]
-
-RewriteCond %{QUERY_STRING} ^$
-RewriteRule ^index.php$ http://www.mlfcu.net/ [R=301]
-
-RewriteRule ^index.htm$ http://www.mlfcu.net/ [R=301]
-
-#RewriteCond %{HTTP_HOST} !^www\.mlfcu\.net [NC]
-#RewriteCond %{HTTP_HOST} !^$
-#RewriteRule ^(.*)$ http://www.mlfcu.net/$1 [r=301,nc]
