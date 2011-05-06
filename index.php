@@ -1,4 +1,4 @@
-<?php
+<?php header('Content-Type: text/html; charset=UTF-8');
    /*
       The main page, i.e. the main loop.
       This file is always called first.
