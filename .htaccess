@@ -6,3 +6,13 @@ ErrorDocument 500 /index.php?500-ServerError
 Options +FollowSymlinks
 
 RewriteEngine On
+
+ExpiresActive on
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+<Files *.css>
+	Header add Vary Accept-Encoding
+</Files>
+<Files *.js>
+	Header add Vary Accept-Encoding
+</Files>

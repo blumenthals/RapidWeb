@@ -12,6 +12,14 @@ function the_post() {
 	$rw_have_posts = 0;
 }
 
+function is_admin() {
+	if(basename($_SERVER['SCRIPT_FILENAME']) == 'admin.php') {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function the_content() {
 	echo '###CONTENT###';
 }

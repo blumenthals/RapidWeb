@@ -10,6 +10,9 @@
 
    require('rw-admin/require-authentication.php');
 
+   $now = new DateTime("now", new DateTimeZone("GMT"));
+   header('Expires: '.$now->format(DateTime::RFC2822));
+
    // All requests require the database
    $dbi = OpenDataBase($WikiPageStore);
 
