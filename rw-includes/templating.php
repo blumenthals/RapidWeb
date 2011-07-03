@@ -22,6 +22,23 @@ require('rw-includes/wp-compat.php');
       return $o;
    }
 
+
+$_rw_head_funcs = array();
+
+function in_head($cb) use ($_rw_head_funcs) {
+	$rw_head_funcs[] = $cb;
+}
+
+function _dohead(&$page) use($_rw_head_funcs) {
+	list($top, $rest) = preg_split('/(?=<head)/i', $page, 2);
+	list($headtag, $rest) = preg_split('/>/', $rest, 2);
+	$top .= $headtag . '>';
+
+	$page = $top;
+	foreach($_rw_head_funcs as $f) $page .= call_user_func($f);
+	$page .= $rest;
+}
+
 function GeneratePage($template, $content, $name, $hash, $return = false) {
 	global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
 	global $datetimeformat, $dbi, $logo, $FieldSeparator;
@@ -112,6 +129,8 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
 	//Sytax is PAGECONTENT(PAGENAME[, tagcontext])
 	$page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', '_pagecontent', $page);
 	_dotoken('CONTENT', $content, $page, $FieldSeparator);
+
+	_dohead($page);
 	if($return) {
 		return $page;
 	} else {
