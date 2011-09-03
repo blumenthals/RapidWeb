@@ -98,11 +98,11 @@
 
 	if (!isset($ScriptUrl) || empty($ScriptUrl)) {
 		$port = ($_SERVER['SERVER_PORT'] == 80) ? '' : ":".$_SERVER['SERVER_PORT'];
-		$ScriptUrl = "http://".$_SERVER['SERVER_NAME']."$port".$_SERVER['SCRIPT_NAME'];
+		$proto = ($_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+		$ScriptUrl = "$proto://".$_SERVER['SERVER_NAME']."$port".$_SERVER['SCRIPT_NAME'];
 	}
 
 	if (!isset($AdminUrl) || empty($AdminUrl)) {
-		$port = ($_SERVER['SERVER_PORT'] == 80) ? '' : ":".$_SERVER['SERVER_PORT'];
 		$AdminUrl = str_replace('index.php', 'admin.php', $ScriptUrl);
 	}
 
