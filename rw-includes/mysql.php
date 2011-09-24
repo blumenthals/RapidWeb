@@ -26,7 +26,7 @@
       SetWikiPageLinks($dbi, $pagename, $linklist)
    */
 
-	define('RAPIDWEB_DB_VERSION', 7);
+	define('RAPIDWEB_DB_VERSION', 8);
 
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
@@ -145,6 +145,11 @@
 	function rw_upgrade_database_6_7() { 
 		rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
 		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 7)");
+	}
+
+	function rw_upgrade_database_7_8() { 
+		rw_db_query("UPDATE wiki SET noindex = 1 WHERE pagename IN ('500-ServerError', '404-NotFound', '403-Restricted', '401-AuthorizationRequired');");
+		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 8)");
 	}
 
    function rw_db_query($sql) {
