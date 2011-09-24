@@ -25,11 +25,13 @@ require('rw-includes/wp-compat.php');
 
 $_rw_head_funcs = array();
 
-function in_head($cb) use ($_rw_head_funcs) {
-	$rw_head_funcs[] = $cb;
+function in_head($cb) {
+	global $_rw_head_funcs;
+	$_rw_head_funcs[] = $cb;
 }
 
-function _dohead(&$page) use($_rw_head_funcs) {
+function _dohead(&$page) {
+	global $_rw_head_funcs;
 	list($top, $rest) = preg_split('/(?=<head)/i', $page, 2);
 	list($headtag, $rest) = preg_split('/>/', $rest, 2);
 	$top .= $headtag . '>';
