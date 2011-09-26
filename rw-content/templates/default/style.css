@@ -118,3 +118,11 @@ a:active {
 td.rw-column {
 	vertical-align: top;
 }
+
+#page_editor, #gallery_editor {
+	width: 100%;
+}
+
+#page_editor td {
+	padding: 0; margin: 0;
+}
