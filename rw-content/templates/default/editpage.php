@@ -26,7 +26,10 @@
                       <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
                     </td> 
                     <td width="55%" align="right">
-                      <select name='page_type' id='page_type'><option value='page'>Page</option><option value='gallery'>Gallery</option></select>
+                      <select name='page_type' id='page_type'>
+                        <option value='page'>Page</option>
+                        <option value='gallery'>Gallery</option>
+                      </select>
                       <input type="submit" value=" Save "><br>
                       <input type="button" value="Cancel" onClick="history.go(-1)" name="back2">
                     </td>
