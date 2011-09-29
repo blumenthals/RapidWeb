@@ -29,7 +29,7 @@
               <option value='gallery'>Gallery</option>
               <option value='page'>Page</option>
             </select>
-            <input type="submit" value=" Save "><br>
+            <button id='save_button'>Save</button><br>
             <input type="button" value="Cancel" onClick="history.go(-1)" name="back2">
           </td>
         </tr>
@@ -40,7 +40,7 @@
       <div id='gallery_editor' class='rapidweb-editor'>
         <div class='gallery-tile uploader-tile'>
           <iframe style='display: none' name='upload_target'></iframe>
-          <form action='upload.php' target='upload_target'>
+          <form action='upload.php' target='upload_target' method='post' enctype='multipart/form-data'>
             <div class='file-upload'>
               Upload a file
               <input type='file' name='img'>
@@ -96,7 +96,7 @@
         <?php /* Save and cancel controls */ ?>
         <div align="right">
           <input type="button" value="Cancel" onClick="history.go(-1)" name="back">
-          <input type="submit" value=" Save " name="submit">
+          <input type="submit" value=" Save ">
         </div>
 
         <input type="hidden" name="post" value="###PAGEURL###">
