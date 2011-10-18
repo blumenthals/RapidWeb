@@ -2,14 +2,18 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Edit: ###PAGEURL###</title>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/edit.js"></script>
+    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/rapidweb-edit.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/switchcontent.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
+    <script>
+      var pagedata = ###JSON###;
+    </script>
   </head>
   <body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif')">
     <div id='page_wrapper'>
@@ -38,17 +42,19 @@
       <br>
 
       <div id='gallery_editor' class='rapidweb-editor'>
-        <div class='gallery-tile uploader-tile'>
-          <iframe style='display: none' name='upload_target'></iframe>
-          <form action='upload.php' target='upload_target' method='post' enctype='multipart/form-data'>
+        <div class='gallery-tile upload-tile' id='upload-tile'>
+          <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
+          <form action='###SCRIPTURL###' target='upload_target' method='post' enctype='multipart/form-data'>
             <div class='file-upload'>
               Upload a file
               <input type='file' name='img'>
+              <input type='hidden' name='pagename' value='###PAGEURL###'>
+              <input type='hidden' name='command' value='upload_image_ajax'>
             </div>
             <input type='submit'>
+            <div class='error'></div>
           </form>
         </div>
-        GALLERY HERE
       </div>
 
       <form method="POST" action="###SCRIPTURL###" id='page_editor' class='rapidweb-editor'>

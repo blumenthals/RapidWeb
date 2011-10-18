@@ -11,11 +11,18 @@
 <meta name="Classification" content="">
 ###METANOINDEX###
 
-<script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
+<script src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
+<script src="<?php bloginfo('template_directory'); ?>/js/jquery-1.6.4.min.js"></script>
 <link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css">
 <link href='<?php bloginfo('template_directory'); ?>/images/favicon.png' rel="shortcut icon" type="image/png" >
+<?php global $pagehash; ?>
+<?php if($pagehash['page_type'] == 'gallery'): ?>
+<script>
+    var pagedata = {"gallery": <?php echo json_encode($pagehash['gallery']); ?>}
+</script>
+<?php endif; ?>
 </head>
-<body onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/admin/edit-over.gif','<?php bloginfo('template_directory'); ?>/admin/delete-over.gif','<?php bloginfo('template_directory'); ?>/admin/backup-over.gif','<?php bloginfo('template_directory'); ?>/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/admin/meta_tags-over.gif','<?php bloginfo('template_directory'); ?>/admin/logout-over.gif')">
+<body onload="MM_preloadImages('<?php bloginfo('template_directory'); ?>/admin/edit-over.gif','<?php bloginfo('template_directory'); ?>/admin/delete-over.gif','<?php bloginfo('template_directory'); ?>/admin/backup-over.gif','<?php bloginfo('template_directory'); ?>/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/admin/meta_tags-over.gif','<?php bloginfo('template_directory'); ?>/admin/logout-over.gif')">
 <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="center" valign="top"><table width="775" height="100%" border="0" cellspacing="0" cellpadding="0">
@@ -26,7 +33,7 @@
           <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>/images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr> 
                 <td height="76" align="right" valign="middle">
-		  <?php get_template_part('admin/toolbar'); ?>
+                  <?php get_template_part('admin/toolbar'); ?>
                 </td>
               </tr>
             </table>

@@ -18,8 +18,16 @@
 
    // we render the page if it exists, else ask the user to write one.
    if (is_array($pagehash)) {
-      // transform.php returns $html containing all the HTML markup
-      include("rw-includes/transform.php");
+       include('rw-includes/command.php');
+       switch($pagehash['page_type']) {
+       case 'gallery':
+           $html = rw_capture_command('display_gallery');
+           break;
+       case 'page':
+       default:
+          $html = rw_capture_command('display_page');
+          break;
+       }
    } else {
       $html .= sprintf(gettext(""),
 		       "$pagename<a href='$ScriptUrl?edit=$enc_name'>?</a>");

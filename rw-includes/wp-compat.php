@@ -24,20 +24,24 @@ function the_content() {
 	echo '###CONTENT###';
 }
 
-function bloginfo($arg) {
+function get_bloginfo($arg) {
 	global $templates, $TemplateName;
 	$myroot = dirname($_SERVER['SCRIPT_NAME']);
         if($myroot == '/') $myroot = '';
 	if($myroot == '/rw-admin') $myroot = '';
 	if($arg == 'template_directory') {
-		echo $myroot."/rw-content/templates/$TemplateName";
+		return $myroot."/rw-content/templates/$TemplateName";
 	} else if($arg == 'stylesheet_directory') {
-		echo $myroot."/rw-content/templates/$TemplateName";
+		return $myroot."/rw-content/templates/$TemplateName";
 	} else if($arg == 'name') {
-		echo RW_SITE_TITLE;
+		return RW_SITE_TITLE;
 	} else {
-		echo "unsupported bloginfo";
+		return "unsupported bloginfo";
 	}
+}
+
+function bloginfo($arg) {
+    echo get_bloginfo($arg);
 }
 
 function single_post_title($arg = '') {

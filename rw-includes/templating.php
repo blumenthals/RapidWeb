@@ -41,6 +41,8 @@ function _dohead(&$page) {
 	$page .= $rest;
 }
 
+/** Generate the actual page
+ */
 function GeneratePage($template, $content, $name, $hash, $return = false) {
 	global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
 	global $datetimeformat, $dbi, $logo, $FieldSeparator;
@@ -131,6 +133,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
 	//Sytax is PAGECONTENT(PAGENAME[, tagcontext])
 	$page = preg_replace_callback('/PAGECONTENT\((.*?)\)/', '_pagecontent', $page);
 	_dotoken('CONTENT', $content, $page, $FieldSeparator);
+    _dotoken('JSON', json_encode($hash), $page, $FieldSeparator);
 
 	_dohead($page);
 	if($return) {

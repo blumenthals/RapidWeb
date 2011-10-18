@@ -13,6 +13,14 @@
       $dbi = OpenDataBase($WikiPageStore);
    }
 
+    require_once "rw-includes/RapidWeb.class.php";
+    $plugins = glob(dirname(__FILE__)."/rw-content/plugins/*/index.php");
+    if($plugins) foreach($plugins as $plugin) {
+        require_once $plugin;
+    }
+
+    $RapidWeb->initialize();
+
 	if(get_magic_quotes_gpc()) {
 		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);
 	}
@@ -57,7 +65,10 @@
       include "rw-includes/diff.php";
    } elseif (isset($_REQUEST['sendform'])) {
       include "rw-includes/sendform.php";
-   } else {
+    } elseif (isset($_REQUEST['command'])) {
+        include "rw-includes/command.php";
+        rw_do_command($_REQUEST['command']);
+    } else {
       include "rw-includes/display.php"; // defaults to 'home'
    }
 

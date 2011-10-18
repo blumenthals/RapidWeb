@@ -26,7 +26,7 @@
       SetWikiPageLinks($dbi, $pagename, $linklist)
    */
 
-	define('RAPIDWEB_DB_VERSION', 8);
+  define('RAPIDWEB_DB_VERSION', 10);
 
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
@@ -36,140 +36,162 @@
 
       if (!($dbc = mysql_pconnect($mysql_server, $mysql_user, $mysql_pwd))) {
          $msg = gettext ("Cannot establish connection to database, giving up.");
-	 $msg .= "<BR>";
-	 $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
-	 ExitWiki($msg);
+    $msg .= "<BR>";
+    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
+    ExitWiki($msg);
       }
       if (!mysql_select_db($mysql_db, $dbc)) {
          $msg =  sprintf(gettext ("Cannot open database %s, giving up."), $mysql_db);
-	 $msg .= "<BR>";
-	 $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
-	 ExitWiki($msg);
+    $msg .= "<BR>";
+    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
+    ExitWiki($msg);
       }
       $dbi['dbc'] = $dbc;
       $dbi['table'] = $dbname;
 
-	$db_version = rw_db_get_version();
+   $db_version = rw_db_get_version();
 
-	if($db_version < RAPIDWEB_DB_VERSION) {
-		echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
-		do {
-			$last = $db_version;
-			$func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
-			if(function_exists($func)) {
-				call_user_func('rw_upgrade_database_'.$db_version.'_'.($db_version + 1));
-				$db_version = rw_db_get_version();
-				if($db_version == $last) die("Upgrade failed, version still at $db_version");
-			} else {
-				die("Can't upgrade database");
-			}
-		} while($db_version < RAPIDWEB_DB_VERSION);
-		die("Database now at $db_version");
-	}
+   if($db_version < RAPIDWEB_DB_VERSION) {
+      echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
+      do {
+         $last = $db_version;
+         $func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
+         if(function_exists($func)) {
+            call_user_func('rw_upgrade_database_'.$db_version.'_'.($db_version + 1));
+            $db_version = rw_db_get_version();
+            if($db_version == $last) die("Upgrade failed, version still at $db_version");
+         } else {
+            die("Can't upgrade database");
+         }
+      } while($db_version < RAPIDWEB_DB_VERSION);
+      die("Database now at $db_version");
+   }
 
       return $dbi;
    }
 
-	function rw_db_get_version() {
-		$db_version = -1;
+   function rw_db_get_version() {
+      $db_version = -1;
 
-		if($r = mysql_query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'")) {
-			$row = mysql_fetch_assoc($r);
-			if($row) {
-				$db_version = $row['value'];
-			} else {
-				$db_version = 0;
-			}
-		} else {
-			$e = mysql_error();
-			if(preg_match("/doesn't exist/", $e)) {
-				$db_version = 0;
-			} else {
-				die("Database error: $e");
-			}
-		}
-		return $db_version;
-	}
+      if($r = mysql_query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'")) {
+         $row = mysql_fetch_assoc($r);
+         if($row) {
+            $db_version = $row['value'];
+         } else {
+            $db_version = 0;
+         }
+      } else {
+         $e = mysql_error();
+         if(preg_match("/doesn't exist/", $e)) {
+            $db_version = 0;
+         } else {
+            die("Database error: $e");
+         }
+      }
+      return $db_version;
+   }
    function rw_upgrade_database_0_1() {
-	rw_db_canexist(rw_db_query("CREATE TABLE rapidwebinfo (name  varchar(32) not null primary key, value text)"));
-	rw_db_query("REPLACE INTO rapidwebinfo (name, value) VALUES ('db_version', 0)");
-	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `title` text"));
-	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `keywords` text"));
-	rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `meta` text"));
-	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `meta` text"));
-	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `title` text"));
-	rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `keywords` text"));
-	rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 1)");
+   rw_db_canexist(rw_db_query("CREATE TABLE rapidwebinfo (name  varchar(32) not null primary key, value text)"));
+   rw_db_query("REPLACE INTO rapidwebinfo (name, value) VALUES ('db_version', 0)");
+   rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `title` text"));
+   rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `keywords` text"));
+   rw_db_canexist(rw_db_query("ALTER TABLE wiki add COLUMN `meta` text"));
+   rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `meta` text"));
+   rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `title` text"));
+   rw_db_canexist(rw_db_query("ALTER TABLE archive add COLUMN `keywords` text"));
+   rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 1)");
    }
 
-	function rw_upgrade_database_1_2() {
-		rw_db_canexist(rw_db_query("CREATE TABLE `settings` (
-		  `name` varchar(100) NOT NULL,
-		  `value` varchar(255) default NULL,
-		  PRIMARY KEY  (`name`)
-		)"));
-		rw_db_query("INSERT INTO settings VALUES('default_title', 'Blumenthals.com Rapidweb Website');");
-		rw_db_query("INSERT INTO settings VALUES('default_meta_keywords', '')");
-		rw_db_query("INSERT INTO settings VALUES('default_meta_description', '')");
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 2)");
-	}
+   function rw_upgrade_database_1_2() {
+      rw_db_canexist(rw_db_query("CREATE TABLE `settings` (
+        `name` varchar(100) NOT NULL,
+        `value` varchar(255) default NULL,
+        PRIMARY KEY  (`name`)
+      )"));
+      rw_db_query("INSERT INTO settings VALUES('default_title', 'Blumenthals.com Rapidweb Website');");
+      rw_db_query("INSERT INTO settings VALUES('default_meta_keywords', '')");
+      rw_db_query("INSERT INTO settings VALUES('default_meta_description', '')");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 2)");
+   }
 
-	function rw_upgrade_database_2_3() {
-		rw_db_canexist(rw_db_query("alter table wiki add variables text"));
-		rw_db_canexist(rw_db_query("alter table archive add variables text"));
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 3)");
-	}
+   function rw_upgrade_database_2_3() {
+      rw_db_canexist(rw_db_query("alter table wiki add variables text"));
+      rw_db_canexist(rw_db_query("alter table archive add variables text"));
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 3)");
+   }
 
-	function rw_upgrade_database_3_4() {
-		rw_db_canexist(rw_db_query("alter table wiki add template varchar(100)"));
-		rw_db_canexist(rw_db_query("alter table archive add template varchar(100)"));
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 4)");
-		
-	}
+   function rw_upgrade_database_3_4() {
+      rw_db_canexist(rw_db_query("alter table wiki add template varchar(100)"));
+      rw_db_canexist(rw_db_query("alter table archive add template varchar(100)"));
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 4)");
+      
+   }
 
-	function rw_upgrade_database_4_5() {
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('SiteMap', 1, 0, 'admin', 1227977883, 1227977883, '*[Home]\n*[Services]\n*[Products]\n*[Contact Us]\n*[Privacy Notice]\n*[Links]\n*[Search|FindPage]\n\n*Custom Error Pages:\n**[404-FileNotFound]\n**[403-Restricted]\n**[500-ServerError]\n**[401-AuthorizationRequired]\n\n*[Blumenthals  Olean NY Web Hosting Support options|BlumenthalsSupport]', 'a:0:{}', '', '', '', '', NULL)");
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('401-AuthorizationRequired', 1, 0, 'admin', 1222318755, 1222318755, 'STARTHTML\n<style type='text/css'>\n<!--\nbody, td, th {\n        font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #C82127;\n}\na:hover {\n color: #E62128;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #C82127;\n}\n.pngimg {\n behavior: url('/rw-global/pngbehavior.htc');\n}\n-->\n</style>\n<center>\n<table border='0' cellspacing='0' cellpadding='0'>\n<tr>\n<td><img src='/rw-global/images/edit/401b. png' alt='401 - Authorization Required' width=271 height=178 class=pngimg></td>\n<td>\n\n<h1>This is a restricted area.</h1>\nWe apologize. The page you are looking<br>\nfor requires the proper authorization.<br><br>\n\nPlease try your request again or try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href='###SCRIPTURL###?Sitemap'>sitemap</a>, start over from the <a href='index.php?home'>home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL);");
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('403-Restricted', 1, 0, 'admin', 1222318726, 1222318726, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n   font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #C82127;\n}\na:hover {\n color: #E62128;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #C82127;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/403b.png\" alt=\"403 - Forbidden; width=303 height=179 class=pngimg></td>\n<td>\n\n<h1>This is a restricted area.</h1>\nWe apologize. The page you are looking for is in<br>\na restricted area and is not available to the public.<br><br>\n\nIf you''re in denial and think this is a conspiracy<br >\nthat cannot be possibly true, please try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL)");
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('404-FileNotFound', 8, 1, 'admin', 1222290675, 1012391280, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #F28B22;\n}\na:hover {\n color: #F6B618;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #F28B22;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/404b.png\" alt=\"404 - File Not Found\" width=248 height=171 class=pngimg /></td>\n<td>\n\n<h1>Oops, Page Not Found.</h1>\nWe apologize. The page you<br>\nare looking for cannot be found.<br><br>\n\nIf you''re in denial and think this is a conspiracy<br>\nthat cannot be possibly true, please try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\n from the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', NULL, NULL, NULL, NULL, NULL)");
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('500-ServerError', 1, 0, 'admin', 1222318742, 1222318742, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n  font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #F28B22;\n}\na:hover {\n color: #F6B618;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #F28B22;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/500b.png\" alt=\"500 - Internal Server Error\" width=213 height=173 class=pngimg></td>\n<td>\n\n<h1>Whoops, Internal Server Error.</h1>\nWe apologize. The page you are looking for<br>\nis unaccessible due to a little server hiccup.<br><br>\n\nPlease try your request again or try searching\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL)");
-		rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('BlumenthalsSupport', 1, 0, 'admin', 1222318661, 1222318661, '!!Blumenthals  Olean NY Web Hosting Support Options\n\nFor the quickest response post on our [Ticket Reporting System|http://tickets.blumenthals.com].\n\nWeb Hosting, Web Design, Email Support:%%%\n[Blumenthals  WebHosting, Web Design - Olean Office|http://www.blumenthals.com]%%%\n201 N Union St. Suite 317%%%\nOlean, NY 14760 %%%\n716-372-4008\n\nBilling & Invoicing Questions:%%%\nBlumenthals.com%%%\n6 Valleybrook Drive%%%\nBradford PA 16701%%%\n814-368-4057', 'a:0:{}', '', '', '', NULL, NULL)");
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 5)");
-	}
+   function rw_upgrade_database_4_5() {
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('SiteMap', 1, 0, 'admin', 1227977883, 1227977883, '*[Home]\n*[Services]\n*[Products]\n*[Contact Us]\n*[Privacy Notice]\n*[Links]\n*[Search|FindPage]\n\n*Custom Error Pages:\n**[404-FileNotFound]\n**[403-Restricted]\n**[500-ServerError]\n**[401-AuthorizationRequired]\n\n*[Blumenthals  Olean NY Web Hosting Support options|BlumenthalsSupport]', 'a:0:{}', '', '', '', '', NULL)");
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('401-AuthorizationRequired', 1, 0, 'admin', 1222318755, 1222318755, 'STARTHTML\n<style type='text/css'>\n<!--\nbody, td, th {\n        font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #C82127;\n}\na:hover {\n color: #E62128;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #C82127;\n}\n.pngimg {\n behavior: url('/rw-global/pngbehavior.htc');\n}\n-->\n</style>\n<center>\n<table border='0' cellspacing='0' cellpadding='0'>\n<tr>\n<td><img src='/rw-global/images/edit/401b. png' alt='401 - Authorization Required' width=271 height=178 class=pngimg></td>\n<td>\n\n<h1>This is a restricted area.</h1>\nWe apologize. The page you are looking<br>\nfor requires the proper authorization.<br><br>\n\nPlease try your request again or try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href='###SCRIPTURL###?Sitemap'>sitemap</a>, start over from the <a href='index.php?home'>home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL);");
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('403-Restricted', 1, 0, 'admin', 1222318726, 1222318726, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n   font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #C82127;\n}\na:hover {\n color: #E62128;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #C82127;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/403b.png\" alt=\"403 - Forbidden; width=303 height=179 class=pngimg></td>\n<td>\n\n<h1>This is a restricted area.</h1>\nWe apologize. The page you are looking for is in<br>\na restricted area and is not available to the public.<br><br>\n\nIf you''re in denial and think this is a conspiracy<br >\nthat cannot be possibly true, please try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL)");
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('404-FileNotFound', 8, 1, 'admin', 1222290675, 1012391280, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #F28B22;\n}\na:hover {\n color: #F6B618;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #F28B22;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/404b.png\" alt=\"404 - File Not Found\" width=248 height=171 class=pngimg /></td>\n<td>\n\n<h1>Oops, Page Not Found.</h1>\nWe apologize. The page you<br>\nare looking for cannot be found.<br><br>\n\nIf you''re in denial and think this is a conspiracy<br>\nthat cannot be possibly true, please try searching<br>\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\n from the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', NULL, NULL, NULL, NULL, NULL)");
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('500-ServerError', 1, 0, 'admin', 1222318742, 1222318742, 'STARTHTML\n<style type=\"text/css\">\n<!--\nbody, td, th {\n  font-family: Arial, Helvetica, sans-serif;\n       font-size: 12px;\n}\na:link, a:visited, a:active {\n    color: #F28B22;\n}\na:hover {\n color: #F6B618;\n}\nh1 {\n font-weight: bold;\n    font-size: 14px;\n      color: #F28B22;\n}\n.pngimg {\n behavior: url(\"/rw-global/pngbehavior.htc\");\n}\n-->\n</style>\n<center>\n<table border=0 cellspacing=0 cellpadding=0>\n<tr>\n<td><img src=\"/rw-global/images/edit/500b.png\" alt=\"500 - Internal Server Error\" width=213 height=173 class=pngimg></td>\n<td>\n\n<h1>Whoops, Internal Server Error.</h1>\nWe apologize. The page you are looking for<br>\nis unaccessible due to a little server hiccup.<br><br>\n\nPlease try your request again or try searching\nour site using the search box below.<br><br>\nENDHTML\n%%Fullsearch%%\nSTARTHTML\n<br>\nYou may also want to try looking through our<br />\n<a href=\"###SCRIPTURL###?Sitemap\">sitemap</a>, start over from the <a href=\"index.php?home\">home page</a>, or select<br>\nfrom the navigational menus. We hope you find<br>\njust what you were looking for.\n</td>\n</tr>\n</table>\n</center>\nENDHTML', 'a:0:{}', '', '', '', NULL, NULL)");
+      rw_db_query("INSERT INTO `wiki` (`pagename`, `version`, `flags`, `author`, `lastmodified`, `created`, `content`, `refs`, `title`, `keywords`, `meta`, `variables`, `template`) VALUES ('BlumenthalsSupport', 1, 0, 'admin', 1222318661, 1222318661, '!!Blumenthals  Olean NY Web Hosting Support Options\n\nFor the quickest response post on our [Ticket Reporting System|http://tickets.blumenthals.com].\n\nWeb Hosting, Web Design, Email Support:%%%\n[Blumenthals  WebHosting, Web Design - Olean Office|http://www.blumenthals.com]%%%\n201 N Union St. Suite 317%%%\nOlean, NY 14760 %%%\n716-372-4008\n\nBilling & Invoicing Questions:%%%\nBlumenthals.com%%%\n6 Valleybrook Drive%%%\nBradford PA 16701%%%\n814-368-4057', 'a:0:{}', '', '', '', NULL, NULL)");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 5)");
+   }
 
-	function rw_upgrade_database_5_6() {
-		rw_db_query("UPDATE settings SET value = '' WHERE name = 'default_title' AND value = 'Blumenthals.com Rapidweb Website'"); 
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 6)");
-	}
 
-	function rw_upgrade_database_6_7() { 
-		rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 7)");
-	}
+    /** Reset default settings that applied Blumenthals branding erroneously. */
+   function rw_upgrade_database_5_6() {
+      rw_db_query("UPDATE settings SET value = '' WHERE name = 'default_title' AND value = 'Blumenthals.com Rapidweb Website'"); 
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 6)");
+   }
 
-	function rw_upgrade_database_7_8() { 
-		rw_db_query("UPDATE wiki SET noindex = 1 WHERE pagename IN ('500-ServerError', '404-NotFound', '403-Restricted', '401-AuthorizationRequired');");
-		rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 8)");
-	}
+    /** Add noindex column */
+   function rw_upgrade_database_6_7() { 
+      rw_db_query("ALTER TABLE wiki ADD COLUMN noindex tinyint(1)");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 7)");
+   }
+
+    /** Make HTTP response code pages noindex */
+   function rw_upgrade_database_7_8() { 
+      rw_db_query("UPDATE wiki SET noindex = 1 WHERE pagename IN ('500-ServerError', '404-NotFound', '403-Restricted', '401-AuthorizationRequired');");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 8)");
+   }
+
+    /** Add 'json' column for gallery */
+    function rw_upgrade_database_8_9() {
+        rw_db_query("ALTER TABLE wiki ADD COLUMN `json` TEXT");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 9)");
+
+    }
+
+    /** Add 'page type' field for gallery, and rename json column to gallery */
+    function rw_upgrade_database_9_10() {
+        rw_db_query("ALTER TABLE wiki ADD COLUMN `page_type` varchar(32) NOT NULL DEFAULT 'page'");
+        rw_db_query("ALTER TABLE wiki CHANGE COLUMN `json` `gallery` TEXT");
+      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 10)");
+
+
+    }
 
    function rw_db_query($sql) {
-	if(!$r = mysql_query($sql)) echo("Query failed (".mysql_error()."): $sql");
-	return $r;
+   if(!$r = mysql_query($sql)) echo("Query failed (".mysql_error()."): $sql");
+   return $r;
    }
 
-	function rw_db_canexist($result) {
-		if(!$result) {
-			if(preg_match("/Duplicate column name/", mysql_error()) || preg_match("/Table.*already exists/", mysql_error())) {
-				return $result;
-			} else {
-				die(mysql_error());
-			}
-		} else {
-			return $result;
-		}	
-	}
+    /** Hide "Table already exists" errors from upgrades */
+   function rw_db_canexist($result) {
+      if(!$result) {
+         if(preg_match("/Duplicate column name/", mysql_error()) || preg_match("/Table.*already exists/", mysql_error())) {
+            return $result;
+         } else {
+            die(mysql_error());
+         }
+      } else {
+         return $result;
+      }   
+   }
 
 
+    /** Close the database handle, a NOOP for MySQL */
    function CloseDataBase($dbi) {
       // NOP function
       // mysql connections are established as persistant
@@ -177,7 +199,7 @@
    }
 
 
-   // prepare $pagehash for storing in mysql
+    /** prepare page data hash for storing in mysql */
    function MakeDBHash($pagename, $pagehash)
    {
       if (!isset($pagehash["flags"]))
@@ -187,18 +209,19 @@
          $pagehash["refs"] = array();
       $pagehash["refs"] = serialize($pagehash["refs"]);
       if(!isset($pagehash['pagename'])) $pagehash['pagename'] = $pagename;
+      $pagehash['gallery'] = json_encode($pagehash['gallery']);
  
       return $pagehash;
    }
 
 
-   // convert mysql result $dbhash to $pagehash
+   /** Deserialize components of page data coming from MySQL */
    function MakePageHash($dbhash)
    {
       // unserialize/explode content
       $dbhash['refs'] = unserialize($dbhash['refs']);
       $dbhash['content'] = explode("\n", $dbhash['content']);
-
+      $dbhash['gallery'] = json_decode($dbhash['gallery']);
       $dbhash['settings'] = RetrieveSettings();
       return $dbhash;
    }
@@ -208,7 +231,7 @@
    function RetrievePage($dbi, $pagename, $pagestore) {
       $pagename = mysql_real_escape_string($pagename, $dbi['dbc']);
       if ($res = mysql_query("select * from $pagestore where pagename='$pagename'", $dbi['dbc'])) {
-         if ($dbhash = mysql_fetch_array($res)) {
+         if ($dbhash = mysql_fetch_assoc($res)) {
             return MakePageHash($dbhash);
          }
       }
@@ -217,56 +240,52 @@
 
 
    // Either insert or replace a key/value (a page)
-   function InsertPage($dbi, $pagename, $pagehash)
-   {
-      global $WikiPageStore; // ugly hack
+    function InsertPage($dbi, $pagename, $pagehash) {
+        global $WikiPageStore; // ugly hack
 
-      if ($dbi['table'] == $dbi['prefix']."wiki") { // HACK
-         $linklist = ExtractWikiPageLinks($pagehash['content']);
-	 SetWikiPageLinks($dbi, $pagename, $linklist);
-      }
+        if ($dbi['table'] == $dbi['prefix']."wiki") { // HACK
+            $linklist = ExtractWikiPageLinks($pagehash['content']);
+            SetWikiPageLinks($dbi, $pagename, $linklist);
+        }
 
-      $pagehash = MakeDBHash($pagename, $pagehash);
+        $pagehash = MakeDBHash($pagename, $pagehash);
 
-      $COLUMNS = "author, content, created, flags, " .
-                 "lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template";
+        $COLUMNS = "author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery";
 
-			$VALUES = array($pagehash[author], $pagehash[content],
-				$pagehash[created], $pagehash[flags], 
-				$pagehash[lastmodified], $pagehash[pagename], 
-				$pagehash[refs], $pagehash[version],
-				$pagehash[title], $pagehash[meta],
-				$pagehash[keywords], $pagehash[variables],
-				$pagehash[noindex]);
-			if(isset($pagehash['template'])) {
-				array_push($VALUES, $pagehash[template]);
-			} else {
-				array_push($VALUES, 'NULL');
-			}
+        $VALUES = array(
+            $pagehash['author'], $pagehash['content'],
+            $pagehash['created'], $pagehash['flags'], 
+            $pagehash['lastmodified'], $pagehash['pagename'], 
+            $pagehash['refs'], $pagehash['version'],
+            $pagehash['title'], $pagehash['meta'],
+            $pagehash['keywords'], $pagehash['variables'],
+            $pagehash['noindex'], (isset($pagehash['template']) ? $pagehash['template'] : 'NULL'),
+            $pagehash['page_type'],
+            $pagehash['gallery']
+        );
 
-			foreach($VALUES as $k => $v) {
-				if($v === null || $v === 'NULL') {
-					$VALUES[$k] = 'NULL';
-				} else {
-					$VALUES[$k] = "'".mysql_real_escape_string($v, $dbi['dbc'])."'";
-				}
-			}
-			$VALUES = join($VALUES, ', ');
-      if (!mysql_query($q = "replace into ${$dbi[prefix]}wiki ($COLUMNS) values ($VALUES)",
-      			$dbi['dbc'])) {
+        foreach($VALUES as $k => $v) {
+            if($v === null || $v === 'NULL') {
+                $VALUES[$k] = 'NULL';
+            } else {
+                $VALUES[$k] = "'".mysql_real_escape_string($v, $dbi['dbc'])."'";
+            }
+        }
+        $VALUES = join($VALUES, ', ');
+        if (!mysql_query($q = "replace into ${$dbi[prefix]}wiki ($COLUMNS) values ($VALUES)", $dbi['dbc'])) {
             $msg = sprintf(gettext ("Error writing page '%s'"), $pagename);
-	    $msg .= "<BR>";
-	    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error()." in $q");
+            $msg .= "<BR>";
+            $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error()." in $q");
             ExitWiki($msg);
-      }
+       }
    }
 
    function SaveSettings($settingshash) {
-	foreach($settingshash as $key => $value) {
-		$key = addslashes($key);
-		$value = addslashes($value);
-		mysql_query("REPLACE INTO settings (name, value) VALUES ('$key', '$value');");
-	}
+   foreach($settingshash as $key => $value) {
+      $key = addslashes($key);
+      $value = addslashes($value);
+      mysql_query("REPLACE INTO settings (name, value) VALUES ('$key', '$value');");
+   }
    }
 
    function RetrieveSettings() {
@@ -341,7 +360,7 @@
       $res = mysql_query("update $HitCountStore set hits=hits+1 where pagename='$pagename'", $dbi['dbc']);
 
       if (!mysql_affected_rows($dbi['dbc'])) {
-	 $res = mysql_query("insert into $HitCountStore (pagename, hits) values ('$pagename', 1)", $dbi['dbc']);
+    $res = mysql_query("insert into $HitCountStore (pagename, hits) values ('$pagename', 1)", $dbi['dbc']);
       }
 
       return $res;
@@ -367,14 +386,14 @@
       $clause = '';
       while($term) {
          $word = "$term";
-	 if ($word[0] == '-') {
-	    $word = substr($word, 1);
-	    $clause .= "not ($column like '%$word%') ";
-	 } else {
-	    $clause .= "($column like '%$word%') ";
-	 }
-	 if ($term = strtok(' '))
-	    $clause .= 'and ';
+    if ($word[0] == '-') {
+       $word = substr($word, 1);
+       $clause .= "not ($column like '%$word%') ";
+    } else {
+       $clause .= "($column like '%$word%') ";
+    }
+    if ($term = strtok(' '))
+       $clause .= 'and ';
       }
       return $clause;
    }
@@ -426,9 +445,9 @@
 
    function MostPopularNextMatch($dbi, $res) {
       if ($hits = mysql_fetch_array($res))
-	 return $hits;
+          return $hits;
       else
-         return 0;
+          return 0;
    }
 
    function GetAllWikiPageNames($dbi) {
@@ -436,7 +455,7 @@
       $res = mysql_query("select pagename from $WikiPageStore", $dbi["dbc"]);
       $rows = mysql_num_rows($res);
       for ($i = 0; $i < $rows; $i++) {
-	 $pages[$i] = mysql_result($res, $i);
+        $pages[$i] = mysql_result($res, $i);
       }
       return $pages;
    }
@@ -453,22 +472,22 @@
       $res = mysql_query("select topage, score from $WikiLinksStore, $WikiScoreStore where topage=pagename and frompage='$pagename' order by score desc, topage");
       $rows = mysql_num_rows($res);
       for ($i = 0; $i < $rows; $i++) {
-	 $out = mysql_fetch_array($res);
-	 $links['out'][] = array($out['topage'], $out['score']);
+        $out = mysql_fetch_array($res);
+        $links['out'][] = array($out['topage'], $out['score']);
       }
 
       $res = mysql_query("select frompage, score from $WikiLinksStore, $WikiScoreStore where frompage=pagename and topage='$pagename' order by score desc, frompage");
       $rows = mysql_num_rows($res);
       for ($i = 0; $i < $rows; $i++) {
-	 $out = mysql_fetch_array($res);
-	 $links['in'][] = array($out['frompage'], $out['score']);
+        $out = mysql_fetch_array($res);
+        $links['in'][] = array($out['frompage'], $out['score']);
       }
 
       $res = mysql_query("select distinct pagename, hits from $WikiLinksStore, $HitCountStore where (frompage=pagename and topage='$pagename') or (topage=pagename and frompage='$pagename') order by hits desc, pagename");
       $rows = mysql_num_rows($res);
       for ($i = 0; $i < $rows; $i++) {
-	 $out = mysql_fetch_array($res);
-	 $links['popular'][] = array($out['pagename'], $out['hits']);
+        $out = mysql_fetch_array($res);
+        $links['popular'][] = array($out['pagename'], $out['hits']);
       }
 
       return $links;
@@ -484,7 +503,7 @@
 
       // first delete the old list of links
       mysql_query("delete from $WikiLinksStore where frompage='$frompage'",
-		$dbi["dbc"]);
+      $dbi["dbc"]);
 
       // the page may not have links, return if not
       if (! count($linklist))
@@ -492,10 +511,9 @@
       // now insert the new list of links
       while (list($topage, $count) = each($linklist)) {
          $topage = addslashes($topage);
-	 if($topage != $frompage) {
-            mysql_query("insert into $WikiLinksStore (frompage, topage) " .
-                     "values ('$frompage', '$topage')", $dbi["dbc"]);
-	 }
+         if($topage != $frompage) {
+            mysql_query("insert into $WikiLinksStore (frompage, topage) values ('$frompage', '$topage')", $dbi["dbc"]);
+        }
       }
 
       // update pagescore
