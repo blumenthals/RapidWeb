@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Edit: ###PAGEURL###</title>
+    <title>Edit: <?php echo $this->page->pagename; ?></title>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/rapidweb-edit.js"></script>
@@ -12,21 +12,22 @@
     <![endif]-->
     <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
     <script>
-      var pagedata = ###JSON###;
+        var pagedata = <?php echo $this->page->toJSON(); ?>;
     </script>
+    <?php $this->do_head(); ?>
   </head>
   <body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif')">
     <div id='page_wrapper'>
 
       <table width="100%">
         <tr>
-          <td width="26%" height="155" align="left" valign="middle"><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
-          <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Edit ###PAGEURL###</span></h1></td>
+          <td width="26%" height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
+          <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Edit <?php echo $this->page->pagename; ?></span></h1></td>
         </tr>
         <tr>
           <td height="60" colspan="2">
             <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
-            <a onClick="window.open('###SCRIPTURL###?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
+            <a onClick="window.open('<?php echo $this->getScriptURL(); ?>?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
           </td> 
           <td width="55%" align="right">
             <select name='page_type' id='page_type'>
@@ -44,11 +45,11 @@
       <div id='gallery_editor' class='rapidweb-editor'>
         <div class='gallery-tile upload-tile' id='upload-tile'>
           <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
-          <form action='###SCRIPTURL###' target='upload_target' method='post' enctype='multipart/form-data'>
+          <form action='<?php echo $this->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
             <div class='file-upload'>
               Upload a file
               <input type='file' name='img'>
-              <input type='hidden' name='pagename' value='###PAGEURL###'>
+              <input type='hidden' name='pagename' value='<?php echo $this->page->pagename; ?>'>
               <input type='hidden' name='command' value='upload_image_ajax'>
             </div>
             <input type='submit'>
@@ -57,9 +58,9 @@
         </div>
       </div>
 
-      <form method="POST" action="###SCRIPTURL###" id='page_editor' class='rapidweb-editor'>
+      <form method="POST" action="<?php echo $this->getScriptURL(); ?>" id='page_editor' class='rapidweb-editor'>
         <?php /* Main editor */ ?>
-        <textarea name="content" rows="22" wrap="virtual" class="txtfield">###CONTENT###</textarea>
+        <textarea name="content" rows="22" wrap="virtual" class="txtfield"><?php echo $this->page->content; ?></textarea>
 
         <?php /* Advanced settings panel */ ?>
         <section class='details-box'>
@@ -73,23 +74,23 @@
             <table width="100%" cellpadding="5" cellspacing="0" bgcolor="#f6f4e7">
               <tr>
                 <td width="70" valign="top"><strong>Title:</strong></td>
-                <td><input name='title' type=text class="txtfield" value='###USERTITLE###'>                    </td>
+                <td><input name='title' type=text class="txtfield" value='<?php echo $this->page->title ?>'>                    </td>
               </tr>
               <tr>
                 <td width="70" valign="top"><strong>Meta Description </strong> </td>
-                <td><textarea name='meta' rows=2 class="txtfield">###META###</textarea>                    </td>
+                <td><textarea name='meta' rows=2 class="txtfield"><?php $this->page->meta ?></textarea>                    </td>
               </tr>
               <tr>
                 <td width="70" valign="top"><strong>Meta Keywords </strong> </td>
-                <td><textarea name='metakeywords' rows=2 class="txtfield">###METAKEYWORDS###</textarea>                    </td>
+                <td><textarea name='metakeywords' rows=2 class="txtfield"><?php $this->page->title ?></textarea>                    </td>
               </tr>
               <tr>
                 <td width="70" valign="top"><strong>Special Variables </strong> </td>
-                <td><textarea name='variables' rows=2 class="txtfield">###VARIABLES###</textarea>                    </td>
+                <td><textarea name='variables' rows=2 class="txtfield"><?php $this->page->variables ?></textarea>  </td>
               </tr>
               <tr>
                 <td width="70" valign="top"><strong>Page Template </strong> </td>
-                <td><select name='template'>###TEMPLATESELECT###</select>                    </td>
+                <td><select name='template'><?php echo ListTemplates($this->page->template); ?></select>                    </td>
               </tr>
               <tr>
                 <td width="70" valign="top"><strong>Don't Index This Page </strong> </td>
@@ -105,8 +106,8 @@
           <input type="submit" value=" Save ">
         </div>
 
-        <input type="hidden" name="post" value="###PAGEURL###">
-        <input type="hidden" name="editversion" value="###VERSION###">
+        <input type="hidden" name="post" value="<?php echo $this->page->pagename; ?>">
+        <input type="hidden" name="editversion" value="<?php echo $this->page->version; ?>">
 
         <table width="775" cellpadding="5" cellspacing="0">
           <tr>

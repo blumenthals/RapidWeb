@@ -26,7 +26,7 @@ jQuery(document).ready(function($) {
         page_type_shadow.val($(this).val())
     }).change()
 
-    var gallery_shadow = $('<input type="hiden" name="gallery">')
+    var gallery_shadow = $('<input type="hidden" name="gallery">')
     $('#page_editor').append(gallery_shadow)
     $('#page_editor').submit(function() {
         gallery_shadow.val(JSON.stringify(pagedata.gallery))
