@@ -1,8 +1,7 @@
 <?php 
 
-class RapidWeb {
+class EventEmitter {
     private $callbacks = array();
-    private $pageTypes = array();
 
     public function on($event, $callback) {
         if(!isset($this->callbacks[$event])) $this->callbacks[$event] = array();
@@ -17,14 +16,5 @@ class RapidWeb {
             call_user_func_array($callback, $args);
         }
     }
-
-    public function initialize() {
-        $this->trigger('init', $this);
-    }
-
-    public function register_pagetype($slug, $handler) {
-        $this->pageTypes[$slug] = $handler;
-    }
 }
 
-$RapidWeb = new RapidWeb();

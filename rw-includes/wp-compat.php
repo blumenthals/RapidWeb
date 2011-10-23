@@ -49,8 +49,9 @@ function single_post_title($arg = '') {
 }
 
 
-function add_action($name, $args) {
-	// Not supported yet
+function add_action($name) {
+    global $RapidWeb;
+    return call_user_func_array(array($RapidWeb, 'on'), func_get_args());
 }
 
 function get_template_part($slug, $name = false) {
@@ -120,6 +121,11 @@ function wp_footer() {
 function wp_head() {
 }
 
+function do_action($action) {
+    global $RapidWeb;
+    return call_user_func_array(array($RapidWeb, 'trigger'), func_get_args());
+}
+
 function get_search_form() { ?>
 	<form role='search' action='<?php echo $_SERVER['PHP_SELF']; ?>' method='get' id="searchform">
 		<div><label class="screen-reader-text" for="s">Search for:</label>
@@ -129,6 +135,7 @@ function get_search_form() { ?>
 		</div>
 	</form>     
 <?php }
+
 
 define('ABSPATH', realpath(dirname(__FILE__)."/../"));
 

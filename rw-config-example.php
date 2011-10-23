@@ -11,7 +11,6 @@
 	$mysql_pwd = 'password';
 	$mysql_db = 'user_rw';
 	$TemplateName = 'default';
+    $Plugins = array('RWGallery');
 
 //	define('RW_CONTACT_EMAIL', 'admin@rapidweb.info');
-
-?>

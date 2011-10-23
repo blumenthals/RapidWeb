@@ -10,9 +10,11 @@ class RWGallery {
         return 'Gallery';
     }
 
-    public static function setupGallery($rapidweb) {
-        new RWGallery($rapidweb);
+    public function getPageTypeEditorScript() {
+        return 'rw-gallery.js';
+    }
+
+    public static function initialize($rapidweb) {
+        new self($rapidweb);
     }
 }
-
-$RapidWeb->on('init', array('RWGallery', 'setupGallery'));

@@ -1,8 +1,9 @@
 <?php header('Content-Type: text/html; charset=UTF-8');
-   /*
-      The main page, i.e. the main loop.
-      This file is always called first.
-   */
+/*
+  The main page, i.e. the main loop.
+  This file is always called first.
+*/
+
 
    if (!defined('WIKI_ADMIN')) { // index.php not included by admin.php?
       include "rw-includes/config.php";
@@ -13,13 +14,9 @@
       $dbi = OpenDataBase($WikiPageStore);
    }
 
-    require_once "rw-includes/RapidWeb.class.php";
-    $plugins = glob(dirname(__FILE__)."/rw-content/plugins/*/index.php");
-    if($plugins) foreach($plugins as $plugin) {
-        require_once $plugin;
-    }
-
-    $RapidWeb->initialize();
+$RapidWeb = new RapidWeb();
+$RapidWeb->add_plugins_directory(dirname(__FILE__)."/rw-content/plugins");
+$RapidWeb->initialize();
 
 	if(get_magic_quotes_gpc()) {
 		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);
