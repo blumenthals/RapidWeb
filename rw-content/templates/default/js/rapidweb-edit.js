@@ -62,6 +62,11 @@ jQuery(document).ready(function($) {
         button.css('top', '0')
         button.css('right', '0')
         button.hide()
+
+        button.click(function() {
+            // @todo remove from the model, too
+            tile.remove();
+        })
         // @todo: ajax delete the image (refcounting? eek!) when clicking delete.
         tile.append(button)
         return tile
