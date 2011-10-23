@@ -56,4 +56,3 @@
    }
 
    GeneratePage('EDITPAGE', htmlspecialchars($textarea), $pagename, $pagehash);   
-?>
