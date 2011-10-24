@@ -47,6 +47,7 @@ function _dohead(&$page) {
 function GeneratePage($template, $content, $name, $hash, $return = false) {
     global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
     global $datetimeformat, $dbi, $logo, $FieldSeparator;
+    global $RapidWeb;
 
     if (!is_array($hash)) unset($hash);
 
@@ -62,7 +63,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     if ($template == 'BROWSE' and isset($hash['template'])) {
         $page = get_include_contents($hash['template']);
     } elseif($template == 'EDITPAGE') {
-        $view = new EditPage(new RapidWebPage($hash));
+        $view = new EditPage(new RapidWebPage($hash), $RapidWeb);
         $view->render($templates[$template]);
         return;
     } else {

@@ -1,10 +1,11 @@
 <?php
 
 class EditPage extends View {
-    protected $page;
+    protected $page, $rapidweb;
 
-    public function __construct($page) {
+    public function __construct($page, $rapidweb) {
         $this->page = $page;
+        $this->rapidweb = $rapidweb;
     }
 
     public function getScriptURL() {
@@ -12,5 +13,8 @@ class EditPage extends View {
     }
 
     protected function do_head() {
+        foreach($this->rapidweb->getPageTypes() as $pageType) {
+            echo '<script src="'.$pageType->getEditorScript().'"></script>';
+        }
     }
 }

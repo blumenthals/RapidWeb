@@ -2,8 +2,12 @@
 
 class RapidWeb extends EventEmitter {
     private $pageTypes = array();
+    private $plugins = array();
 
     public function __construct() {
+        $this->documentRoot = $_SERVER['DOCUMENT_ROOT'];
+        if($this->documentRoot{strlen($this->documentRoot) - 1} == '/') 
+            $this->documentRoot = substr($this->documentRoot, 0, strlen($this->documentRoot - 2));
     }
 
     public function initialize() {
@@ -15,16 +19,32 @@ class RapidWeb extends EventEmitter {
         $this->pageTypes[$slug] = $handler;
     }
 
-    function add_plugins_directory($directory) {
+    public function add_plugins_directory($directory) {
         $plugins = glob($directory.'/*/plugin.php');
         if($plugins) {
             foreach($plugins as $plugin) {
-                set_include_path(get_include_path().PATH_SEPARATOR.dirname($plugin));
+                $last = end($this->plugins);
+                include $plugin;
+                $current = end($this->plugins);
+                if($last != $current) $current->setBaseURL($this->urlForPath(dirname($plugin).'/'));
             }
         }
     }
 
-    function load_plugins($plugins) {
-        foreach($plugins as $plugin) call_user_func(array($plugin, 'initialize'), $this);
+    public function urlForPath($path) {
+        if(strpos($path, $this->documentRoot) === 0) {
+            return substr($path, strlen($this->documentRoot));
+        } else {
+            return null;
+        }
     }
+
+    public function getPageTypes() {
+        return $this->pageTypes;
+    }
+
+    public function registerPlugin($pluginClass) {
+        $this->plugins[] = new $pluginClass($this);
+    }
+
 }
