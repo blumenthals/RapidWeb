@@ -1,17 +1,21 @@
 jQuery(document).ready(function($) {
     $( "#gallery_editor" ).sortable().bind('sortupdate', function(ev, ui) {
         console.log(ev, ui)
-        pagedata.gallery = $.makeArray($('#gallery_editor img').map(function() {
-            return $(this).attr('src')
-        }))
-        console.log("Gallery", pagedata.gallery)
+        refreshGallery()
     })
 
+
+    var refreshGallery = function refreshGallery() {
+        pagedata.gallery = $.makeArray($('#gallery_editor .image-tile').map(function() {
+            console.log($(this).data('gallery'))
+            return $(this).data('gallery')
+        }))
+    }
 
     var createGalleryTile = function createGalleryTile(image) {
         var img = $('<img>')
         img.attr('src', image.thumbnail)
-        var tile = $('<div class="gallery-tile">')
+        var tile = $('<div class="gallery-tile image-tile">')
         tile.append(img)
         tile.css('position', 'relative')
         tile.mouseenter(function() {
@@ -28,10 +32,14 @@ jQuery(document).ready(function($) {
 
         button.click(function() {
             // @todo remove from the model, too
-            tile.remove();
+            tile.remove()
+            refreshGallery()
         })
         // @todo: ajax delete the image (refcounting? eek!) when clicking delete.
         tile.append(button)
+
+        tile.data('gallery', image)
+
         return tile
     }
 
