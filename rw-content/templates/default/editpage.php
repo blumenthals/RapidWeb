@@ -31,8 +31,9 @@
           </td> 
           <td width="55%" align="right">
             <select name='page_type' id='page_type'>
-              <option value='gallery'>Gallery</option>
-              <option value='page'>Page</option>
+              <?php foreach($this->rapidweb->getPageTypes() as $slug => $pageType): ?>
+                <option value='<?php echo $slug ?>'<?php echo ($slug == $this->page->page_type ? ' selected' : '') ?>><?php echo $pageType->getPageTypeName() ?></option>
+              <?php endforeach; ?>
             </select>
             <button id='save_button'>Save</button><br>
             <input type="button" value="Cancel" onClick="history.go(-1)" name="back2">
@@ -42,7 +43,7 @@
 
       <br>
 
-      <div id='gallery_editor' class='rapidweb-editor'>
+      <div id='rwgallery_editor' class='rapidweb-editor'>
         <div class='gallery-tile upload-tile' id='upload-tile'>
           <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
           <form action='<?php echo $this->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>

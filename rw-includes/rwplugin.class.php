@@ -6,7 +6,6 @@ class RWPlugin {
 
     public function __construct(RapidWeb $rapidweb) {
         $this->rapidweb = $rapidweb;
-        $rapidweb->register_pagetype('rw-gallery', $this);
     }
 
     public function setBaseURL($url) {

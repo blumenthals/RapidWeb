@@ -8,6 +8,7 @@ class RapidWeb extends EventEmitter {
         $this->documentRoot = $_SERVER['DOCUMENT_ROOT'];
         if($this->documentRoot{strlen($this->documentRoot) - 1} == '/') 
             $this->documentRoot = substr($this->documentRoot, 0, strlen($this->documentRoot - 2));
+        $this->registerPlugin('WikiPage');
     }
 
     public function initialize() {
@@ -47,4 +48,19 @@ class RapidWeb extends EventEmitter {
         $this->plugins[] = new $pluginClass($this);
     }
 
+}
+
+class WikiPage extends RWPlugin {
+    public function __construct(RapidWeb $rapidweb) {
+        parent::__construct($rapidweb);
+        $rapidweb->register_pagetype('page', $this);
+    }
+
+    public function getPageTypeName() {
+        return 'Page';
+    }
+
+    public function getEditorScript() {
+        return NULL;
+    }
 }

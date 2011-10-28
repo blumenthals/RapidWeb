@@ -1,12 +1,12 @@
 jQuery(document).ready(function($) {
-    $( "#gallery_editor" ).sortable().bind('sortupdate', function(ev, ui) {
+    $( "#rwgallery_editor" ).sortable().bind('sortupdate', function(ev, ui) {
         console.log(ev, ui)
         refreshGallery()
     })
 
 
     var refreshGallery = function refreshGallery() {
-        pagedata.gallery = $.makeArray($('#gallery_editor .image-tile').map(function() {
+        pagedata.gallery = $.makeArray($('#rwgallery_editor .image-tile').map(function() {
             console.log($(this).data('gallery'))
             return $(this).data('gallery')
         }))
@@ -53,7 +53,7 @@ jQuery(document).ready(function($) {
                     var entries = data.$pushAll[k]
                     for(var i in entries) {
                         pagedata[k].push(entries[i])
-                        $('#gallery_editor').append(createGalleryTile(entries[i]))
+                        $('#rwgallery_editor').append(createGalleryTile(entries[i]))
                     }
                 }
             } else if(op == '$insertAll') {
@@ -90,6 +90,6 @@ jQuery(document).ready(function($) {
     console.log("Gallery", pagedata.gallery)
     for(var i in pagedata.gallery) {
         var image = pagedata.gallery[i]
-        $('#gallery_editor').append(createGalleryTile(image))
+        $('#rwgallery_editor').append(createGalleryTile(image))
     }
 })
