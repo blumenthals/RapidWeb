@@ -14,6 +14,9 @@ body, td, th {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
+#instructions {
+    line-height: 12px;
+}
 .style1 {
 	font-size: 24px;
 	color: #FFFFFF;
@@ -56,7 +59,7 @@ body {
 	}
 	?>
         <tr>
-          <td height="74" colspan="2" valign="middle"><form>
+          <td height="62" colspan="2" valign="middle"><form>
               <input type="button" onclick="window.open('<?php echo $targeturlfull; ?>','Uploaded Image',' width=500,height=500, resizable=yes')" value="View <?php echo basename($file['name']); ?>">
           </form></td>
 		  <td width="168" align="right" valign="middle"><form>
@@ -88,7 +91,7 @@ body {
 	</tr>
 <?php else: ?>
         <tr>
-          <td height="74" colspan="2" valign="middle">
+          <td height="62" colspan="2" valign="middle" id='instructions'>
             <strong>To Upload:<br>
               </strong>1. Select the file with the browse button.<br>
               2. Fill in the description (1-5 words).<br>
