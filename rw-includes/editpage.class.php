@@ -1,12 +1,6 @@
 <?php
 
 class EditPage extends View {
-    protected $page, $rapidweb;
-
-    public function __construct($page, $rapidweb) {
-        $this->page = $page;
-        $this->rapidweb = $rapidweb;
-    }
 
     public function getScriptURL() {
         return $_SERVER['PHP_SELF'];
@@ -18,5 +12,9 @@ class EditPage extends View {
                 echo '<script src="'.$pageType->getEditorScript().'"></script>';
             }
         }
+    }
+
+    public function render($templateFile) {
+        include $templateFile;
     }
 }

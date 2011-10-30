@@ -61,13 +61,21 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     }
 
     if ($template == 'BROWSE' and isset($hash['template'])) {
-        $page = get_include_contents($hash['template']);
+        $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
+        ob_start();
+        $view->render($hash['template']);
+        $page = ob_get_contents();
+        ob_end_clean();
     } elseif($template == 'EDITPAGE') {
         $view = new EditPage(new RapidWebPage($hash), $RapidWeb);
         $view->render($templates[$template]);
         return;
     } else {
-        $page = get_include_contents($templates[$template]);
+        $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
+        ob_start();
+        $view->render($templates[$template]);
+        $page = ob_get_contents();
+        ob_end_clean();
     }
 
     if (!$page) die("template not loaded");
