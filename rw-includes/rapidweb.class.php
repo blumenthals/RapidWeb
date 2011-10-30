@@ -44,6 +44,10 @@ class RapidWeb extends EventEmitter {
         return $this->pageTypes;
     }
 
+    public function getPageType($type) {
+        return $this->pageTypes[$type];
+    }
+
     public function registerPlugin($pluginClass) {
         $this->plugins[] = new $pluginClass($this);
     }

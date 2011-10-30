@@ -81,6 +81,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     if (!$page) die("template not loaded");
     $page = str_replace('###', "$FieldSeparator#", $page);
 
+    /// @todo move into OldTemplate
     // valid for all pagetypes
     _iftoken('COPY', isset($hash['copy']), $page);
     _iftoken('LOCK', (isset($hash['flags']) &&
