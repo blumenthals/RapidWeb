@@ -43,21 +43,11 @@
 
       <br>
 
-      <div id='rwgallery_editor' class='rapidweb-editor'>
-        <div class='gallery-tile upload-tile' id='upload-tile'>
-          <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
-          <form action='<?php echo $this->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
-            <div class='file-upload'>
-              Upload a file
-              <input type='file' name='img'>
-              <input type='hidden' name='pagename' value='<?php echo $this->page->pagename; ?>'>
-              <input type='hidden' name='command' value='upload_image_ajax'>
-            </div>
-            <input type='submit'>
-            <div class='error'></div>
-          </form>
-        </div>
-      </div>
+        <?php
+            foreach($this->rapidweb->getPageTypes() as $slug => $pageType) {
+                $pageType->the_editor_content($this);
+            }
+        ?>
 
       <form method="POST" action="<?php echo $this->getScriptURL(); ?>" id='page_editor' class='rapidweb-editor'>
         <?php /* Main editor */ ?>

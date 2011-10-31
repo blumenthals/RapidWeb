@@ -8,9 +8,7 @@ class EditPage extends View {
 
     protected function do_head() {
         foreach($this->rapidweb->getPageTypes() as $pageType) {
-            if($pageType->getEditorScript()) {
-                echo '<script src="'.$pageType->getEditorScript().'"></script>';
-            }
+            $pageType->do_editor_head();
         }
     }
 

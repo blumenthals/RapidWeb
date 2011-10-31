@@ -64,7 +64,11 @@ class WikiPage extends RWPlugin {
         return 'Page';
     }
 
-    public function getEditorScript() {
-        return NULL;
+    public function do_editor_head() {
+        // Do nothing
+    }
+
+    public function the_editor_content($view) {
+        /// @todo
     }
 }

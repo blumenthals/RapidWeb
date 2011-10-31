@@ -1,7 +1,8 @@
 <?php
 
 abstract class View {
-    protected $page, $rapidweb;
+    protected $rapidweb;
+    public $page;
 
     public function __construct($page, $rapidweb) {
         $this->page = $page;
