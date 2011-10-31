@@ -25,16 +25,18 @@
           <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Edit <?php echo $this->page->pagename; ?></span></h1></td>
         </tr>
         <tr>
-          <td height="60" colspan="2">
+          <td height="60" width='40%' valign="middle">
             <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
             <a onClick="window.open('<?php echo $this->getScriptURL(); ?>?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
-          </td> 
-          <td width="55%" align="right">
-            <select name='page_type' id='page_type'>
+          </td>
+          <td valign='middle'>
+            <label>Page Type <select name='page_type' id='page_type'>
               <?php foreach($this->rapidweb->getPageTypes() as $slug => $pageType): ?>
                 <option value='<?php echo $slug ?>'<?php echo ($slug == $this->page->page_type ? ' selected' : '') ?>><?php echo $pageType->getPageTypeName() ?></option>
               <?php endforeach; ?>
-            </select>
+            </select></label>
+          </td> 
+          <td width="25%" align="right">
             <button id='save_button'>Save</button><br>
             <input type="button" value="Cancel" onClick="history.go(-1)" name="back2">
           </td>
