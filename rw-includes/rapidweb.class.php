@@ -53,22 +53,3 @@ class RapidWeb extends EventEmitter {
     }
 
 }
-
-class WikiPage extends RWPlugin {
-    public function __construct(RapidWeb $rapidweb) {
-        parent::__construct($rapidweb);
-        $rapidweb->register_pagetype('page', $this);
-    }
-
-    public function getPageTypeName() {
-        return 'Page';
-    }
-
-    public function do_editor_head() {
-        // Do nothing
-    }
-
-    public function the_editor_content($view) {
-        /// @todo
-    }
-}
