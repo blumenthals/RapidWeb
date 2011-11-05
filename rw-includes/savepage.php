@@ -7,13 +7,11 @@
    coding it.
 */
 
-   function UpdateRecentChanges($dbi, $pagename, $isnewpage)
-   {
+   function UpdateRecentChanges($dbi, $pagename, $isnewpage) {
       global $remoteuser; // this is set in the config
       global $dateformat;
-      global $WikiPageStore;
 
-      $recentchanges = RetrievePage($dbi, gettext ("RecentChanges"), $WikiPageStore);
+      $recentchanges = RetrievePage($dbi, gettext ("RecentChanges"));
 
       // this shouldn't be necessary, since PhpWiki loads 
       // default pages if this is a new baby Wiki
@@ -104,10 +102,8 @@
       exit;
    }
 
-
-
    $pagename = rawurldecode($_REQUEST['post']);
-   $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
+   $pagehash = RetrievePage($dbi, $pagename);
 
    // if this page doesn't exist yet, now's the time!
    if (! is_array($pagehash)) {

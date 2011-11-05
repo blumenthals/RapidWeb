@@ -7,7 +7,7 @@
    if (get_magic_quotes_gpc()) {
       $pagename = stripslashes($pagename);
    }
-   $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
+   $pagehash = RetrievePage($dbi, $pagename);
    settype ($pagehash, 'array');
 
    GeneratePage('EDITLINKS', "", $pagename, $pagehash);

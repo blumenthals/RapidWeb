@@ -63,8 +63,7 @@
    $html .= "<P><B>";
    $html .= gettext ("Current version");
    $html .= "</B></p>";
-   // $dbi = OpenDataBase($WikiPageStore);   --- done by index.php
-   $html .= ViewPageProps($info, $WikiPageStore);
+   $html .= ViewPageProps($info);
 
    $html .= "<P><B>";
    $html .= gettext ("Archived version");

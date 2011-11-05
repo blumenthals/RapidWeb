@@ -14,7 +14,7 @@
 
    $html = "";
    $enc_name = rawurlencode($pagename);
-   $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
+   $pagehash = RetrievePage($dbi, $pagename);
 
    // we render the page if it exists, else ask the user to write one.
    if (is_array($pagehash)) {

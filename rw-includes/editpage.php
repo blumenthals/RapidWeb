@@ -9,16 +9,7 @@
          $pagename = stripslashes($pagename);
       }
       $banner = htmlspecialchars($pagename);
-      $pagehash = RetrievePage($dbi, $pagename, $WikiPageStore);
-
-   } elseif ($copy) {
-      $pagename = rawurldecode($copy);
-      if (get_magic_quotes_gpc()) {
-         $pagename = stripslashes($pagename);
-      }
-      $banner = htmlspecialchars (sprintf (gettext ("Copy of %s"), $pagename));
-      $pagehash = RetrievePage($dbi, $pagename, $ArchivePageStore);
-
+      $pagehash = RetrievePage($dbi, $pagename);
    } else {
       ExitWiki(gettext ("No page name passed into editpage!"));
    }
@@ -37,12 +28,7 @@
       }
 
       $textarea = implode("\n", $pagehash["content"]);
-      if (isset($copy)) {
-	 // $cdbi = OpenDataBase($WikiPageStore);
-	 $currentpage = RetrievePage($dbi, $pagename, $WikiPageStore);
-         $pagehash["version"] = $currentpage["version"];
-      }
-      elseif ($pagehash["version"] > 1) {
+      if ($pagehash["version"] > 1) {
 	 if(IsInArchive($dbi, $pagename))
            $pagehash["copy"] = 1;
       }

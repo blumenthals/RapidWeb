@@ -293,7 +293,7 @@
 
    function _pagecontent($page) {
       //encapsulates transform.php into a proper function, so we can include it as part of an expression.
-      global $dbi, $WikiPageStore, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
+      global $dbi, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
       if(is_array($page)) {
         if(preg_match('/^["\']|\\$/', $page[1])) {
           $pageName = eval("return ".$page[1].";");
@@ -310,7 +310,7 @@
         $tagcontext = trim($tagcontext);
       }
       $html = "Page $pageName doesn't exist";
-      $pagehash = RetrievePage($dbi, $pageName, $WikiPageStore);
+      $pagehash = RetrievePage($dbi, $pageName);
       if (is_array($pagehash)) {
           require_once('rw-includes/transformlib.php');
           $p = new Parser($pagehash);
@@ -387,5 +387,14 @@
       }
       return $o;
    }
+   
+
+    /// @todo move to its own startup file
+    // All requests require the database
+    $dbi = OpenDataBase();
+    $RapidWeb = new RapidWeb();
+    $RapidWeb->add_plugins_directory(dirname(__FILE__)."/rw-content/plugins");
+    $RapidWeb->initialize();
+
 
 ?>

@@ -6,7 +6,7 @@
       CloseDataBase($dbi)
       MakeDBHash($pagename, $pagehash)
       MakePageHash($dbhash)
-      RetrievePage($dbi, $pagename, $pagestore)
+      RetrievePage($dbi, $pagename)
       InsertPage($dbi, $pagename, $pagehash)
       SaveCopyToArchive($dbi, $pagename, $pagehash)
       IsWikiPage($dbi, $pagename)
@@ -228,9 +228,9 @@
 
 
    // Return hash of page + attributes or default
-   function RetrievePage($dbi, $pagename, $pagestore) {
+   function RetrievePage($dbi, $pagename) {
       $pagename = mysql_real_escape_string($pagename, $dbi['dbc']);
-      if ($res = mysql_query("select * from $pagestore where pagename='$pagename'", $dbi['dbc'])) {
+      if ($res = mysql_query("select * from {$dbi['prefix']}wiki where pagename='$pagename'", $dbi['dbc'])) {
          if ($dbhash = mysql_fetch_assoc($res)) {
             return MakePageHash($dbhash);
          }
@@ -241,8 +241,6 @@
 
    // Either insert or replace a key/value (a page)
     function InsertPage($dbi, $pagename, $pagehash) {
-        global $WikiPageStore; // ugly hack
-
         if ($dbi['table'] == $dbi['prefix']."wiki") { // HACK
             $linklist = ExtractWikiPageLinks($pagehash['content']);
             SetWikiPageLinks($dbi, $pagename, $linklist);
@@ -328,7 +326,7 @@
 
 
    function RemovePage($dbi, $pagename) {
-      global $WikiPageStore, $ArchivePageStore;
+      global $ArchivePageStore;
       global $WikiLinksStore, $HitCountStore, $WikiScoreStore;
 
       $pagename = addslashes($pagename);
@@ -336,8 +334,8 @@
       $msg .= "<br>\n";
       $msg .= gettext ("MySQL error: %s");
 
-      if (!mysql_query("delete from $WikiPageStore where pagename='$pagename'", $dbi['dbc']))
-         ExitWiki(sprintf($msg, $pagename, $WikiPageStore, mysql_error()));
+      if (!mysql_query("delete from {$dbi['prefix']}wiki where pagename='$pagename'", $dbi['dbc']))
+         ExitWiki(sprintf($msg, $pagename, mysql_error()));
 
       if (!mysql_query("delete from $ArchivePageStore where pagename='$pagename'", $dbi['dbc']))
          ExitWiki(sprintf($msg, $pagename, $ArchivePageStore, mysql_error()));
@@ -451,8 +449,7 @@
    }
 
    function GetAllWikiPageNames($dbi) {
-      global $WikiPageStore;
-      $res = mysql_query("select pagename from $WikiPageStore", $dbi["dbc"]);
+      $res = mysql_query("select pagename from {$dbi['prefix']}wiki", $dbi["dbc"]);
       $rows = mysql_num_rows($res);
       for ($i = 0; $i < $rows; $i++) {
         $pages[$i] = mysql_result($res, $i);

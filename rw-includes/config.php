@@ -21,7 +21,6 @@
 	$WhichDatabase = 'mysql';
 
 	// MySQL settings -- see INSTALL.mysql for details on using MySQL
-	$WikiPageStore = "wiki";
 	$ArchivePageStore = "archive";
 	$WikiLinksStore = "wikilinks";
 	$WikiScoreStore = "wikiscore";
