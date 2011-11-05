@@ -21,11 +21,11 @@
 
       <table width="100%">
         <tr>
-          <td width="26%" height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
-          <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Edit <?php echo $this->page->pagename; ?></span></h1></td>
+          <td height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
+          <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Editing: <?php echo $this->page->pagename; ?></span></h1></td>
         </tr>
         <tr>
-          <td height="60" width='40%' valign="middle">
+          <td width='240' height="60" valign="middle">
             <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
             <a onClick="window.open('<?php echo $this->getScriptURL(); ?>?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
           </td>
@@ -36,7 +36,7 @@
               <?php endforeach; ?>
             </select></label>
           </td> 
-          <td width="25%" align="right">
+          <td width="67" align="right">
             <button id='save_button'>Save</button><br>
             <input type="button" value="Cancel" onClick="history.go(-1)" name="back2">
           </td>
