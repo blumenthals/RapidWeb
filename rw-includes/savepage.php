@@ -73,8 +73,7 @@
    }
 
 
-   function ConcurrentUpdates($pagename)
-   {
+   function ConcurrentUpdates($pagename) {
       /* xgettext only knows about c/c++ line-continuation strings
         is does not know about php's dot operator.
         We want to translate this entire paragraph as one string, of course.
