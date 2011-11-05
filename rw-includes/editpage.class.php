@@ -18,4 +18,14 @@ class EditPage extends View {
     public function render($templateFile) {
         include $templateFile;
     }
+
+    public function the_pagetype_selector()  {
+        ?>
+            <label>Page Type <select name='page_type' id='page_type'>
+              <?php foreach($this->rapidweb->getPageTypes() as $slug => $pageType): ?>
+                <option value='<?php echo $slug ?>'<?php echo ($slug == $this->page->page_type ? ' selected' : '') ?>><?php echo $pageType->getPageTypeName() ?></option>
+              <?php endforeach; ?>
+            </select></label>
+        <?php
+    }
 }
