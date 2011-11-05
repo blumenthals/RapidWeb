@@ -1,39 +1,74 @@
-jQuery(document).ready(function($) {
+jQuery.fn.rapidwebEditor = function(options) {
+    var saveURL = this.find('link[rel=rapidweb-admin]').attr('href')
+
+    var savePage = function savePage() {
+        $.ajax({
+            url: saveURL, 
+            processData: false ,
+            data: JSON.stringify({command: 'savePage', page: pagedata}), 
+            type: 'POST',
+            headers: {'Content-Type': 'text/json'}
+        }).success(function(data) {
+            if(data.location) window.location = data.location;
+        })
+    }
+
     var selectEditor = function() {
         var editortoshow = '#'+this.value+'_editor'
         $('.rapidweb-editor').not('#'+this.value+'_editor').hide()
         $(editortoshow).show()
     }
 
-    selectEditor.call($('#page_type').change(selectEditor).get(0))
+    var bind = function bind(obj, field, control) {
+        $(control).change(function() {
+            obj[field] = $(control).val()
+        })
+        $(control).val(obj[field])
+        $(control).trigger('change')
+    }
 
-    $('.details-box .details-box-show').click(function() {
+    var bindCheckbox = function bindCheckbox(obj, field, control) {
+        $(control).change(function() {
+            obj[field] = $(control).prop('checked')
+        })
+        $(control).prop('checked', obj[field])
+        $(control).trigger('change')
+    }
+
+    $('#page_type').change(selectEditor)
+    
+    bind(pagedata, 'page_type', '#page_type')
+    bind(pagedata, 'content', '#page_editor [name=content]')
+    bind(pagedata, 'title', '#page_editor [name=title]')
+    bind(pagedata, 'meta', '#page_editor [name=meta]')
+    bind(pagedata, 'keywords', '#page_editor [name=keywords]')
+    bind(pagedata, 'variables', '#page_editor [name=variables]')
+    bind(pagedata, 'template', '#page_editor [name=template]')
+    bindCheckbox(pagedata, 'noindex', '#page_editor [name=noindex]')
+
+    this.find('.details-box .details-box-show').click(function() {
         $(this).hide()
         $(this).closest('.details-box').find('.details-box-hide').show()
         $(this).closest('.details-box').find('.details').slideDown()
     })
-    $('.details-box .details-box-hide').click(function() {
+
+    this.find('.details-box .details-box-hide').click(function() {
         $(this).hide()
         $(this).closest('.details-box').find('.details-box-show').show()
         $(this).closest('.details-box').find('.details').slideUp()
     })
-    $('.details-box .details-box-hide, .details-box .details').hide()
 
-    var page_type_shadow = $('<input type="hidden" name="page_type">')
-    $('#page_editor').append(page_type_shadow)
+    this.find('.details-box .details-box-hide, .details-box .details').hide()
 
-    $('#page_type').change(function() {
-        page_type_shadow.val($(this).val())
-    }).change()
-
-    var gallery_shadow = $('<input type="hidden" name="gallery">')
-    $('#page_editor').append(gallery_shadow)
-    $('#page_editor').submit(function() {
-        gallery_shadow.val(JSON.stringify(pagedata.gallery))
+    this.find('[name=save]').click(function(ev) {
+        ev.preventDefault();
+        savePage();
     })
 
-    $('#save_button').click(function() {
-        $('#page_editor').submit()
-    })
+    return this
 
+}
+
+jQuery(document).ready(function($) {
+    $(document).rapidwebEditor();
 })

@@ -61,8 +61,8 @@ class WikiPage extends RWPlugin {
 
         <?php /* Save and cancel controls */ ?>
         <div align="right">
-          <input type="button" value="Cancel" onClick="history.go(-1)" name="back">
-          <input type="submit" value=" Save ">
+          <button name='cancel' onclick="history.go(-1)">Cancel</button>
+          <button name='save'>Save</button>
         </div>
 
         <input type="hidden" name="post" value="<?php echo $view->page->pagename; ?>">

@@ -63,6 +63,59 @@ class RapidWeb extends EventEmitter {
     public function do_savePage($page) {
         global $dbi;
         $pagehash = RetrievePage($dbi, $page->pagename);
-    }
 
+        // if this page doesn't exist yet, now's the time!
+        if (! is_array($pagehash)) {
+            $pagehash = array('version' => 0, 'created' => time(), 'flags' => 0);
+            $newpage = 1;
+        }
+
+        $settings = RetrieveSettings();
+
+        // set new pageinfo
+        $pagehash['lastmodified'] = time();
+        $pagehash['version']++;
+        $pagehash['author'] = $_SERVER['REMOTE_ADDRESS'];
+
+        if($settings['default_meta_description'] == $page->meta) {
+            $pagehash['meta'] = null;
+        } else {
+            $pagehash['meta'] = $page->meta;
+        }
+
+        if($settings['default_title'] == $page->title) {
+            $pagehash['title'] = null;
+        } else {
+            $pagehash['title'] = $page->title;
+        }
+
+        $pagehash['noindex'] = $page->noindex ? 1 : 0;
+
+        if($settings['default_meta_keywords'] == $page->keywords) {
+            $pagehash['keywords'] = null;
+        } else {
+            $pagehash['keywords'] = $page->keywords;
+        }
+
+        $pagehash['variables'] = $page->variables;
+
+        if(!empty($page->template)) {
+            $pagehash['template'] = $page->template;
+        } else {
+            unset($pagehash['template']);
+        }
+
+        $pagehash['gallery'] = $page->gallery;
+
+        $pagehash['page_type'] = $page->page_type;
+
+        if (! empty($page->content)) {
+            if(is_array($page->content)) $page->content = join("\n", $page->content);
+            $pagehash['content'] = preg_split('/[ \t\r]*\n/', chop($page->content));
+        } else {
+            $pagehash['content'] = array('');
+        }
+
+        InsertPage($dbi, $page->pagename, $pagehash);
+    }
 }
