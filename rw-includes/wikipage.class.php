@@ -1,6 +1,6 @@
 <?php
 
-class WikiPage extends RWPlugin {
+class WikiPage extends RWPlugin implements RWPageType {
     public function __construct(RapidWeb $rapidweb) {
         parent::__construct($rapidweb);
         $rapidweb->register_pagetype('page', $this);
@@ -14,8 +14,7 @@ class WikiPage extends RWPlugin {
         // Do nothing
     }
 
-    public function the_editor_content($view) {
-        /// @todo
+    public function the_editor_content(View $view) {
       ?>
       <form method="POST" action="<?php echo $view->getScriptURL(); ?>">
         <?php /* Main editor */ ?>
@@ -283,5 +282,9 @@ class WikiPage extends RWPlugin {
 
     public function the_content() {
         echo "###CONTENT###";
+    }
+
+    public function the_title() {
+        echo "###TITLE###";
     }
 }

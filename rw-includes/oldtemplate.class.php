@@ -11,7 +11,7 @@ class OldTemplate extends View {
         if($plugin = $this->getPlugin()) $plugin->do_head($this->page);
     }
 
-    protected function the_content() {
+    public function the_content() {
         if($plugin = $this->getPlugin()) {
             $plugin->the_content($this->page);
         } else {
@@ -22,6 +22,10 @@ class OldTemplate extends View {
 
     protected function getPlugin() {
         return $this->rapidweb->getPageType($this->page->page_type);
+    }
+
+    public function the_title() {
+        echo "###PAGE###";
     }
 
 }
