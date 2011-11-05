@@ -57,9 +57,6 @@ $RapidWeb->initialize();
    } elseif (isset($_REQUEST['info'])) {
       $info = $_REQUEST['info'];
       include "rw-includes/pageinfo.php";
-   } elseif (isset($_REQUEST['diff']) && defined('WIKI_ADMIN')) {
-      $diff = $_REQUEST['diff'];
-      include "rw-includes/diff.php";
    } elseif (isset($_REQUEST['sendform'])) {
       include "rw-includes/sendform.php";
     } elseif (isset($_REQUEST['command'])) {
