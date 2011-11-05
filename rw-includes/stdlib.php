@@ -393,7 +393,7 @@
     // All requests require the database
     $dbi = OpenDataBase();
     $RapidWeb = new RapidWeb();
-    $RapidWeb->add_plugins_directory(dirname(__FILE__)."/rw-content/plugins");
+    $RapidWeb->add_plugins_directory(dirname(__FILE__)."/../rw-content/plugins");
     $RapidWeb->initialize();
 
 
