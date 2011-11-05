@@ -31,44 +31,45 @@
    // open a database and return the handle
    // ignores MAX_DBM_ATTEMPTS
 
-   function OpenDataBase($dbname) {
-      global $mysql_server, $mysql_user, $mysql_pwd, $mysql_db;
+function OpenDataBase() {
+    global $mysql_server, $mysql_user, $mysql_pwd, $mysql_db;
 
-      if (!($dbc = mysql_pconnect($mysql_server, $mysql_user, $mysql_pwd))) {
-         $msg = gettext ("Cannot establish connection to database, giving up.");
-    $msg .= "<BR>";
-    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
-    ExitWiki($msg);
-      }
-      if (!mysql_select_db($mysql_db, $dbc)) {
-         $msg =  sprintf(gettext ("Cannot open database %s, giving up."), $mysql_db);
-    $msg .= "<BR>";
-    $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
-    ExitWiki($msg);
-      }
-      $dbi['dbc'] = $dbc;
-      $dbi['table'] = $dbname;
+    if (!($dbc = mysql_pconnect($mysql_server, $mysql_user, $mysql_pwd))) {
+        $msg = gettext ("Cannot establish connection to database, giving up.");
+        $msg .= "<BR>";
+        $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
+        ExitWiki($msg);
+    }
+    if (!mysql_select_db($mysql_db, $dbc)) {
+        $msg =  sprintf(gettext ("Cannot open database %s, giving up."), $mysql_db);
+        $msg .= "<BR>";
+        $msg .= sprintf(gettext ("MySQL error: %s"), mysql_error());
+        ExitWiki($msg);
+    }
+    $dbi['dbc'] = $dbc;
+    $dbi['table'] = 'wiki';
 
-   $db_version = rw_db_get_version();
+    $db_version = rw_db_get_version();
 
-   if($db_version < RAPIDWEB_DB_VERSION) {
-      echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
-      do {
-         $last = $db_version;
-         $func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
-         if(function_exists($func)) {
-            call_user_func('rw_upgrade_database_'.$db_version.'_'.($db_version + 1));
-            $db_version = rw_db_get_version();
-            if($db_version == $last) die("Upgrade failed, version still at $db_version");
-         } else {
-            die("Can't upgrade database");
-         }
-      } while($db_version < RAPIDWEB_DB_VERSION);
-      die("Database now at $db_version");
-   }
+    if($db_version < RAPIDWEB_DB_VERSION) {
+        echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
+        do {
+            $last = $db_version;
+            $func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
+            if(function_exists($func)) {
+                call_user_func($func);
+                $db_version = rw_db_get_version();
+                if($db_version == $last) die("Upgrade failed, version still at $db_version");
+            } else {
+                die("Can't upgrade database");
+            }
+        } while($db_version < RAPIDWEB_DB_VERSION);
 
-      return $dbi;
-   }
+        die("Database now at $db_version");
+    }
+
+    return $dbi;
+}
 
    function rw_db_get_version() {
       $db_version = -1;
