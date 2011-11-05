@@ -3,6 +3,7 @@
 class RapidWebPage {
     private $hash;
     public function __construct($hash) {
+        if(is_string($hash['noindex'])) $hash['noindex'] = ($hash['noindex'] === 'true' or $hash['noindex'] === "1" ? true : false);
         $this->hash = $hash;
     }
 
