@@ -4,19 +4,9 @@
   This file is always called first.
 */
 
-
-   if (!defined('WIKI_ADMIN')) { // index.php not included by admin.php?
-      include "rw-includes/config.php";
-      include "rw-includes/templating.php";
-      include "rw-includes/stdlib.php";
-
-      // All requests require the database
-      $dbi = OpenDataBase($WikiPageStore);
-   }
-
-$RapidWeb = new RapidWeb();
-$RapidWeb->add_plugins_directory(dirname(__FILE__)."/rw-content/plugins");
-$RapidWeb->initialize();
+    require_once "rw-includes/config.php";
+    require_once "rw-includes/templating.php";
+    require_once "rw-includes/stdlib.php";
 
 	if(get_magic_quotes_gpc()) {
 		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);

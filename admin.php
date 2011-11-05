@@ -1,20 +1,21 @@
-<?php // $Id: admin.php,v 1.5 2000/11/13 10:59:27 ahollosi Exp $
+<?php
 
-   function rcs_id($id) {}   // otherwise this gets in the way
+define('WIKI_ADMIN', true);	// has to be before includes
 
-   define('WIKI_ADMIN', true);	// has to be before includes
+require_once("rw-includes/config.php");
+require_once("rw-includes/templating.php");
+require_once("rw-includes/stdlib.php");
 
-   include("rw-includes/config.php");
-   include("rw-includes/templating.php");
-   include("rw-includes/stdlib.php");
+require('rw-admin/require-authentication.php');
 
-   require('rw-admin/require-authentication.php');
+$now = new DateTime("now", new DateTimeZone("GMT"));
+header('Expires: '.$now->format(DateTime::RFC2822));
 
-   $now = new DateTime("now", new DateTimeZone("GMT"));
-   header('Expires: '.$now->format(DateTime::RFC2822));
-
-   // All requests require the database
-   $dbi = OpenDataBase($WikiPageStore);
+if($_SERVER['CONTENT_TYPE'] == 'text/json') {
+    $request = json_decode(file_get_contents('php://input'));
+    $RapidWeb->dispatchCommand($request);
+    exit();
+}
 
    if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
       include ('rw-admin/lockpage.php');
