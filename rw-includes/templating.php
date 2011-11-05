@@ -50,6 +50,8 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     global $RapidWeb;
 
     if (!is_array($hash)) unset($hash);
+    if(!$hash['pagename']) $hash['pagename'] = $name;
+    if(!$hash['content']) $hash['content'] = '';
 
     global $VARIABLES;
 

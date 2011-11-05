@@ -52,4 +52,15 @@ class RapidWeb extends EventEmitter {
         $this->plugins[] = new $pluginClass($this);
     }
 
+    public function dispatchCommand($request) {
+        $method = 'do_'.$request->command;
+        // @todo this is hacky, but the page is what the initial command needs. Refactor.
+        $this->$method($request->page);
+    }
+
+    public function do_savePage($page) {
+        global $dbi;
+        $pagehash = RetrievePage($dbi, $page->pagename);
+    }
+
 }

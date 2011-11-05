@@ -187,6 +187,8 @@
       if (isset($convert)) {
          $pagehash['content'] = CookSpaces($pagehash['content']);
       }
+   } else {
+       $pagehash['content'] = array('');
    }
 
    for ($i = 1; $i <= NUM_LINKS; $i++) {
