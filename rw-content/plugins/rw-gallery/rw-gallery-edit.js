@@ -103,6 +103,9 @@ jQuery(document).ready(function($) {
     $('#upload-tile .spinner').hide()
 
     console.log("Gallery", pagedata.gallery)
+
+    if(!pagedata.gallery) pagedata.gallery = []
+
     for(var i in pagedata.gallery) {
         var image = pagedata.gallery[i]
         $('#rwgallery_editor').append(createGalleryTile(image))
