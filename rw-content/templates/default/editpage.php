@@ -2,19 +2,18 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Edit: <?php echo $this->page->pagename; ?></title>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/jquery-ui-1.8.16.custom.min.js"></script>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/js/rapidweb-edit.js"></script>
+    <?php $this->do_head(); ?>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/switchcontent.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
+    <link rel='rapidweb-admin' href='<?php echo $this->getScriptURL() ?>'>
     <script>
+        <?php /** @todo rcdata escape the json */ ?>
         var pagedata = <?php echo $this->page->toJSON(); ?>;
     </script>
-    <?php $this->do_head(); ?>
   </head>
   <body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif')">
     <div id='page_wrapper'>

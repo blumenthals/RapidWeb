@@ -40,10 +40,6 @@
       include "rw-includes/search.php";
    } elseif (isset($full)) {
       include "rw-includes/fullsearch.php";
-   } elseif (isset($_REQUEST['post']) && defined('WIKI_ADMIN')) {
-      $post = $_REQUEST['post'];
-      $content = $_REQUEST['content'];
-      include "rw-includes/savepage.php";
    } elseif (isset($_REQUEST['info'])) {
       $info = $_REQUEST['info'];
       include "rw-includes/pageinfo.php";

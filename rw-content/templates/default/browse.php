@@ -12,7 +12,6 @@
 ###METANOINDEX###
 
 <script src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
-<script src="<?php bloginfo('template_directory'); ?>/js/jquery-1.6.4.min.js"></script>
 <link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css">
 <link href='<?php bloginfo('template_directory'); ?>/images/favicon.png' rel="shortcut icon" type="image/png" >
 <?php $this->do_head(); ?>

@@ -3,12 +3,14 @@
 class RapidWeb extends EventEmitter {
     private $pageTypes = array();
     private $plugins = array();
+    public $globalURL;
 
     public function __construct() {
         $this->documentRoot = $_SERVER['DOCUMENT_ROOT'];
         if($this->documentRoot{strlen($this->documentRoot) - 1} == '/') 
             $this->documentRoot = substr($this->documentRoot, 0, strlen($this->documentRoot - 2));
         $this->registerPlugin('WikiPage');
+        $this->globalURL = $this->urlForPath(dirname(__FILE__).'/../rw-global');
     }
 
     public function initialize() {
