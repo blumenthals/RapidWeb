@@ -1,13 +1,11 @@
 jQuery(document).ready(function($) {
     $( "#rwgallery_editor" ).sortable().bind('sortupdate', function(ev, ui) {
-        console.log(ev, ui)
         refreshGallery()
     })
 
 
     var refreshGallery = function refreshGallery() {
         pagedata.gallery = $.makeArray($('#rwgallery_editor .image-tile').map(function() {
-            console.log($(this).data('gallery'))
             return $(this).data('gallery')
         }))
     }
@@ -65,7 +63,6 @@ jQuery(document).ready(function($) {
                     for(var k in data.$insertAll) {
                         var entries = data.$insertAll[k]
                         for(var i in entries) {
-                            console.log("Adding", entries[i])
                             pagedata[k].splice(index, 0, entries[i])
                             $('#upload-tile').after(createGalleryTile(entries[i]))
                         }
@@ -101,8 +98,6 @@ jQuery(document).ready(function($) {
 
     $('#upload-tile .error').hide()
     $('#upload-tile .spinner').hide()
-
-    console.log("Gallery", pagedata.gallery)
 
     if(!pagedata.gallery) pagedata.gallery = []
 
