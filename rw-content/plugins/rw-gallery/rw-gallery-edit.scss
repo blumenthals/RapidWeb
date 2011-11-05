@@ -1,3 +1,16 @@
+@mixin bg-gradient($color1, $color2) {
+  background-color: $color1;
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$color1}, endColorstr=#{$color2});
+  background-image: -moz-linear-gradient(center top, $color1, $color2);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from($color1), to($color2));
+}
+
+@mixin box-shadow($spec) {
+    -moz-box-shadow: $spec;
+    -webkit-box-shadow: $spec;
+    box-shadow: $spec;
+}
+
 .gallery-tile {
     width: 150px;
     height: 150px;
@@ -16,29 +29,28 @@
         margin: 4px;
         border-radius: 4px;
         border: solid 2px black;
-        box-shadow: 2px 2px 2px #7c959f;
+        @include box-shadow(2px 2px 2px #7c959f);
 
         .delete-button {
             width: 16px;
             height: 16px;
-	    background-image: url(images/button_cancel.png);
+	        background-image: url(images/button_cancel.png);
             color: black;
             font-family: sans-serif;
-            text-align: center;
-            text-decoration: none;
             border-bottom-left-radius: 3px;
-	    padding-top: 2px;
-	    padding-right: 2px;
-	    background-position: left bottom;
-	    background-repeat: no-repeat;
-	    cursor: hand;
-	    cursor: pointer;
+            padding-top: 2px;
+            padding-right: 2px;
+            background-position: left bottom;
+            background-repeat: no-repeat;
+            cursor: hand;
+            cursor: pointer;
+            text-indent: -9999px;
         }
     }
 
     .upload-tile {
-	border: solid 1px #BEBEBE;
-        box-shadow: none;
+        border: solid 1px #BEBEBE;
+        @include box-shadow(none);
         height: 80px;
         float:left;
 
@@ -46,19 +58,14 @@
         .spinner { text-align: center; margin-top: 1em; }
 
         .file-upload {
-	    -moz-box-shadow:inset 0px 1px 1px 0px #a4e271;
-	    -webkit-box-shadow:inset 0px 1px 1px 0px #a4e271;
-	    box-shadow:inset 0px 1px 1px 0px #a4e271;
-	    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #89c403), color-stop(1, #77a809) );
-	    background:-moz-linear-gradient( center top, #89c403 5%, #77a809 100% );
-	    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#89c403', endColorstr='#77a809');
-            background-color:#89c403;
-	    text-decoration:none;
-	    text-shadow:1px 1px 0px #528009;
-	    -moz-border-radius:6px;
-	    -webkit-border-radius:6px;
-	    border-radius:6px;
-	    border:1px solid #74b807;
+            @include box-shadow(inset 0px 1px 1px 0px #a4e271);
+            @include bg-gradient(#89c403, #77a809);
+            text-decoration:none;
+            text-shadow:1px 1px 0px #528009;
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
+            border-radius:6px;
+            border:1px solid #74b807;
             display:inline-block;
             font-family:arial;
             font-size:13px;
@@ -81,27 +88,24 @@
                 opacity: 0;
             }
 
-	    &:hover {
-                background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77a809), color-stop(1, #89c403) );
-		background:-moz-linear-gradient( center top, #77a809 5%, #89c403 100% );
-		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77a809', endColorstr='#89c403');
-		background-color:#77a809;
+            &:hover {
+                @include bg-gradient(#77a809, #89c403);
             }
 
-	    &:active {
-		position:relative;
-		top:1px;
-	    }
+            &:active {
+                position:relative;
+                top:1px;
+            }
         }
     }
 
     .instructions {
-	float: left;
+        float: left;
         padding-left: 15px;
-	li {
-	    margin-top:3px;
-	    margin-bottom:3px;
-	}
+        li {
+            margin-top:3px;
+            margin-bottom:3px;
+        }
     }
 
 }
