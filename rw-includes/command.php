@@ -171,7 +171,7 @@ function rw_do_command($command) {
 function rw_POST_upload_image_ajax($request, $response) {
     $file = $request['img'];
     $dir = realpath(dirname(__FILE__).'/../images/upload/').'/'.$request['pagename'];
-    $vdir = $request->getRoot()."/images/upload/".$request['pagename'];
+    $vdir = $request->getRoot()."images/upload/".$request['pagename'];
 
     if($file->size == 0) {
         $response->renderJSON(array('error' => 'no file uploaded'));
