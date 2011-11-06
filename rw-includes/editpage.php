@@ -27,7 +27,6 @@
 	 ExitWiki ("");
       }
 
-      $textarea = implode("\n", $pagehash["content"]);
       if ($pagehash["version"] > 1) {
 	 if(IsInArchive($dbi, $pagename))
            $pagehash["copy"] = 1;
@@ -41,4 +40,4 @@
       $pagehash["author"] = '';
    }
 
-   GeneratePage('EDITPAGE', htmlspecialchars($textarea), $pagename, $pagehash);   
+   GeneratePage('EDITPAGE', htmlspecialchars($pagehash['content']), $pagename, $pagehash);   

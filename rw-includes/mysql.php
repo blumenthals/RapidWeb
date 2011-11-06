@@ -231,9 +231,7 @@ function rw_upgrade_database_0_1() {
    /** Deserialize components of page data coming from MySQL */
    function MakePageHash($dbhash)
    {
-      // unserialize/explode content
       $dbhash['refs'] = unserialize($dbhash['refs']);
-      $dbhash['content'] = explode("\n", $dbhash['content']);
       $dbhash['gallery'] = json_decode($dbhash['gallery']);
       $dbhash['settings'] = RetrieveSettings();
       return $dbhash;

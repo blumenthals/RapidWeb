@@ -7,19 +7,19 @@
          }
     */
 
-   class Parser {
-      private $pagehash;
-      private $stack;
-      private $nforms;
+class Parser {
+    private $pagehash;
+    private $stack;
+    private $nforms;
 
-      function __construct($pagehash) {
+    function __construct($pagehash) {
          $this->pagehash = $pagehash;
          $this->tagdata["emailform"] = array(array($this, 'StartEmailForm'), "</form>");
          $this->nforms = 0;
-      }
+    }
 
-      // expects $pagehash and $html to be set
-      function tokenize($str, $pattern, &$orig) {
+    // expects $pagehash and $html to be set
+    function tokenize($str, $pattern, &$orig) {
          global $FieldSeparator;
          // Find any strings in $str that match $pattern and
          // store them in $orig, replacing them with tokens
@@ -33,18 +33,18 @@
          }
          $new .= $str;
          return $new;
-      }
+    }
 
-      private $tagstack = Array();
-      private $tagdata = array(
+    private $tagstack = Array();
+    private $tagdata = array(
          "columns" => array("<table class='rw-columns'><tr>", "</tr></table>"), 
          "column" => array("<td class='rw-column'>", "</td>"),
          "table" => array("<table>", "</table>"), 
          "tr" => array("<tr>", "</tr>"),
          "td" => array("<td>", "</td>"),
-      );
+    );
 
-   function AddOutputWrapper($tag, $data = null) {
+    function AddOutputWrapper($tag, $data = null) {
       if(is_array($this->tagdata[$tag][0])) {
          $o = call_user_func($this->tagdata[$tag][0], $data);
       } else {
@@ -54,9 +54,9 @@
 
       $this->tagstack[] = $tag;
       return($o);
-   }
+    }
 
-   function CloseOutputWrapper($tag, $data = null) {
+    function CloseOutputWrapper($tag, $data = null) {
       $d = $this->tagdata[$tag];
 
       $o = '';
@@ -70,13 +70,13 @@
          if($t == $tag) break;
       }
       return($o);
-   }
+    }
 
-   function InOutputWrapper($tag) {
-      return in_array($tag, $this->tagstack);
-   }
+    function InOutputWrapper($tag) {
+        return in_array($tag, $this->tagstack);
+    }
 
-   function StartEmailForm($matches) {
+    function StartEmailForm($matches) {
       $err = '';
       $args = rw_parse_intent($matches[1]);
       if(!$args['to'] && !defined('RW_CONTACT_EMAIL')) {
@@ -88,9 +88,9 @@
       $args['formno'] = $this->nforms++;
       $args = rw_make_query_string($args);
       return "$err<form action='{$_SERVER['PHP_SELF']}?$args' method=POST>";
-   }
+    }
 
-   function StartLinks($tmpline) {
+    function StartLinks($tmpline) {
       global $FieldSeparator, $AllowedProtocols;
       //////////////////////////////////////////////////////////
       // New linking scheme: links are in brackets. This will
@@ -106,19 +106,19 @@
       $this->oldn = $this->ntokens;
       $tmpline = $this->tokenize($tmpline, '\[\s*\d+\s*\]', $this->replacements, $this->ntokens);
       while ($this->oldn < $this->ntokens) {
-	 $num = (int) substr($this->replacements[$this->oldn], 1);
+         $num = (int) substr($this->replacements[$this->oldn], 1);
          if (! empty($embedded[$num]))
             $this->replacements[$this->oldn] = $embedded[$num];
-	 $this->oldn++;
+         $this->oldn++;
       }
 
       // match anything else between brackets 
       $this->oldn = $this->ntokens;
       $tmpline = $this->tokenize($tmpline, '\[.+?\]( ?\(new window\))?', $this->replacements, $this->ntokens);
       while ($this->oldn < $this->ntokens) {
-	$link = ParseAndLink($this->replacements[$this->oldn]);	
-	$this->replacements[$this->oldn] = $link['link'];
-	$this->oldn++;
+        $link = ParseAndLink($this->replacements[$this->oldn]);	
+        $this->replacements[$this->oldn] = $link['link'];
+        $this->oldn++;
       }
 
       //////////////////////////////////////////////////////////
@@ -127,19 +127,20 @@
       // URLs preceeded by a '!' are not linked
 
       $tmpline = $this->tokenize($tmpline, "!?\b($AllowedProtocols):[^\s<>\[\]\"'()]*[^\s<>\[\]\"'(),.?]", $this->replacements, $this->ntokens);
-      while ($this->oldn < $this->ntokens) {
-        if($this->replacements[$this->oldn][0] == '!')
-	   $this->replacements[$this->oldn] = substr($this->replacements[$this->oldn], 1);
-	else
-	   $this->replacements[$this->oldn] = LinkURL($this->replacements[$this->oldn]);
-        $this->oldn++;
-      }
+        while ($this->oldn < $this->ntokens) {
+            if($this->replacements[$this->oldn][0] == '!') {
+                $this->replacements[$this->oldn] = substr($this->replacements[$this->oldn], 1);
+            } else {
+                $this->replacements[$this->oldn] = LinkURL($this->replacements[$this->oldn]);
+            }
+            $this->oldn++;
+        }
 
-      return $tmpline;
+        return $tmpline;
 
-   }
+    }
 
-   function FinishLinks($tmpline) {
+    function FinishLinks($tmpline) {
       global $FieldSeparator;
       ///////////////////////////////////////////////////////
       // Replace tokens
@@ -149,7 +150,7 @@
 
       return $tmpline;
 
-   }
+    }
 
    function DoInlineMarkup($tmpline) {
       //////////////////////////////////////////////////////////
@@ -184,199 +185,166 @@
       return $tmpline;
    }
 
-   function parse($str, $tagcontext = null) {
-      global $FieldSeparator, $AllowedProtocols;
-      $this->stack = new Stack;
-      $this->tagcontext = strtolower($tagcontext);
+function parse($str, $tagcontext = null) {
+    global $FieldSeparator, $AllowedProtocols;
 
-   // Prepare replacements for references [\d+]
-   for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
-      if (! empty($this->pagehash['refs'][$i])) {
-         if (preg_match("/($InlineImages)$/i", $this->pagehash['refs'][$i])) {
-            // embed images
-            $embedded[$i] = LinkImage($this->pagehash['refs'][$i]);
-         } else {
-            // ordinary link
-            $embedded[$i] = LinkURL($this->pagehash['refs'][$i], "[$i]");
-         }
-      }
-   }
+    if(!is_array($str)) $str = explode("\n", $str);
 
+    $this->stack = new Stack;
+    $this->tagcontext = strtolower($tagcontext);
 
-   // only call these once, for efficiency
-   $quick_search_box  = RenderQuickSearch();
-   $full_search_box   = RenderFullSearch();
+    // Prepare replacements for references [\d+]
+    for ($i = 1; $i < (NUM_LINKS + 1); $i++) {
+        if (! empty($this->pagehash['refs'][$i])) {
+            if (preg_match("/($InlineImages)$/i", $this->pagehash['refs'][$i])) {
+                // embed images
+                $embedded[$i] = LinkImage($this->pagehash['refs'][$i]);
+            } else {
+                // ordinary link
+                $embedded[$i] = LinkURL($this->pagehash['refs'][$i], "[$i]");
+            }
+        }
+    }
 
-   // Loop over all lines of the page and apply transformation rules
-   $numlines = count($this->pagehash["content"]);
+    // only call these once, for efficiency
+    $quick_search_box  = RenderQuickSearch();
+    $full_search_box   = RenderFullSearch();
 
-   for ($index = 0; $index < $numlines; $index++) {
-      unset($tokens);
-      $this->ntokens = 0;
-      $this->replacements = array();
-      
-      $tmpline = $str[$index];
+    foreach($str as $tmpline) {
+        unset($tokens);
+        $this->ntokens = 0;
+        $this->replacements = array();
 
-      // Handle column tables
-      if (preg_match("/^START\s*COLUMNS.*/", $tmpline, $matches)) {
-         $html .= $this->AddOutputWrapper('columns');
-         $html .= $this->AddOutputWrapper('column');
-         continue;
-      } elseif ($this->InOutputWrapper('columns') and preg_match("/^NEW\s*COLUMN.*/", $tmpline, $matches)) {
-         $html .= $this->CloseOutputWrapper("column");
-         $html .= $this->AddOutputWrapper("column");
-         continue;
-      } elseif (preg_match("/^END\s*COLUMNS.*/", $tmpline, $matches)) {
-         $html .= $this->CloseOutputWrapper("columns");
-         continue;
-      } elseif (preg_match("/^EMAIL\s*FORM\s*(.*)/", $tmpline, $matches)) {
-         $html .= $this->AddOutputWrapper('emailform', $matches);
-         continue;
-      } elseif (preg_match("/^END\s*EMAIL\s*FORM.*/", $tmpline, $matches)) {
-         $html .= $this->CloseOutputWrapper('emailform', $matches);
-         continue;
-      }
+        // Handle column tables
+        if (preg_match("/^START\s*COLUMNS.*/", $tmpline, $matches)) {
+            $html .= $this->AddOutputWrapper('columns');
+            $html .= $this->AddOutputWrapper('column');
+            continue;
+        } elseif ($this->InOutputWrapper('columns') and preg_match("/^NEW\s*COLUMN.*/", $tmpline, $matches)) {
+            $html .= $this->CloseOutputWrapper("column");
+            $html .= $this->AddOutputWrapper("column");
+            continue;
+        } elseif (preg_match("/^END\s*COLUMNS.*/", $tmpline, $matches)) {
+            $html .= $this->CloseOutputWrapper("columns");
+            continue;
+        } elseif (preg_match("/^EMAIL\s*FORM\s*(.*)/", $tmpline, $matches)) {
+            $html .= $this->AddOutputWrapper('emailform', $matches);
+            continue;
+        } elseif (preg_match("/^END\s*EMAIL\s*FORM.*/", $tmpline, $matches)) {
+            $html .= $this->CloseOutputWrapper('emailform', $matches);
+            continue;
+        }
 
-      if (preg_match("/^START\s*TABLE(.*)/", $tmpline, $matches)) {
-         $html .= $this->AddOutputWrapper("table");
-         continue;
-      } elseif(preg_match("/^END\s*TABLE/", $tmpline, $matches)) {
-         $html .= $this->CloseOutputWrapper("table");
-         continue;
-      } elseif($this->InOutputWrapper("table")) {
-	 $tmpline = $this->StartLinks($tmpline);
-         $t = explode('|', $tmpline);
-         foreach($t as $k => $v) {
-            $v = $this->DoInlineMarkup($v);
-            $t[$k] = "<td>$v</td>";
-         }
-	 $tmpline = $this->FinishLinks(join($t, ''));
-         $html .= "<tr>$tmpline</tr>";
-         continue;
-      }
+        if (preg_match("/^START\s*TABLE(.*)/", $tmpline, $matches)) {
+            $html .= $this->AddOutputWrapper("table");
+            continue;
+        } elseif(preg_match("/^END\s*TABLE/", $tmpline, $matches)) {
+            $html .= $this->CloseOutputWrapper("table");
+            continue;
+        } elseif($this->InOutputWrapper("table")) {
+            $tmpline = $this->StartLinks($tmpline);
+            $t = explode('|', $tmpline);
+            foreach($t as $k => $v) {
+                $v = $this->DoInlineMarkup($v);
+                $t[$k] = "<td>$v</td>";
+            }
+            $tmpline = $this->FinishLinks(join($t, ''));
+            $html .= "<tr>$tmpline</tr>";
+            continue;
+        }
 
-		//Block HTML
-		if (preg_match("/^START\s*HTML.*/", $tmpline, $matches)) {
+		if (preg_match("/^START\s*HTML.*/", $tmpline, $matches)) { //Block HTML
 			$htmlmode = true;
 			continue;	
-		}
-
-		elseif ($htmlmode == true) {
+		} elseif ($htmlmode == true) {
 			if (preg_match("/END\s*HTML.*/", $tmpline, $matches)) {
 				$htmlmode = false;
 				continue;
 			}
 			$html .= $tmpline;
 			continue;
-		}
+		} elseif (!strlen($tmpline) || $tmpline == "\r") { // this is a blank line, send <p>
+            $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
+            continue;
+        } elseif (preg_match("/(^\|)(.*)/", $tmpline, $matches)) { // HTML mode
+            $html .= $this->SetHTMLOutputMode("", ZERO_LEVEL, 0);
+            $html .= $matches[2];
+            continue;
+        }
 
-      elseif (!strlen($tmpline) || $tmpline == "\r") {
-         // this is a blank line, send <p>
-         $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
-         continue;
-      }
+        $tmpline = $this->StartLinks($tmpline);
+        $tmpline = $this->DoInlineMarkup($tmpline);
 
-
-      elseif (preg_match("/(^\|)(.*)/", $tmpline, $matches)) {
-         // HTML mode
-         $html .= $this->SetHTMLOutputMode("", ZERO_LEVEL, 0);
-         $html .= $matches[2];
-         continue;
-      }
-
-      $tmpline = $this->StartLinks($tmpline);
-      $tmpline = $this->DoInlineMarkup($tmpline);
-
-      //////////////////////////////////////////////////////////
-      // unordered, ordered, and dictionary list  (using TAB)
-
-      if (preg_match("/(^\t+)(.*?)(:\t)(.*$)/", $tmpline, $matches)) {
-         // this is a dictionary list (<dl>) item
-         $numtabs = strlen($matches[1]);
-         $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
-	 $tmpline = '';
-	 if(trim($matches[2]))
-            $tmpline = '<dt>' . $matches[2];
-	 $tmpline .= '<dd>' . $matches[4];
-
-      } elseif (preg_match("/(^\t+)(\*|\d+|#)/", $tmpline, $matches)) {
-         // this is part of a list (<ul>, <ol>)
-         $numtabs = strlen($matches[1]);
-         if ($matches[2] == '*') {
-            $listtag = 'ul';
-         } else {
-            $listtag = 'ol'; // a rather tacit assumption. oh well.
-         }
-         $tmpline = preg_replace("/^(\t+)(\*|\d+|#)/", "", $tmpline);
-         $html .= $this->SetHTMLOutputMode($listtag, NESTED_LEVEL, $numtabs);
-         $html .= '<li>';
+        if (preg_match("/(^\t+)(.*?)(:\t)(.*$)/", $tmpline, $matches)) { /* this is a dictionary list (<dl>) item */
+            $numtabs = strlen($matches[1]);
+            $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
+            $tmpline = '';
+            if(trim($matches[2])) $tmpline = '<dt>' . $matches[2];
+            $tmpline .= '<dd>' . $matches[4];
+        } elseif (preg_match("/(^\t+)(\*|\d+|#)/", $tmpline, $matches)) { /* this is part of a list (<ul>, <ol>) */
+            $numtabs = strlen($matches[1]);
+            if ($matches[2] == '*') {
+                $listtag = 'ul';
+            } else {
+                $listtag = 'ol'; // a rather tacit assumption. oh well.
+            }
+            $tmpline = preg_replace("/^(\t+)(\*|\d+|#)/", "", $tmpline);
+            $html .= $this->SetHTMLOutputMode($listtag, NESTED_LEVEL, $numtabs);
+            $html .= '<li>';
 
 
-      //////////////////////////////////////////////////////////
-      // tabless markup for unordered, ordered, and dictionary lists
-      // ul/ol list types can be mixed, so we only look at the last
-      // character. Changes e.g. from "**#*" to "###*" go unnoticed.
-      // and wouldn't make a difference to the HTML layout anyway.
+            /* tabless markup for unordered, ordered, and dictionary lists 
+             * ul/ol list types can be mixed, so we only look at the last 
+             * character. Changes e.g. from "**#*" to "###*" go unnoticed. and 
+             * wouldn't make a difference to the HTML layout anyway.
+             */
 
-      // unordered lists <UL>: "*"
-      } elseif (preg_match("/^([#*]*\*)[^#]/", $tmpline, $matches)) {
-         // this is part of an unordered list
-         $numtabs = strlen($matches[1]);
-         $tmpline = preg_replace("/^([#*]*\*)/", '', $tmpline);
-         $html .= $this->SetHTMLOutputMode('ul', NESTED_LEVEL, $numtabs);
-         $html .= '<li>';
+        } elseif (preg_match("/^([#*]*\*)[^#]/", $tmpline, $matches)) { /* unordered lists <UL>: "*" */
+            // this is part of an unordered list
+            $numtabs = strlen($matches[1]);
+            $tmpline = preg_replace("/^([#*]*\*)/", '', $tmpline);
+            $html .= $this->SetHTMLOutputMode('ul', NESTED_LEVEL, $numtabs);
+            $html .= '<li>';
 
-      // ordered lists <OL>: "#"
-      } elseif (preg_match("/^([#*]*\#)/", $tmpline, $matches)) {
-         // this is part of an ordered list
-         $numtabs = strlen($matches[1]);
-         $tmpline = preg_replace("/^([#*]*\#)/", "", $tmpline);
-         $html .= $this->SetHTMLOutputMode('ol', NESTED_LEVEL, $numtabs);
-         $html .= '<li>';
+        } elseif (preg_match("/^([#*]*\#)/", $tmpline, $matches)) { /* ordered lists <OL>: "#" */
+            $numtabs = strlen($matches[1]);
+            $tmpline = preg_replace("/^([#*]*\#)/", "", $tmpline);
+            $html .= $this->SetHTMLOutputMode('ol', NESTED_LEVEL, $numtabs);
+            $html .= '<li>';
 
-      // definition lists <DL>: ";text:text"
-      } elseif (preg_match("/(^;+)(.*?):(.*$)/", $tmpline, $matches)) {
-         // this is a dictionary list item
-         $numtabs = strlen($matches[1]);
-         $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
-	 $tmpline = '';
-	 if(trim($matches[2]))
-            $tmpline = '<dt>' . $matches[2];
-	 $tmpline .= '<dd>' . $matches[3];
+        } elseif (preg_match("/(^;+)(.*?):(.*$)/", $tmpline, $matches)) { /* definition lists <DL>: ";text:text" */
+            $numtabs = strlen($matches[1]);
+            $html .= $this->SetHTMLOutputMode('dl', NESTED_LEVEL, $numtabs);
+            $tmpline = '';
+            if(trim($matches[2])) $tmpline = '<dt>' . $matches[2];
+            $tmpline .= '<dd>' . $matches[3];
+        } elseif (preg_match("/^(!{1,3})[^!]/", $tmpline, $whichheading)) { /* lines starting with !,!!,!!! are headings */
+            if($whichheading[1] == '!') $heading = 'h3';
+            elseif($whichheading[1] == '!!') $heading = 'h2';
+            elseif($whichheading[1] == '!!!') $heading = 'h1';
+            $tmpline = preg_replace("/^!+/", '', $tmpline);
+            $html .= $this->SetHTMLOutputMode($heading, ZERO_LEVEL, 0);
 
+        } else {
+             // it's ordinary output if nothing else
+             $html .= $this->SetHTMLOutputMode('p', ZERO_LEVEL, 0);
+        }
 
-      //////////////////////////////////////////////////////////
-      // remaining modes: headings, normal text	
-
-      } elseif (preg_match("/^(!{1,3})[^!]/", $tmpline, $whichheading)) {
-	 // lines starting with !,!!,!!! are headings
-	 if($whichheading[1] == '!') $heading = 'h3';
-	 elseif($whichheading[1] == '!!') $heading = 'h2';
-	 elseif($whichheading[1] == '!!!') $heading = 'h1';
-	 $tmpline = preg_replace("/^!+/", '', $tmpline);
-	 $html .= $this->SetHTMLOutputMode($heading, ZERO_LEVEL, 0);
-
-      } else {
-         // it's ordinary output if nothing else
-         $html .= $this->SetHTMLOutputMode('p', ZERO_LEVEL, 0);
-      }
-
-      $tmpline = str_replace('%%Search%%', $quick_search_box, $tmpline);
-      $tmpline = str_replace('%%Fullsearch%%', $full_search_box, $tmpline);
-      if(defined('WIKI_ADMIN') && strstr($tmpline, '%%ADMIN-'))
-         $tmpline = ParseAdminTokens($tmpline);
+        $tmpline = str_replace('%%Search%%', $quick_search_box, $tmpline);
+        $tmpline = str_replace('%%Fullsearch%%', $full_search_box, $tmpline);
+        if(defined('WIKI_ADMIN') && strstr($tmpline, '%%ADMIN-')) $tmpline = ParseAdminTokens($tmpline);
 
 
-      $tmpline = $this->FinishLinks($tmpline);
+        $tmpline = $this->FinishLinks($tmpline);
 
 
-      $html .= $tmpline . "\n";
-   }
+        $html .= $tmpline . "\n";
+    }
 
-   $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
+    $html .= $this->SetHTMLOutputMode('', ZERO_LEVEL, 0);
 
-      return $html;
-   }
+    return $html;
+}
 
    /*
       Wiki HTML output can, at any given time, be in only one mode.
