@@ -1,6 +1,7 @@
 <?php
 
-require('rw-includes/wp-compat.php');
+require_once 'config.php';
+require_once 'wp-compat.php';
 
 function ListTemplates($active) {
     global $TemplateName;

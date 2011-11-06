@@ -9,7 +9,7 @@
 
    // end essential internal stuff
 
-   include('rw-config.php');
+   require_once dirname(__FILE__).'/../rw-config.php';
 
 	if(!isset($USERS)) die("Please configure RapidWeb before using");
 
@@ -25,7 +25,7 @@
 	$WikiLinksStore = "wikilinks";
 	$WikiScoreStore = "wikiscore";
 	$HitCountStore = "hitcount";
-	include "rw-includes/mysql.php";
+	require_once "mysql.php";
 
 	// logo image (path relative to index.php)
 	$logo = "images/logo.gif";
