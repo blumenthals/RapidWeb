@@ -28,4 +28,7 @@ class EditPage extends View {
             </select></label>
         <?php
     }
+
+    public function do_foot() {
+    }
 }

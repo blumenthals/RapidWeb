@@ -51,5 +51,7 @@
 
     </div>
 
+    <?php $this->do_foot(); ?>
+
   </body>
 </html>
