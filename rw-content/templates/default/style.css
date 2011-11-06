@@ -137,5 +137,13 @@ td.rw-column {
   margin-right: auto;
   width: 980px; }
 
+.rapidweb-page-title {
+  display: inline-block;
+  position: relative; }
+
 .rapidweb-page-title-editor {
-  font-size: inherit; }
+  font: inherit;
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  top: -3px; }

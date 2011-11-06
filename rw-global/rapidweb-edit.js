@@ -46,19 +46,28 @@ jQuery.fn.rapidwebEditor = function(options) {
 
     var inlineEdit = $("<input class='rapidweb-page-title-editor'>")
     inlineEdit.hide()
-    $('.rapidweb-page-title').after(inlineEdit)
+
+    $('.rapidweb-page-title').wrapInner('<span style="padding-right: 7px">')
+    $('.rapidweb-page-title').prepend(inlineEdit)
     $('.rapidweb-page-title').click(function() {
-        $('.rapidweb-page-title').hide()
+        $('.rapidweb-page-title>span').css('white-space', 'pre')
         $('.rapidweb-page-title-editor').show().focus()
     })
-    $('.rapidweb-page-title-editor').keypress(function(ev) {
-        if(ev.keyCode == 13) {
-            ev.preventDefault()
-            $(this).blur()
-        }
+    $('.rapidweb-page-title-editor').bind('input', function(ev) {
+        $('.rapidweb-page-title>span').text($(this).val())
+    }).bind('propertychange', function(ev) {
+        $('.rapidweb-page-title>span').text($(this).val())
+    }).keyup(function(ev) {
+        if(ev.keyCode == 13) $(this).blur()
+        $('.rapidweb-page-title>span').text($(this).val())
     }).blur(function() {
         $(this).hide()
-        $('.rapidweb-page-title').text($(this).val()).show()
+        $('.rapidweb-page-title>span').css('white-space', 'normal')
+        $('.rapidweb-page-title>span').text($(this).val())
+    })
+
+    $('.rapidweb-page-title-editor').change(function() {
+        $('title').text($(this).val())
     })
     
     bind(pagedata, 'page_type', '#page_type')
