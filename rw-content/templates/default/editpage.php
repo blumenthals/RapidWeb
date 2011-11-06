@@ -20,7 +20,7 @@
 
       <table width="100%">
         <tr>
-          <td height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/logo-blue.gif" hspace="8" border=0 align="absmiddle"></a></td>
+          <td height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/rapidweb-logo.png" hspace="8" border=0 align="absmiddle"></a></td>
           <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Editing: <?php echo $this->page->pagename; ?></span></h1></td>
         </tr>
         <tr>
