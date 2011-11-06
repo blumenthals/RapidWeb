@@ -10,7 +10,7 @@
       if(!strstr($args[0], '=')) $pagename = $args[0];
    }
 
-   if(!isset($pagename)) $pagename = gettext("home");
+   if(!isset($pagename)) $pagename = "home";
 
    $html = "";
    $enc_name = rawurlencode($pagename);
@@ -28,13 +28,8 @@
           $html = rw_capture_command('display_page');
           break;
        }
-   } else {
-      $html .= sprintf(gettext(""),
-		       "$pagename<a href='$ScriptUrl?edit=$enc_name'>?</a>");
    }
 
    GeneratePage('BROWSE', $html, $pagename, $pagehash);
    flush();
-
-   IncreaseHitCount($dbi, $pagename);
 ?>

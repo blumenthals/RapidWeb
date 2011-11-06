@@ -5,7 +5,7 @@
       $search = stripslashes($search);
 
    $html = "<P><B>"
-	   . sprintf(gettext ("Searching for \"%s\" ....."),
+	   . sprintf(("Searching for \"%s\" ....."),
 		     htmlspecialchars($search))
 	   . "</B></P>\n";
 
@@ -21,8 +21,8 @@
    }
 
    $html .= "<hr noshade>\n"
-	    . sprintf(gettext ("%d pages match your query."), $found)
+	    . sprintf(("%d pages match your query."), $found)
 	    . "\n";
 
-   GeneratePage('MESSAGE', $html, gettext ("Title Search Results"), 0);
+   GeneratePage('MESSAGE', $html, ("Title Search Results"), 0);
 ?>

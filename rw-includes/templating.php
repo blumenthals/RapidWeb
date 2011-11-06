@@ -135,12 +135,6 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
         date($datetimeformat, $hash['lastmodified']), $page, $FieldSeparator);
         _dotoken('LASTAUTHOR', $hash['author'], $page, $FieldSeparator);
         _dotoken('VERSION', $hash['version'], $page, $FieldSeparator);
-        if (strstr($page, "$FieldSeparator#HITS$FieldSeparator#")) {
-            _dotoken('HITS', GetHitCount($dbi, $name), $page, $FieldSeparator);
-        }
-        if (strstr($page, "$FieldSeparator#RELATEDPAGES$FieldSeparator#")) {
-            _dotoken('RELATEDPAGES', LinkRelatedPages($dbi, $name), $page, $FieldSeparator);
-        }
     }
 
     // valid only for EditLinks
@@ -170,10 +164,10 @@ define('TEMPLATEPATH', TEMPLATEFSBASE."$TemplateName/");
 
 // Template files (filenames are relative to script position)
 $templates = array(
-    "BROWSE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
-    "EDITPAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('editpage')),
-    "EDITLINKS" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('editlinks')),
-    "MESSAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), gettext('browse')),
+    "BROWSE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'browse'),
+    "EDITPAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'editpage'),
+    "EDITLINKS" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'editlinks'),
+    "MESSAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'browse'),
     "functions.php" => rw_pathsearch($p=array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'functions.php', array(''))
 );
 

@@ -5,7 +5,7 @@
       $full = stripslashes($full);
 
    $html = "<P><B>"
-	   . sprintf(gettext ("Searching for \"%s\" ....."),
+       . sprintf("Searching for \"%s\" .....",
 		   htmlspecialchars($full))
 	   . "</B></P>\n<DL>\n";
 

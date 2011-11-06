@@ -1,23 +1,5 @@
 <?php
 
-   /*
-      Standard functions for Wiki functionality
-         ExitWiki($errormsg)
-         LinkExistingWikiWord($wikiword)
-         LinkUnknownWikiWord($wikiword)
-         LinkURL($url, $linktext)
-         LinkImage($url, $alt)
-         RenderQuickSearch($value)
-         RenderFullSearch($value)
-         RenderMostPopular()
-         CookSpaces($pagearray)
-         UpdateRecentChanges($dbi, $pagename, $isnewpage)
-         ParseAndLink($bracketlink)
-         ExtractWikiPageLinks($content)
-         LinkRelatedPages($dbi, $pagename)
-         GeneratePage($template, $content, $name, $hash)
-   */
-
    function get_include_contents($filename) {
      global $VARIABLES;
      if (is_file($filename)) {
@@ -43,7 +25,7 @@
       CloseDataBase($dbi);
 
       if($errormsg <> '') {
-         print "<P><hr noshade><h2>" . gettext("RapidWeb Fatal Error") . "</h2>\n";
+         print "<P><hr noshade><h2>" . ("RapidWeb Fatal Error") . "</h2>\n";
          print $errormsg;
          print "\n</BODY></HTML>";
       }
@@ -94,7 +76,7 @@
       global $ScriptUrl;
       return "<form action=\"$ScriptUrl\">\n" .
 	     "<input type=text size=30 name=search value=\"$value\">\n" .
-	     "<input type=submit value=\"". gettext("Search") .
+	     "<input type=submit value=\"". ("Search") .
 	     "\"></form>\n";
    }
 
@@ -102,23 +84,9 @@
       global $ScriptUrl;
       return "<form action=\"$ScriptUrl\">\n" .
 	     "<input type=text size=30 name=full value=\"$value\">\n" .
-	     "<input type=submit value=\"". gettext("Search") .
+	     "<input type=submit value=\"". ("Search") .
 	     "\"></form>\n";
    }
-
-   function RenderMostPopular() {
-      global $ScriptUrl, $dbi;
-
-      $query = InitMostPopular($dbi, MOST_POPULAR_LIST_LENGTH);
-      $result = "<DL>\n";
-      while ($qhash = MostPopularNextMatch($dbi, $query)) {
-	 $result .= "<DD>$qhash[hits] ... " . LinkExistingWikiWord($qhash['pagename']) . "\n";
-      }
-      $result .= "</DL>\n";
-
-      return $result;
-   }
-
 
    function ParseAdminTokens($line) {
       global $ScriptUrl;
@@ -127,7 +95,7 @@
 	 $head = str_replace('_', ' ', $matches[2]);
          $form = "<FORM ACTION=\"$ScriptUrl\" METHOD=POST>"
 		."$head: <INPUT NAME=$matches[1] SIZE=20> "
-		."<INPUT TYPE=SUBMIT VALUE=\"" . gettext("Go") . "\">"
+		."<INPUT TYPE=SUBMIT VALUE=\"" . ("Go") . "\">"
 		."</FORM>";
 	 $line = str_replace($matches[0], $form, $line);
       }
@@ -203,83 +171,6 @@
       }
 
       return $link;
-   }
-
-
-   function ExtractWikiPageLinks($content)
-   {
-      global $WikiNameRegexp;
-
-      $wikilinks = array();
-      $numlines = count($content);
-      for($l = 0; $l < $numlines; $l++)
-      {
-         // remove escaped '['
-         $line = str_replace('[[', ' ', $content[$l]);
-
-         // bracket links (only type wiki-* is of interest)
-         $numBracketLinks = preg_match_all("/\[\s*([^\]|]+\|)?\s*(.+?)\s*\]/", $line, $brktlinks);
-         for ($i = 0; $i < $numBracketLinks; $i++) {
-            $link = ParseAndLink($brktlinks[0][$i]);
-            if (preg_match("#^wiki#", $link['type']))
-               $wikilinks[$brktlinks[2][$i]] = 1;
-
-            $brktlink = preg_quote($brktlinks[0][$i]);
-            $line = preg_replace("|$brktlink|", '', $line);
-         }
-
-         // BumpyText old-style wiki links
-         if (preg_match_all("/!?$WikiNameRegexp/", $line, $link)) {
-            for ($i = 0; isset($link[0][$i]); $i++) {
-               if($link[0][$i][0] <> '!')
-                  $wikilinks[$link[0][$i]] = 1;
-            }
-         }
-      }
-      return $wikilinks;
-   }
-
-
-   function LinkRelatedPages($dbi, $pagename)
-   {
-      // currently not supported everywhere
-      if(!function_exists('GetWikiPageLinks'))
-         return '';
-
-      $links = GetWikiPageLinks($dbi, $pagename);
-
-      $txt = "<b>";
-      $txt .= sprintf (gettext ("%d best incoming links:"), NUM_RELATED_PAGES);
-      $txt .= "</b>\n";
-      for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
-         if(isset($links['in'][$i])) {
-            list($name, $score) = $links['in'][$i];
-            $txt .= LinkExistingWikiWord($name) . " ($score), ";
-         }
-      }
-
-      $txt .= "\n<br><b>";
-      $txt .= sprintf (gettext ("%d best outgoing links:"), NUM_RELATED_PAGES);
-      $txt .= "</b>\n";
-      for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
-         if(isset($links['out'][$i])) {
-            list($name, $score) = $links['out'][$i];
-            if(IsWikiPage($dbi, $name))
-               $txt .= LinkExistingWikiWord($name) . " ($score), ";
-         }
-      }
-
-      $txt .= "\n<br><b>";
-      $txt .= sprintf (gettext ("%d most popular nearby:"), NUM_RELATED_PAGES);
-      $txt .= "</b>\n";
-      for($i = 0; $i < NUM_RELATED_PAGES; $i++) {
-         if(isset($links['popular'][$i])) {
-            list($name, $score) = $links['popular'][$i];
-            $txt .= LinkExistingWikiWord($name) . " ($score), ";
-         }
-      }
-
-      return $txt;
    }
 
    # GeneratePage() -- takes $content and puts it in the template $template

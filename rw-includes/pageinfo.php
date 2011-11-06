@@ -6,8 +6,8 @@
    }
 
    $encname = htmlspecialchars($info);
-   $enter = gettext ("Enter a page name");
-   $go = gettext ("Go");
+   $enter = ("Enter a page name");
+   $go = ("Go");
    $html = "<form action=\"$ScriptUrl\" METHOD=GET>\n" .
 	   "<input name=\"info\" value=\"$encname\">" .
 	   " $enter\n" .
@@ -18,12 +18,12 @@
       $html .= " checked";
    }
    $html .= "> ";
-   $html .= gettext ("Show the page source and references");
+   $html .= ("Show the page source and references");
    $html .= "\n</form>\n";
 
    // don't bother unless we were asked
    if (! $info) {
-      GeneratePage('MESSAGE', $html, gettext("PageInfo"), 0);
+      GeneratePage('MESSAGE', $html, ("PageInfo"), 0);
       exit;
    }
 
@@ -33,7 +33,7 @@
 
       $pagehash = RetrievePage($dbi, $name, $pagestore);
       if ($pagehash == -1) {
-         $table = sprintf (gettext ("Page name '%s' is not in the database"),
+         $table = sprintf (("Page name '%s' is not in the database"),
 		$name) . "\n";
       }
       else {
@@ -61,15 +61,15 @@
    }
 
    $html .= "<P><B>";
-   $html .= gettext ("Current version");
+   $html .= ("Current version");
    $html .= "</B></p>";
    $html .= ViewPageProps($info);
 
    $html .= "<P><B>";
-   $html .= gettext ("Archived version");
+   $html .= ("Archived version");
    $html .= "</B></p>";
    // $dbi = OpenDataBase($ArchivePageStore);
    $html .= ViewPageProps($info, $ArchivePageStore);
 
-   GeneratePage('MESSAGE', $html, gettext("PageInfo").": '$info'", 0);
+   GeneratePage('MESSAGE', $html, ("PageInfo").": '$info'", 0);
 ?>

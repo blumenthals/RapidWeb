@@ -22,9 +22,6 @@
 
 	// MySQL settings -- see INSTALL.mysql for details on using MySQL
 	$ArchivePageStore = "archive";
-	$WikiLinksStore = "wikilinks";
-	$WikiScoreStore = "wikiscore";
-	$HitCountStore = "hitcount";
 	require_once "mysql.php";
 
 	// logo image (path relative to index.php)
@@ -36,16 +33,6 @@
 	// formats are given as format strings to PHP date() function
 	$datetimeformat = "F j, Y";	// may contain time of day
 	$dateformat = "F j, Y";	// must not contain time
-
-	// this defines how many page names to list when displaying
-	// the MostPopular pages; the default is to show the 20 most popular pages
-	define("MOST_POPULAR_LIST_LENGTH", 20);
-
-	// this defines how many page names to list when displaying related pages
-	define("NUM_RELATED_PAGES", 5);
-
-	// number of user-defined external references, i.e. "[1]"
-	define("NUM_LINKS", 12);
 
 	// allowed protocols for links - be careful not to allow "javascript:"
 	// within a named link [name|uri] one more protocol is defined: phpwiki
@@ -59,29 +46,10 @@
 	$WikiNameRegexp = "(?<![A-Za-z0-9])([A-Z][a-z]+){2,}(?![A-Za-z0-9])";
 
 
-
 	/////////////////////////////////////////////////////////////////////
 	// Part Four:
 	// Original pages and layout
 	/////////////////////////////////////////////////////////////////////
-
-	// need to define localization function first -- skip this
-	if (!function_exists ('gettext')) {
-		$lcfile = "php/locale/$LANG/LC_MESSAGES/phpwiki.php";
-		if (file_exists($lcfile)) { include($lcfile); }
-		else { $locale = array(); }
-
-		function gettext ($text) { 
-			global $locale;
-			 if (!empty ($locale[$text])) return $locale[$text];
-			 return $text;
-		}
-	} else {
-		putenv ("LANG=$LANG");
-		bindtextdomain ("phpwiki", "./php/locale");
-		textdomain ("phpwiki");
-	}
-	// end of localization function
 
 	function rw_pathsearch($paths, $basename, $suffixes = array('.php', '.html')) {
 		foreach($paths as $path) {
@@ -92,8 +60,6 @@
 		}
 		return false;
 	}
-   //////////////////////////////////////////////////////////////////////
-   // you shouldn't have to edit anyting below this line
 
 	if (!isset($ScriptUrl) || empty($ScriptUrl)) {
 		$port = ($_SERVER['SERVER_PORT'] == 80) ? '' : ":".$_SERVER['SERVER_PORT'];

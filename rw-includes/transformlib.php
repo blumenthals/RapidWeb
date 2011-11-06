@@ -206,8 +206,6 @@
    // only call these once, for efficiency
    $quick_search_box  = RenderQuickSearch();
    $full_search_box   = RenderFullSearch();
-   $most_popular_list = RenderMostPopular();
-
 
    // Loop over all lines of the page and apply transformation rules
    $numlines = count($this->pagehash["content"]);
@@ -365,7 +363,6 @@
 
       $tmpline = str_replace('%%Search%%', $quick_search_box, $tmpline);
       $tmpline = str_replace('%%Fullsearch%%', $full_search_box, $tmpline);
-      $tmpline = str_replace('%%Mostpopular%%', $most_popular_list, $tmpline);
       if(defined('WIKI_ADMIN') && strstr($tmpline, '%%ADMIN-'))
          $tmpline = ParseAdminTokens($tmpline);
 
@@ -447,7 +444,7 @@
                $this->stack->push($tag);
                if ($this->stack->cnt() > 10) {
                   // arbitrarily limit tag nesting
-                  ExitWiki(gettext ("Stack bounds exceeded in SetHTMLOutputMode"));
+                  ExitWiki(("Stack bounds exceeded in SetHTMLOutputMode"));
                }
             }
 
@@ -508,5 +505,3 @@ class Stack {
 
 $p = new Parser($pagehash);
 $html = $p->parse($pagehash['content']);
-
-?>

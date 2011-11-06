@@ -11,7 +11,7 @@
       $banner = htmlspecialchars($pagename);
       $pagehash = RetrievePage($dbi, $pagename);
    } else {
-      ExitWiki(gettext ("No page name passed into editpage!"));
+      ExitWiki("No page name passed into editpage!");
    }
 
 
@@ -19,11 +19,11 @@
 
       if (($pagehash['flags'] & FLAG_PAGE_LOCKED) && !defined('WIKI_ADMIN')) {
 	 $html = "<p>";
-	 $html .= gettext ("This page can only be edited by the administrator.");
+	 $html .= "This page can only be edited by the administrator.";
 	 $html .= "\n<p>";
-	 $html .= gettext ("Proper Authorization Required.");
+	 $html .= "Proper Authorization Required.";
 	 $html .= "\n";
-	 GeneratePage('MESSAGE', $html, sprintf (gettext ("Problem while editing %s"), $pagename), 0);
+	 GeneratePage('MESSAGE', $html, sprintf ("Problem while editing %s", $pagename), 0);
 	 ExitWiki ("");
       }
 
@@ -33,7 +33,7 @@
            $pagehash["copy"] = 1;
       }
    } else {
-      $textarea = sprintf(gettext ("Create %s here."),
+      $textarea = sprintf("Create %s here.",
 				htmlspecialchars($pagename));
       unset($pagehash);
       $pagehash["version"] = 0;
