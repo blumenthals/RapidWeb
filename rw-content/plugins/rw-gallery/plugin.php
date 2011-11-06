@@ -44,7 +44,6 @@ class RWGallery extends RWPlugin {
 
     public function the_editor_content($view) {
     ?>
-      <div id='rwgallery_editor' class='rapidweb-editor'>
         <div class='uploader'>
           <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
           <form action='<?php echo $view->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
@@ -73,7 +72,6 @@ class RWGallery extends RWPlugin {
           <div class='insertion-point'></div>
         </div>
         
-      </div>
     <?php
     }
 
