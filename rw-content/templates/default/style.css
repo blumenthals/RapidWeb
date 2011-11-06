@@ -136,3 +136,6 @@ td.rw-column {
   margin-left: auto;
   margin-right: auto;
   width: 980px; }
+
+.rapidweb-page-title-editor {
+  font-size: inherit; }

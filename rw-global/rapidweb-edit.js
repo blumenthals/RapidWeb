@@ -43,10 +43,28 @@ jQuery.fn.rapidwebEditor = function(options) {
     }
 
     $('#page_type').change(selectEditor)
+
+    var inlineEdit = $("<input class='rapidweb-page-title-editor'>")
+    inlineEdit.hide()
+    $('.rapidweb-page-title').after(inlineEdit)
+    $('.rapidweb-page-title').click(function() {
+        $('.rapidweb-page-title').hide()
+        $('.rapidweb-page-title-editor').show().focus()
+    })
+    $('.rapidweb-page-title-editor').keypress(function(ev) {
+        if(ev.keyCode == 13) {
+            ev.preventDefault()
+            $(this).blur()
+        }
+    }).blur(function() {
+        $(this).hide()
+        $('.rapidweb-page-title').text($(this).val()).show()
+    })
     
     bind(pagedata, 'page_type', '#page_type')
     bind(pagedata, 'content', '#page_editor [name=content]')
     bind(pagedata, 'title', '#page_editor [name=title]')
+    bind(pagedata, 'title', '.rapidweb-page-title-editor')
     bind(pagedata, 'meta', '#page_editor [name=meta]')
     bind(pagedata, 'keywords', '#page_editor [name=keywords]')
     bind(pagedata, 'variables', '#page_editor [name=variables]')
