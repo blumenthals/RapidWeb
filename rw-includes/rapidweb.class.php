@@ -6,12 +6,28 @@ class RapidWeb extends EventEmitter {
     public $globalURL;
 
     public function __construct() {
-        $this->documentRoot = $_SERVER['DOCUMENT_ROOT'];
-        if($this->documentRoot{strlen($this->documentRoot) - 1} == '/') 
-            $this->documentRoot = substr($this->documentRoot, 0, strlen($this->documentRoot - 2));
+        /* Find the root of the rapidweb installation */
+        $real = dirname($_SERVER['SCRIPT_FILENAME']);
+        while($real and !file_exists("$real/rw-config.php")) $real = dirname($real);
+        if(!$real) throw new Exception("Can't find our root directory");
+
+        /* Find the common suffix between the script filename and the script name directories. */
+        $url = dirname($_SERVER['SCRIPT_NAME']);
+        $reala = explode('/', $real);
+        $urla = explode('/', $url);
+        $parts = array();
+        while(array_pop($reala) == ($part = array_pop($urla))) array_unshift($parts, $part);
+        array_unshift($parts, $part);
+        $url = '/'.join('/', $parts);
+
+        /* Set up variables */
+        $this->documentRoot = $real;
+        $this->globalURL = "$url/rw-global";
+        $this->rootURL = $url;
+
+        /* Register basic page type plugin */
         $this->registerPlugin('WikiPage');
-        $this->globalURL = $this->urlForPath(dirname(__FILE__).'/../rw-global');
-        $this->rootURL = $this->urlForPath($this->documentRoot);
+
     }
 
     public function initialize() {
@@ -36,8 +52,9 @@ class RapidWeb extends EventEmitter {
     }
 
     public function urlForPath($path) {
+        $path = realpath($path);
         if(strpos($path, $this->documentRoot) === 0) {
-            return substr($path, strlen($this->documentRoot));
+            return substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot));
         } else {
             return null;
         }
@@ -124,8 +141,8 @@ class RapidWeb extends EventEmitter {
         print(json_encode(
             array(
                 'page' => array(
-                    'public' => $this->rootURL . 'index.php?' . $page->pagename,
-                    'private' => $this->rootURL . 'admin.php?' . $page->pagename
+                    'public' => $this->rootURL . '/index.php?' . $page->pagename,
+                    'private' => $this->rootURL . '/admin.php?' . $page->pagename
                 )
             )
         ));

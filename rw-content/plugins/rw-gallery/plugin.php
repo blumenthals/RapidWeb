@@ -11,13 +11,13 @@ class RWGallery extends RWPlugin {
     }
 
     public function do_editor_head() {
-        echo "<script src='{$this->baseURL}rw-gallery-edit.js'></script>";
-        echo "<link rel='stylesheet' href='{$this->baseURL}rw-gallery-edit.css'>";
+        echo "<script src='{$this->baseURL}/rw-gallery-edit.js'></script>";
+        echo "<link rel='stylesheet' href='{$this->baseURL}/rw-gallery-edit.css'>";
     }
 
     public function do_head($page) {
-        echo "<script src='" . $this->baseURL . 'colorbox/colorbox/jquery.colorbox-min.js' . "'></script>";
-        echo "<link rel='stylesheet' href='" . $this->baseURL . 'colorbox.css' . "'>";
+        echo "<script src='" . $this->baseURL . '/colorbox/colorbox/jquery.colorbox-min.js' . "'></script>";
+        echo "<link rel='stylesheet' href='" . $this->baseURL . '/colorbox.css' . "'>";
         echo "<script async>
             jQuery(function($) {
                 $('.rwgallery a').colorbox({
@@ -53,7 +53,7 @@ class RWGallery extends RWPlugin {
               <input type='hidden' name='pagename' value='<?php echo $view->page->pagename; ?>'>
               <input type='hidden' name='command' value='upload_image_ajax'>
             </div>
-            <div class='spinner'><img src='<?php echo "{$this->baseURL}loader.gif" ?>'></div>
+            <div class='spinner'><img src='<?php echo "{$this->baseURL}/loader.gif" ?>'></div>
             <div class='error'></div>
           </form>
         </div>
