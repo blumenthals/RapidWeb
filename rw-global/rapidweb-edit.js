@@ -26,7 +26,7 @@ jQuery.fn.rapidwebEditor = function(options) {
         $(editortoshow).show()
     }
 
-    var bind = function bind(obj, field, control) {
+    var modelBind = function modelBind(obj, field, control) {
         $(control).change(function() {
             obj[field] = $(control).val()
         })
@@ -34,7 +34,7 @@ jQuery.fn.rapidwebEditor = function(options) {
         $(control).trigger('change')
     }
 
-    var bindCheckbox = function bindCheckbox(obj, field, control) {
+    var modelBindCheckbox = function modelBindCheckbox(obj, field, control) {
         $(control).change(function() {
             obj[field] = $(control).prop('checked')
         })
@@ -70,15 +70,16 @@ jQuery.fn.rapidwebEditor = function(options) {
         $('title').text($(this).val())
     })
     
-    bind(pagedata, 'page_type', '#page_type')
-    bind(pagedata, 'content', '#page_editor [name=content]')
-    bind(pagedata, 'title', '#page_editor [name=title]')
-    bind(pagedata, 'title', '.rapidweb-page-title-editor')
-    bind(pagedata, 'meta', '#page_editor [name=meta]')
-    bind(pagedata, 'keywords', '#page_editor [name=keywords]')
-    bind(pagedata, 'variables', '#page_editor [name=variables]')
-    bind(pagedata, 'template', '#page_editor [name=template]')
-    bindCheckbox(pagedata, 'noindex', '#page_editor [name=noindex]')
+    modelBind(pagedata, 'page_type', '#page_type')
+    modelBind(pagedata, 'content', '#page_editor [name=content]')
+    modelBind(pagedata, 'title', '#page_editor [name=title]')
+    modelBind(pagedata, 'title', '.rapidweb-page-title-editor')
+    modelBind(pagedata, 'title', 'title')
+    modelBind(pagedata, 'meta', '#page_editor [name=meta]')
+    modelBind(pagedata, 'keywords', '#page_editor [name=keywords]')
+    modelBind(pagedata, 'variables', '#page_editor [name=variables]')
+    modelBind(pagedata, 'template', '#page_editor [name=template]')
+    modelBindCheckbox(pagedata, 'noindex', '#page_editor [name=noindex]')
 
     this.find('.details-box .details-box-show').click(function() {
         $(this).hide()
