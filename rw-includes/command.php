@@ -39,6 +39,7 @@ class Request implements ArrayAccess {
         }
 
         $this->root = dirname($phpserver['SCRIPT_NAME']);
+        if($this->root{strlen($this->root) - 1} != '/') $this->root .= '/';
     } 
 
     public function offsetExists($offset) {

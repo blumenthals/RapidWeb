@@ -30,19 +30,36 @@
     cursor: hand;
     cursor: pointer;
     text-indent: -9999px; }
-#rwgallery_editor .upload-tile {
+#rwgallery_editor .instructions {
+  float: left;
+  padding-left: 15px; }
+  #rwgallery_editor .instructions li {
+    margin-top: 3px;
+    margin-bottom: 3px; }
+#rwgallery_editor .insertion-point {
+  height: 154px;
+  width: 3px;
+  background-color: #D80;
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  margin-left: -1px;
+  margin-right: -2px; }
+#rwgallery_editor .uploader {
   border: solid 1px #BEBEBE;
+  background-color: #ddd;
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
   box-shadow: none;
+  margin-top: 3em;
   height: 80px;
   float: left; }
-  #rwgallery_editor .upload-tile form {
+  #rwgallery_editor .uploader form {
     margin: 1em; }
-  #rwgallery_editor .upload-tile .spinner {
+  #rwgallery_editor .uploader .spinner {
     text-align: center;
     margin-top: 1em; }
-  #rwgallery_editor .upload-tile .file-upload {
+  #rwgallery_editor .uploader .file-upload {
     -moz-box-shadow: inset 0px 1px 1px 0px #a4e271;
     -webkit-box-shadow: inset 0px 1px 1px 0px #a4e271;
     box-shadow: inset 0px 1px 1px 0px #a4e271;
@@ -69,24 +86,18 @@
     margin-left: auto;
     margin-right: auto;
     text-align: center; }
-    #rwgallery_editor .upload-tile .file-upload input[type='file'] {
+    #rwgallery_editor .uploader .file-upload input[type='file'] {
       width: 100%;
       height: 100%;
       position: absolute;
       top: 0;
       left: 0;
       opacity: 0; }
-    #rwgallery_editor .upload-tile .file-upload:hover {
+    #rwgallery_editor .uploader .file-upload:hover {
       background-color: #77a809;
       filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#77a809, endColorstr=#89c403);
       background-image: -moz-linear-gradient(center top, #77a809, #89c403);
       background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#77a809), to(#89c403)); }
-    #rwgallery_editor .upload-tile .file-upload:active {
+    #rwgallery_editor .uploader .file-upload:active {
       position: relative;
       top: 1px; }
-#rwgallery_editor .instructions {
-  float: left;
-  padding-left: 15px; }
-  #rwgallery_editor .instructions li {
-    margin-top: 3px;
-    margin-bottom: 3px; }

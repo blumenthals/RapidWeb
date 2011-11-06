@@ -11,6 +11,7 @@ class RapidWeb extends EventEmitter {
             $this->documentRoot = substr($this->documentRoot, 0, strlen($this->documentRoot - 2));
         $this->registerPlugin('WikiPage');
         $this->globalURL = $this->urlForPath(dirname(__FILE__).'/../rw-global');
+        $this->rootURL = $this->urlForPath($this->documentRoot);
     }
 
     public function initialize() {
@@ -117,5 +118,16 @@ class RapidWeb extends EventEmitter {
         }
 
         InsertPage($dbi, $page->pagename, $pagehash);
+
+        header('Content-Type: text/json');
+
+        print(json_encode(
+            array(
+                'page' => array(
+                    'public' => $this->rootURL . 'index.php?' . $page->pagename,
+                    'private' => $this->rootURL . 'admin.php?' . $page->pagename
+                )
+            )
+        ));
     }
 }

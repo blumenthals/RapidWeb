@@ -48,9 +48,32 @@
         }
     }
 
-    .upload-tile {
+
+    .instructions {
+        float: left;
+        padding-left: 15px;
+        li {
+            margin-top:3px;
+            margin-bottom:3px;
+        }
+    }
+
+    .insertion-point {
+        height: 154px;
+        width: 3px;
+        background-color: #D80;
+        display: inline-block;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        margin-left: -1px;
+        margin-right: -2px;
+    }
+
+    .uploader {
         border: solid 1px #BEBEBE;
+        background-color: #ddd;
         @include box-shadow(none);
+        margin-top: 3em;
         height: 80px;
         float:left;
 
@@ -96,15 +119,6 @@
                 position:relative;
                 top:1px;
             }
-        }
-    }
-
-    .instructions {
-        float: left;
-        padding-left: 15px;
-        li {
-            margin-top:3px;
-            margin-bottom:3px;
         }
     }
 

@@ -1,8 +1,7 @@
 jQuery(document).ready(function($) {
-    $( "#rwgallery_editor" ).sortable().bind('sortupdate', function(ev, ui) {
+    $( "#rwgallery_editor .images" ).sortable().bind('sortupdate', function(ev, ui) {
         refreshGallery()
     })
-
 
     var refreshGallery = function refreshGallery() {
         pagedata.gallery = $.makeArray($('#rwgallery_editor .image-tile').map(function() {
@@ -42,9 +41,9 @@ jQuery(document).ready(function($) {
     }
 
     $('#upload_target').bind('load', function() {
-        $('#upload-tile input[type=file]').prop('disabled', false)
-        $('#upload-tile .spinner').hide()
-        $('#upload-tile form').get(0).reset()
+        $('.uploader input[type=file]').prop('disabled', false)
+        $('.uploader .spinner').hide()
+        $('.uploader form').get(0).reset()
         var text = $('#upload_target').contents().text()
         if(!text) return;
         try {
@@ -59,50 +58,50 @@ jQuery(document).ready(function($) {
                         }
                     }
                 } else if(op == '$insertAll') {
-                    var index = $('#upload-tile').parent().children().index('#upload-tile'); // Seriously? JQUI.sortable doesn't do this?!
+                    var index = $('.insertion-point').parent().children().index('.insertion-point'); // Seriously? JQUI.sortable doesn't do this?!
                     for(var k in data.$insertAll) {
                         var entries = data.$insertAll[k]
                         for(var i in entries) {
                             pagedata[k].splice(index, 0, entries[i])
-                            $('#upload-tile').after(createGalleryTile(entries[i]))
+                            $('.insertion-point').before(createGalleryTile(entries[i]))
                         }
                     }
                 } else if(op == 'error') {
-                    $('#upload-tile .error').text(data[op])
-                    $('#upload-tile .error').show()
+                    $('.uploader .error').text(data[op])
+                    $('.uploader .error').show()
                 }
 
             }
         } catch(e) {
-            $('#upload-tile .error').text(e.message)
-            $('#upload-tile .error').show()
+            $('.uploader .error').text(e.message)
+            $('.uploader .error').show()
         }
         
         /* Clear the file upload widget. Guess what's dumb in the DOM! */
         /*
-        $('#upload-tile input[type=file]').each(function () {
+        $('.uploader input[type=file]').each(function () {
             this.parentNode.innerHTML = this.parentNode.innerHTML
         })
         */
     })
 
-    $('#upload-tile input[type=file]').bind('change', function() {
+    $('.uploader input[type=file]').bind('change', function() {
         this.form.submit()
-        $('#upload-tile input[type=file]').prop('disabled', true);
+        $('.uploader input[type=file]').prop('disabled', true);
         $(this).find('.error').hide()
-        $('#upload-tile .spinner').show();
+        $('.uploader .spinner').show();
     })
 
-    $('#upload-tile form').submit(function() {
+    $('.uploader form').submit(function() {
     })
 
-    $('#upload-tile .error').hide()
-    $('#upload-tile .spinner').hide()
+    $('.uploader .error').hide()
+    $('.uploader .spinner').hide()
 
     if(!pagedata.gallery) pagedata.gallery = []
 
     for(var i in pagedata.gallery) {
         var image = pagedata.gallery[i]
-        $('#rwgallery_editor').append(createGalleryTile(image))
+        $('#rwgallery_editor .insertion-point').before(createGalleryTile(image))
     }
 })
