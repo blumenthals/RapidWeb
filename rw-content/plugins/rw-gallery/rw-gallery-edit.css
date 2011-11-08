@@ -3,7 +3,9 @@
   height: 150px;
   overflow: hidden;
   background-color: #ddd;
-  display: inline-block; }
+  display: inline-block;
+  border-radius: 4px;
+  border: solid 2px black; }
   .gallery-tile img {
     max-width: 150px;
     max-height: 150px; }
@@ -11,8 +13,6 @@
 #rwgallery_editor .gallery-tile {
   vertical-align: top;
   margin: 4px;
-  border-radius: 4px;
-  border: solid 2px black;
   -moz-box-shadow: 2px 2px 2px #7c959f;
   -webkit-box-shadow: 2px 2px 2px #7c959f;
   box-shadow: 2px 2px 2px #7c959f; }
@@ -101,3 +101,12 @@
     #rwgallery_editor .uploader .file-upload:active {
       position: relative;
       top: 1px; }
+
+.photoDetailsEdit textarea, .photoDetailsEdit input {
+  width: 100%; }
+.photoDetailsEdit textarea {
+  height: 3em; }
+.photoDetailsEdit .gallery-tile {
+  display: block;
+  width: 150px;
+  margin: 1em auto; }

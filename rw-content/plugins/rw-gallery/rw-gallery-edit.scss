@@ -17,6 +17,8 @@
     overflow: hidden;
     background-color: #ddd;
     display: inline-block;
+    border-radius: 4px;
+    border: solid 2px black;
     img {
         max-width: 150px;
         max-height: 150px;
@@ -27,8 +29,6 @@
     .gallery-tile {
         vertical-align: top;
         margin: 4px;
-        border-radius: 4px;
-        border: solid 2px black;
         @include box-shadow(2px 2px 2px #7c959f);
 
         .delete-button {
@@ -124,3 +124,12 @@
 
 }
 
+.photoDetailsEdit {
+    textarea, input { width: 100%; }
+    textarea { height: 3em; }
+    .gallery-tile {
+        display: block;
+        width: 150px;
+        margin: 1em auto;
+    }
+}

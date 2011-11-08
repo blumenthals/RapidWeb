@@ -1,4 +1,6 @@
 jQuery(document).ready(function($) {
+
+
     $( "#rwgallery_editor .images" ).sortable().bind('sortupdate', function(ev, ui) {
         refreshGallery()
     })
@@ -37,6 +39,24 @@ jQuery(document).ready(function($) {
 
         tile.data('gallery', image)
 
+        tile.click(function() {
+            if(typeof image.caption === 'undefined') image.caption = ''
+            if(typeof image.description === 'undefined') image.description = ''
+            var Image = {
+                caption: ko.liveObservable(image, 'caption'),
+                description: ko.liveObservable(image, 'description'),
+                close: function() {
+                    dialogBox.dialog('destroy')
+                }
+            }
+            window.a = image
+            window.b= Image
+            var dialog = _.template($('#photoDetailsEdit').html())
+            var dialogBox = $(dialog(image))
+            dialogBox.dialog({title: "Image Details"})
+            ko.applyBindings(Image);
+        })
+
         return tile
     }
 
@@ -58,7 +78,9 @@ jQuery(document).ready(function($) {
                         }
                     }
                 } else if(op == '$insertAll') {
-                    var index = $('.insertion-point').parent().children().index('.insertion-point'); // Seriously? JQUI.sortable doesn't do this?!
+                    var $ip = $('.insertion-point')
+                    var index = $('.insertion-point').parent().children().index($ip); // Seriously? JQUI.sortable doesn't do this?!
+                    console.log('Inserting at ' + index)
                     for(var k in data.$insertAll) {
                         var entries = data.$insertAll[k]
                         for(var i in entries) {
@@ -67,10 +89,8 @@ jQuery(document).ready(function($) {
                         }
                     }
                 } else if(op == 'error') {
-                    $('.uploader .error').text(data[op])
-                    $('.uploader .error').show()
+                    throw data[op];
                 }
-
             }
         } catch(e) {
             $('.uploader .error').text(e.message)

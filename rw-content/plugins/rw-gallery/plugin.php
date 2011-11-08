@@ -13,6 +13,8 @@ class RWGallery extends RWPlugin {
     public function do_editor_head() {
         echo "<script src='{$this->baseURL}/rw-gallery-edit.js'></script>";
         echo "<link rel='stylesheet' href='{$this->baseURL}/rw-gallery-edit.css'>";
+        echo "<script src='{$this->rapidweb->globalURL}/underscore-min.js'></script>";
+        echo "<script src='{$this->rapidweb->globalURL}/knockout/build/output/knockout-latest.js'></script>";
     }
 
     public function do_head($page) {
@@ -22,11 +24,14 @@ class RWGallery extends RWPlugin {
             jQuery(function($) {
                 $('.rwgallery a').colorbox({
                     rel: 'group1',
+                    photo: true,
                     maxWidth: '90%',
                     maxHeight: '90%',
                     next: 'Next',
                     previous: 'Previous',
-                    fixed: true
+                    transition: 'fade',
+                    fixed: true,
+                    current: '{current}/{total}'
                 }) 
             })
         </script>";
@@ -35,15 +40,28 @@ class RWGallery extends RWPlugin {
     public function the_content($page) {
         echo "<div class='rwgallery'>";
         foreach($page->gallery as $image) {
-            echo "<a href='".$image->image."'>";
-            echo "<img src='".$image->thumbnail."'>";
+            $caption = htmlspecialchars($image->caption);
+            $description = htmlspecialchars($image->description);
+            echo "<a href='".$image->image."' title='{$description}'>";
+            echo "<img src='".$image->thumbnail."' description='{$description}' title='{$caption}'>";
             echo "</a>";
         }
         echo "</div>";
     }
 
     public function the_editor_content($view) {
+        //@todo html encode
     ?>
+        <script id="photoDetailsEdit" type="text/template">
+            <div class='photoDetailsEdit'>
+                <div class='gallery-tile image-tile'>
+                  <img src='<%= thumbnail %>'>
+                </div>
+                <input name='caption' data-bind="value: caption" value='' placeholder='Caption'>
+                <textarea name='description' data-bind="value: description" placeholder='Description'></textarea>
+                <button data-bind='click: close' class='ok-button'>Ok</button>
+            </div>
+        </script>
         <div class='uploader'>
           <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
           <form action='<?php echo $view->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
