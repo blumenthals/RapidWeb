@@ -29,7 +29,6 @@ class RWGallery extends RWPlugin {
                     maxHeight: '90%',
                     next: 'Next',
                     previous: 'Previous',
-                    transition: 'fade',
                     fixed: true,
                     current: '{current}/{total}'
                 }) 
