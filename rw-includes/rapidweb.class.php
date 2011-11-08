@@ -18,7 +18,8 @@ class RapidWeb extends EventEmitter {
         $parts = array();
         while(array_pop($reala) == ($part = array_pop($urla))) array_unshift($parts, $part);
         array_unshift($parts, $part);
-        $url = '/'.join('/', $parts);
+        $url = join('/', $parts);
+        if ($url{0} != '/') $url = '/'.$url;
 
         /* Set up variables */
         $this->documentRoot = $real;
