@@ -70,7 +70,7 @@ class RWGallery extends RWPlugin {
               <input type='hidden' name='pagename' value='<?php echo $view->page->pagename; ?>'>
               <input type='hidden' name='command' value='upload_image_ajax'>
             </div>
-            <div class='spinner'><img src='<?php echo "{$this->baseURL}/loader.gif" ?>'></div>
+            <div class='spinner'><img src='<?php echo "{$this->baseURL}loader.gif" ?>'></div>
             <div class='error'></div>
           </form>
         </div>

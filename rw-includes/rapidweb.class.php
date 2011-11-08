@@ -21,6 +21,8 @@ class RapidWeb extends EventEmitter {
         $url = join('/', $parts);
         if ($url{0} != '/') $url = '/'.$url;
         if ($real{0} != '/') $real = '/'.$real;
+        if ($url{strlen($url) - 1} != '/') $url .= '/';
+        if ($real{strlen($real) - 1} != '/') $real .= '/';
 
         /* Set up variables */
         $this->documentRoot = $real;
@@ -57,7 +59,7 @@ class RapidWeb extends EventEmitter {
     public function urlForPath($path) {
         $path = realpath($path);
         if(strpos($path, $this->documentRoot) === 0) {
-            $url = substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot) + 1);
+            $url = substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot));
             if($url{strlen($url) - 1} != '/') $url .= '/'; 
             return $url;
         } else {
