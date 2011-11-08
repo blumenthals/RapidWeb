@@ -26,7 +26,7 @@ class RapidWeb extends EventEmitter {
 
         /* Set up variables */
         $this->documentRoot = $real;
-        $this->globalURL = $url. ($url{strlen($url) - 1} == '/' ? '' : '/'). "rw-global";
+        $this->globalURL = "$url/rw-global/";
         $this->rootURL = $url;
 
         /* Register basic page type plugin */
