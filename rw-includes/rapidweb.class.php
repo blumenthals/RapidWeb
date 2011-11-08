@@ -20,6 +20,7 @@ class RapidWeb extends EventEmitter {
         array_unshift($parts, $part);
         $url = join('/', $parts);
         if ($url{0} != '/') $url = '/'.$url;
+        if ($real{0} != '/') $real = '/'.$real;
 
         /* Set up variables */
         $this->documentRoot = $real;
@@ -41,13 +42,14 @@ class RapidWeb extends EventEmitter {
     }
 
     public function add_plugins_directory($directory) {
-        $plugins = glob($directory.'/*/plugin.php');
+        $plugins = glob(realpath($directory).'/*/plugin.php');
         if($plugins) {
             foreach($plugins as $plugin) {
                 $last = end($this->plugins);
                 include $plugin;
                 $current = end($this->plugins);
-                if($last != $current) $current->setBaseURL($this->urlForPath(dirname($plugin).'/'));
+                $url = $this->urlForPath(dirname($plugin));
+                if($last != $current) $current->setBaseURL($url);
             }
         }
     }
@@ -55,7 +57,9 @@ class RapidWeb extends EventEmitter {
     public function urlForPath($path) {
         $path = realpath($path);
         if(strpos($path, $this->documentRoot) === 0) {
-            return substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot));
+            $url = substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot) + 1);
+            if($url{strlen($url) - 1} != '/') $url .= '/'; 
+            return $url;
         } else {
             return null;
         }
@@ -142,8 +146,8 @@ class RapidWeb extends EventEmitter {
         print(json_encode(
             array(
                 'page' => array(
-                    'public' => $this->rootURL . '/index.php?' . $page->pagename,
-                    'private' => $this->rootURL . '/admin.php?' . $page->pagename
+                    'public' => $this->rootURL . 'index.php?' . $page->pagename,
+                    'private' => $this->rootURL . 'admin.php?' . $page->pagename
                 )
             )
         ));

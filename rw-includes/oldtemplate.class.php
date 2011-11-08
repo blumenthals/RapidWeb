@@ -7,7 +7,7 @@ class OldTemplate extends View {
     }
 
     public function do_head() {
-        echo "<script src='{$this->rapidweb->globalURL}/jquery-1.6.4.min.js'></script>";
+        echo "<script src='{$this->rapidweb->globalURL}jquery-1.6.4.min.js'></script>";
         if($plugin = $this->getPlugin()) $plugin->do_head($this->page);
     }
 
