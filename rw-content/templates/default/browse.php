@@ -54,8 +54,6 @@
                     </tr>
                     <tr>
                       <td><img src="<?php bloginfo('template_directory'); ?>/images/menubottom.gif" width="175" height="43"><br>
-                        <span class="addtlinfo">Last Edited:<br>
-                        ###LASTMODIFIED###<br>
                     </tr>
                   </table></td>
                   <td valign="top" class="bodycopy" align='left'><?php $this->the_content(); ?></td>
@@ -63,11 +61,15 @@
             </table></td>
         </tr>
         <tr>
-          <td colspan='2' align="right" class="addtlinfo">&copy; Copyright 2008. All rights reserved.  Powered by <a href="http://www.RapidWeb.info">RapidWeb</a></td>
+          <td colspan='2' class="addtlinfo" align='center'>
+            <p>&copy; Copyright 2011. All rights reserved.
+              Powered by <a href="http://www.RapidWeb.info">RapidWeb</a>.
+              Last Edited <nobr>###LASTMODIFIED###</nobr></p>
+            <p><small><a href='admin.php?###PAGEURL###'>Admin</a></small></p>
+          </td>
         </tr>
       </table></td>
   </tr>
 </table>
-<center><small><a href='admin.php?###PAGEURL###'>Admin</a></small></center>
 </body>
 </html>
