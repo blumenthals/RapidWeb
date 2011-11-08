@@ -42,7 +42,7 @@ class RWGallery extends RWPlugin {
             $caption = htmlspecialchars($image->caption);
             $description = htmlspecialchars($image->description);
             echo "<a href='".$image->image."' title='{$description}'>";
-            echo "<img src='".$image->thumbnail."' description='{$description}' title='{$caption}'>";
+            echo "<img src='".$image->thumbnail."' title='{$caption}'>";
             echo "</a>";
         }
         echo "</div>";
