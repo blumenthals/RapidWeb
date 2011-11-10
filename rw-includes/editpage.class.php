@@ -8,7 +8,7 @@ class EditPage extends View {
 
     protected function do_head() {
         echo "<script src='{$this->rapidweb->globalURL}json2/json2.js'></script>";
-        echo "<script src='{$this->rapidweb->globalURL}jquery-1.7.js'></script>";
+        echo "<script src='{$this->rapidweb->globalURL}jquery-1.7.min.js'></script>";
         echo "<script src='{$this->rapidweb->globalURL}jquery-ui-1.8.16.custom.min.js'></script>";
         echo "<script src='{$this->rapidweb->globalURL}rapidweb-edit.js'></script>";
         foreach($this->rapidweb->getPageTypes() as $pageType) {
