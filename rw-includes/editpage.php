@@ -1,4 +1,3 @@
-<!-- $Id: editpage.php,v 1.8 2001/01/01 23:13:32 ahollosi Exp $ -->
 <?php
 
    // editpage relies on $pagename and $ScriptUrl
