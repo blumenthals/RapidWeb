@@ -31,7 +31,10 @@ jQuery.fn.rapidwebEditor = function(options) {
             obj[field] = $(control).val()
         })
         $(control).val(obj[field])
-        $(control).trigger('change')
+        try {
+            $(control).trigger('change')
+        } catch(e) {
+        }
     }
 
     var modelBindCheckbox = function modelBindCheckbox(obj, field, control) {
@@ -39,7 +42,10 @@ jQuery.fn.rapidwebEditor = function(options) {
             obj[field] = $(control).prop('checked')
         })
         $(control).prop('checked', obj[field])
-        $(control).trigger('change')
+        try {
+            $(control).trigger('change')
+        } catch(e) {
+        }
     }
 
     $('#page_type').change(selectEditor)
