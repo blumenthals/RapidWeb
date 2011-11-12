@@ -232,8 +232,7 @@ function rw_upgrade_database_0_1() {
 
 
    /** Deserialize components of page data coming from MySQL */
-   function MakePageHash($dbhash)
-   {
+   function MakePageHash($dbhash) {
       $dbhash['refs'] = unserialize($dbhash['refs']);
       $dbhash['gallery'] = json_decode($dbhash['gallery']);
       if(!$dbhash['plugins'] = json_decode($dbhash['plugins'])) $dbhash['plugins'] = new StdClass;
@@ -242,7 +241,15 @@ function rw_upgrade_database_0_1() {
    }
 
 
-   // Return hash of page + attributes or default
+   /** Return hash of page + attributes or default
+    *
+    * @param $dbi the database connection information hash
+    * @param $pagename the page name to fetch
+    *
+    * @returns a page hash
+    *
+    * @todo Move into RapidWebPage class
+    */
    function RetrievePage($dbi, $pagename) {
       $pagename = mysql_real_escape_string($pagename, $dbi['dbc']);
       if ($res = mysql_query("select * from {$dbi['prefix']}wiki where pagename='$pagename'", $dbi['dbc'])) {
@@ -250,7 +257,13 @@ function rw_upgrade_database_0_1() {
             return MakePageHash($dbhash);
          }
       }
-      return -1;
+      return array(
+          "version" => 0,
+          'lastmodified' => time(),
+          'author' => '',
+          'plugins' => new StdClass(),
+          'settings' => RetrieveSettings()
+      );
    }
 
 
