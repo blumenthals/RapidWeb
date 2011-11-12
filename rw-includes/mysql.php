@@ -216,8 +216,7 @@ function rw_upgrade_database_0_1() {
 
 
     /** prepare page data hash for storing in mysql */
-   function MakeDBHash($pagename, $pagehash)
-   {
+   function MakeDBHash($pagename, $pagehash) {
       if (!isset($pagehash["flags"]))
          $pagehash["flags"] = 0;
       $pagehash["content"] = implode("\n", $pagehash['content']);
@@ -226,6 +225,8 @@ function rw_upgrade_database_0_1() {
       $pagehash["refs"] = serialize($pagehash["refs"]);
       if(!isset($pagehash['pagename'])) $pagehash['pagename'] = $pagename;
       $pagehash['gallery'] = json_encode($pagehash['gallery']);
+
+      if(!isset($pagehash['created'])) $pagehash['created'] = time();
  
       return $pagehash;
    }
