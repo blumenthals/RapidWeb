@@ -173,17 +173,10 @@
       return $link;
    }
 
-   # GeneratePage() -- takes $content and puts it in the template $template
-   # this function contains all the template logic
-   #
-   # $template ... name of the template (see config.php for list of names)
-   # $content ... html content to put into the page
-   # $name ... page title
-   # $hash ... if called while creating a wiki page, $hash points to
-   #           the $pagehash array of that wiki page.
 
+   /** encapsulates transform.php into a proper function, so we can include it as part of an expression.
+    */
    function _pagecontent($page) {
-      //encapsulates transform.php into a proper function, so we can include it as part of an expression.
       global $dbi, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
       if(is_array($page)) {
         if(preg_match('/^["\']|\\$/', $page[1])) {

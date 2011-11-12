@@ -1,6 +1,6 @@
 <?php 
 
-define('RAPIDWEB_DB_VERSION', 10);
+define('RAPIDWEB_DB_VERSION', 11);
 
 /** Opens the database connection
  */
@@ -172,17 +172,20 @@ function rw_upgrade_database_0_1() {
     /** Add 'json' column for gallery */
     function rw_upgrade_database_8_9() {
         rw_db_query("ALTER TABLE wiki ADD COLUMN `json` TEXT");
-      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 9)");
-
+        rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 9)");
     }
 
     /** Add 'page type' field for gallery, and rename json column to gallery */
     function rw_upgrade_database_9_10() {
         rw_db_query("ALTER TABLE wiki ADD COLUMN `page_type` varchar(32) NOT NULL DEFAULT 'page'");
         rw_db_query("ALTER TABLE wiki CHANGE COLUMN `json` `gallery` TEXT");
-      rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 10)");
+        rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 10)");
+    }
 
-
+    /** Add plugin field */
+    function rw_upgrade_database_10_11() {
+        rw_db_query("ALTER TABLE wiki ADD COLUMN `plugin` TEXT");
+        rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 11)");
     }
 
    function rw_db_query($sql) {
@@ -233,6 +236,7 @@ function rw_upgrade_database_0_1() {
    {
       $dbhash['refs'] = unserialize($dbhash['refs']);
       $dbhash['gallery'] = json_decode($dbhash['gallery']);
+      if(!$dbhash['plugins'] = json_decode($dbhash['plugins'])) $dbhash['plugins'] = new StdClass;
       $dbhash['settings'] = RetrieveSettings();
       return $dbhash;
    }

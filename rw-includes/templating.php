@@ -43,7 +43,15 @@ function _dohead(&$page) {
     $page .= $rest;
 }
 
-/** Generate the actual page
+/** takes $content and puts it in the template $template.
+ * this function contains all the template logic.
+ *
+ * @param $template name of the template (see config.php for list of names)
+ * @param $content html content to put into the page
+ * @param $name page title
+ * @param $hash if called while creating a wiki page, $hash points to the $pagehash array of that wiki page.
+ *
+ * @todo Move into rapidweb class or a view
  */
 function GeneratePage($template, $content, $name, $hash, $return = false) {
     global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
