@@ -132,6 +132,8 @@ class RapidWeb extends EventEmitter {
 
         $pagehash['gallery'] = $page->gallery;
 
+        $pagehash['plugins'] = $page->plugins;
+
         $pagehash['page_type'] = $page->page_type;
 
         if (! empty($page->content)) {

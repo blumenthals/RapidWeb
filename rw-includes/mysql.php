@@ -184,7 +184,7 @@ function rw_upgrade_database_0_1() {
 
     /** Add plugin field */
     function rw_upgrade_database_10_11() {
-        rw_db_query("ALTER TABLE wiki ADD COLUMN `plugin` TEXT");
+        rw_db_query("ALTER TABLE wiki ADD COLUMN `plugins` TEXT");
         rw_db_query("REPLACE INTO rapidwebinfo (name,value) VALUES ('db_version', 11)");
     }
 
@@ -225,6 +225,7 @@ function rw_upgrade_database_0_1() {
       $pagehash["refs"] = serialize($pagehash["refs"]);
       if(!isset($pagehash['pagename'])) $pagehash['pagename'] = $pagename;
       $pagehash['gallery'] = json_encode($pagehash['gallery']);
+      $pagehash['plugins'] = json_encode($pagehash['plugins']);
 
       if(!isset($pagehash['created'])) $pagehash['created'] = time();
  
@@ -272,7 +273,7 @@ function rw_upgrade_database_0_1() {
     function InsertPage($dbi, $pagename, $pagehash) {
         $pagehash = MakeDBHash($pagename, $pagehash);
 
-        $COLUMNS = "author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery";
+        $COLUMNS = "author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins";
 
         $VALUES = array(
             $pagehash['author'], $pagehash['content'],
@@ -283,7 +284,8 @@ function rw_upgrade_database_0_1() {
             $pagehash['keywords'], $pagehash['variables'],
             $pagehash['noindex'], (isset($pagehash['template']) ? $pagehash['template'] : 'NULL'),
             $pagehash['page_type'],
-            $pagehash['gallery']
+            $pagehash['gallery'],
+            $pagehash['plugins']
         );
 
         foreach($VALUES as $k => $v) {
