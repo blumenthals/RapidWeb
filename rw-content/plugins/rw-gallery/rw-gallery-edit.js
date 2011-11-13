@@ -60,11 +60,12 @@ jQuery(document).ready(function($) {
         return tile
     }
 
+
     $('#upload_target').bind('load', function() {
         $('.uploader input[type=file]').prop('disabled', false)
         $('.uploader .spinner').hide()
         $('.uploader form').get(0).reset()
-        var text = $('#upload_target').contents().text()
+        var text = $('#upload_target').contents().children().text()
         if(!text) return;
         try {
             var data = JSON.parse(text)
@@ -80,7 +81,6 @@ jQuery(document).ready(function($) {
                 } else if(op == '$insertAll') {
                     var $ip = $('.insertion-point')
                     var index = $('.insertion-point').parent().children().index($ip); // Seriously? JQUI.sortable doesn't do this?!
-                    console.log('Inserting at ' + index)
                     for(var k in data.$insertAll) {
                         var entries = data.$insertAll[k]
                         for(var i in entries) {

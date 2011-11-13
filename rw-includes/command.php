@@ -86,7 +86,8 @@ class Response {
             $this->setHeader('Content-Type', 'application/javascript');
             $this->renderText($this->jsonp.'('.json_encode($json).')');
         } else {
-            $this->setHeader('Content-Type', 'application/json');
+            //$this->setHeader('Content-Type', 'application/json');
+            $this->setHeader('Content-Type', 'text/plain');
             $this->renderText(json_encode($json));
         }
     }
