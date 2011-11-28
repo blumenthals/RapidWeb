@@ -10,7 +10,8 @@ class RapidWebPage {
     public function __get($key) {
         if($key == 'content') {
             if(!$this->hash[$key]) return '';
-            return join("\n", $this->hash[$key]);
+            if(is_array($this->hash[$key])) $this->hash[$key] = join("\n", $this->hash[$key]);
+            return $this->hash[$key];
         } else {
             return $this->hash[$key];
         }
