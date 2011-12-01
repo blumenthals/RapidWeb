@@ -11,7 +11,7 @@ require('rw-admin/require-authentication.php');
 $now = new DateTime("now", new DateTimeZone("GMT"));
 header('Expires: '.$now->format(DateTime::RFC2822));
 
-if($_SERVER['CONTENT_TYPE'] == 'text/json') {
+if(preg_match('!^text/json(; .*)$!', $_SERVER['CONTENT_TYPE'])) {
     $request = json_decode(file_get_contents('php://input'));
     $RapidWeb->dispatchCommand($request);
     exit();
