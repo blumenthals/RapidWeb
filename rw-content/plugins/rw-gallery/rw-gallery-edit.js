@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
         $('.uploader input[type=file]').prop('disabled', false)
         $('.uploader .spinner').hide()
         $('.uploader form').get(0).reset()
-        var text = $('#upload_target').contents().text()
+        var text = $('#upload_target').contents().contents().text()
         if(!text) return;
         try {
             var data = JSON.parse(text)
@@ -125,3 +125,5 @@ jQuery(document).ready(function($) {
         $('#rwgallery_editor .insertion-point').before(createGalleryTile(image))
     }
 })
+
+if(typeof console == 'undefined') console = {log: function() { } };
