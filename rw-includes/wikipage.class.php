@@ -16,9 +16,9 @@ class WikiPage extends RWPlugin implements RWPageType {
 
     public function the_editor_content(View $view) {
       ?>
-      <form method="POST" action="<?php echo $view->getScriptURL(); ?>">
+      <form method="POST" action="<?php echo $view->getScriptURL(); ?>" id='page_editor' class='rapidweb-editor'>
         <?php /* Main editor */ ?>
-        <textarea name="content" rows="22" wrap="virtual" class="txtfield"><?php echo $view->page->content; ?></textarea>
+        <textarea name="content" rows="22" wrap="virtual" class="txtfield">Please wait while the editor loads...</textarea>
 
         <?php /* Advanced settings panel */ ?>
         <section class='details-box'>

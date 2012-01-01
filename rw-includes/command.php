@@ -229,7 +229,13 @@ function rw_POST_upload_image_ajax($request, $response) {
             imagejpeg($newi, "$dir/$imagefile");
         }
 
-        $response->renderJSON(array('$insertAll' => array('gallery' => array(array('image' => "$vdir/$imagefile", 'thumbnail' => $vdir.'/'.$request['img']->name.".150x150.jpg")))));
+        $response->renderJSON(array(
+            '$insertAll' => array(
+                'gallery' => array(
+                    array('image' => _spaces("$vdir/$imagefile"), 'thumbnail' => _spaces($vdir.'/'.$request['img']->name.".150x150.jpg"))
+                )
+            )
+        ));
     }
 }
 
@@ -243,4 +249,8 @@ function rw_GET_display_page($request, $response) {
     // transform.php returns $html containing all the HTML markup
     include("rw-includes/transform.php");
     $response->renderText($html);
+}
+
+function _spaces($s) {
+    return str_replace(' ', '%20', $s);
 }
