@@ -66,7 +66,9 @@ class RWGallery extends RWPlugin {
           <form action='<?php echo $view->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
             <div class='file-upload'>
               Upload a file
-              <input type='file' name='img'>
+              <div class='native-element'>
+                <input type='file' name='img'>
+              </div>
               <input type='hidden' name='pagename' value='<?php echo $view->page->pagename; ?>'>
               <input type='hidden' name='command' value='upload_image_ajax'>
             </div>

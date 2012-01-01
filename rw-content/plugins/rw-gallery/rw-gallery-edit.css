@@ -86,13 +86,18 @@
     margin-left: auto;
     margin-right: auto;
     text-align: center; }
-    #rwgallery_editor .uploader .file-upload input[type='file'] {
-      width: 100%;
-      height: 100%;
+    #rwgallery_editor .uploader .file-upload .native-element {
+      overflow: hidden;
       position: absolute;
       top: 0;
       left: 0;
-      opacity: 0; }
+      width: 100px;
+      height: 20px;
+      opacity: 0;
+      filter: alpha(opacity=0); }
+      #rwgallery_editor .uploader .file-upload .native-element input[type='file'] {
+        width: 100%;
+        height: 100%; }
     #rwgallery_editor .uploader .file-upload:hover {
       background-color: #77a809;
       filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#77a809, endColorstr=#89c403);
