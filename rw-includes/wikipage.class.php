@@ -280,7 +280,7 @@ class WikiPage extends RWPlugin implements RWPageType {
     public function do_head() {
     }
 
-    public function the_content() {
+    public function the_content($page) {
         echo "###CONTENT###";
     }
 
