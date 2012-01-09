@@ -138,5 +138,3 @@ function get_search_form() { ?>
 
 
 define('ABSPATH', realpath(dirname(__FILE__)."/../"));
-
-?>

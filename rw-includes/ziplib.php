@@ -1,9 +1,7 @@
 <?php
-rcs_id('$Id: ziplib.php,v 1.2 2001/01/01 23:13:32 ahollosi Exp $');
 
 //FIXME: get rid of this.
-function warn ($msg)
-{
+function warn ($msg) {
   echo "<br><b>Warning:</b> " . htmlspecialchars($msg) . "<br>\n";
 }
 
@@ -136,8 +134,7 @@ $zip_crc_table = array (
      0x2d02ef8d
 );
 
-function zip_crc32 ($str, $crc = 0) 
-{
+function zip_crc32 ($str, $crc = 0) {
   global $zip_crc_table;
   $crc = ~$crc;
   for ($i = 0; $i < strlen($str); $i++)
@@ -149,8 +146,7 @@ function zip_crc32 ($str, $crc = 0)
 define('GZIP_MAGIC', "\037\213");
 define('GZIP_DEFLATE', 010);
 
-function zip_deflate ($content)
-{
+function zip_deflate ($content) {
   // Compress content, and suck information from gzip header.
   $z = gzip_compress($content);
 
@@ -178,8 +174,7 @@ function zip_deflate ($content)
       );
 }
 
-function zip_inflate ($data, $crc32, $uncomp_size)
-{
+function zip_inflate ($data, $crc32, $uncomp_size) {
   if (!function_exists('gzopen'))
       die("Can't inflate data: zlib support not enabled in this PHP");
 
@@ -229,8 +224,7 @@ define('ZIP_CENTHEAD_MAGIC', "PK\001\002");
 define('ZIP_LOCHEAD_MAGIC', "PK\003\004");
 define('ZIP_ENDDIR_MAGIC', "PK\005\006");
 
-class ZipWriter
-{
+class ZipWriter {
   function ZipWriter ($comment = "", $zipname = "archive.zip") {
     $this->comment = $comment;
     $this->nfiles = 0;
@@ -349,8 +343,7 @@ class ZipWriter
  *
  * Right now we ignore the file mod date and time, since we don't need it.
  */
-class ZipReader
-{
+class ZipReader {
   function ZipReader ($zipfile) {
     if (!($this->fp = fopen($zipfile, "rb")))
 	die("Can't open zip file '$zipfile' for reading");
@@ -422,13 +415,11 @@ class ZipReader
  * Routines for Mime mailification of pages.
  */
 //FIXME: these should go elsewhere (stdlib.php).
-function ctime ($unix_time)
-{
+function ctime ($unix_time) {
   return date("D M j H:i:s Y", $unix_time);
 }
 
-function rfc1123date ($unix_time)
-{
+function rfc1123date ($unix_time) {
   $zone = ' +';
   
   $zonesecs = date("Z", $unix_time);
@@ -446,8 +437,7 @@ function rfc1123date ($unix_time)
 /**
  * Routines for quoted-printable en/decoding.
  */
-function QuotedPrintableEncode ($string)
-{
+function QuotedPrintableEncode ($string) {
   // Quote special characters in line.
   $quoted = "";
   while ($string)
@@ -467,8 +457,7 @@ function QuotedPrintableEncode ($string)
 		      "\\1=\r\n", $quoted);
 }
 
-function QuotedPrintableDecode ($string)
-{
+function QuotedPrintableDecode ($string) {
   // Eliminate soft line-breaks.
   $string = preg_replace('/=[ \t\r]*\n/', '', $string);
   return quoted_printable_decode($string);
@@ -476,8 +465,7 @@ function QuotedPrintableDecode ($string)
 
 define('MIME_TOKEN_REGEXP', "[-!#-'*+.0-9A-Z^-~]+");
 
-function MimeContentTypeHeader ($type, $subtype, $params)
-{
+function MimeContentTypeHeader ($type, $subtype, $params) {
   $header = "Content-Type: $type/$subtype";
   reset($params);
   while (list($key, $val) = each($params))
@@ -490,8 +478,7 @@ function MimeContentTypeHeader ($type, $subtype, $params)
   return "$header\r\n";
 }
 
-function MimeMultipart ($parts) 
-{
+function MimeMultipart ($parts) {
   global $mime_multipart_count;
 
   // The string "=_" can not occur in quoted-printable encoded data.
@@ -531,8 +518,7 @@ function MimeifyPage ($pagehash) {
   return $out;
 }
 
-function MimeifyPages ($pagehashes)
-{
+function MimeifyPages ($pagehashes) {
   $npages = sizeof($pagehashes);
   for ($i = 0; $i < $npages; $i++)
       $parts[$i] = MimeifyPage($pagehashes[$i]);
@@ -543,8 +529,7 @@ function MimeifyPages ($pagehashes)
 /**
  * Routines for parsing Mime-ified phpwiki pages.
  */
-function ParseRFC822Headers (&$string)
-{
+function ParseRFC822Headers (&$string) {
   if (preg_match("/^From (.*)\r?\n/", $string, $match))
     {
       $headers['from '] = preg_replace('/^\s+|\s+$/', '', $match[1]);
@@ -572,8 +557,7 @@ function ParseRFC822Headers (&$string)
 }
 
 
-function ParseMimeContentType ($string)
-{
+function ParseMimeContentType ($string) {
   // FIXME: Remove (RFC822 style comments).
 
   // Get type/subtype
@@ -606,8 +590,7 @@ function ParseMimeContentType ($string)
   return array($type, $subtype, $param);
 }
 
-function ParseMimeMultipart($data, $boundary)
-{
+function ParseMimeMultipart($data, $boundary) {
   if (!$boundary)
       die("No boundary?");
 
@@ -632,8 +615,7 @@ function ParseMimeMultipart($data, $boundary)
   die("No end boundary?");
 }
 
-function ParseMimeifiedPages ($data)
-{
+function ParseMimeifiedPages ($data) {
   if (!($headers = ParseRFC822Headers($data))
       || !($typeheader = $headers['content-type']))
     {
@@ -678,5 +660,3 @@ function ParseMimeifiedPages ($data)
 
   return array($pagehash);
 }
-
-?>
