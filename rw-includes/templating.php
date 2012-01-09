@@ -74,17 +74,17 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     if ($template == 'BROWSE' and isset($hash['template'])) {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($hash['template']);
+        $view->render($RapidWeb->filter('template_select', $hash['template'], 'browse'));
         $page = ob_get_contents();
         ob_end_clean();
     } elseif($template == 'EDITPAGE') {
         $view = new EditPage(new RapidWebPage($hash), $RapidWeb);
-        $view->render($templates[$template]);
+        $view->render($RapidWeb->filter('template_select', $templates[$template], 'edit'));
         return;
     } else {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($templates[$template]);
+        $view->render($RapidWeb->filter('template_select', $templates[$template], $template == 'BROWSE' ? 'browse' : 'other'));
         $page = ob_get_contents();
         ob_end_clean();
     }
