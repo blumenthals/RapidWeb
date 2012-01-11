@@ -5,8 +5,8 @@
 */
 
     require_once "rw-includes/config.php";
-    require_once "rw-includes/templating.php";
     require_once "rw-includes/stdlib.php";
+    require_once "rw-includes/templating.php";
 
 	if(get_magic_quotes_gpc()) {
 		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);

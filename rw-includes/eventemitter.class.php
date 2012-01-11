@@ -20,7 +20,7 @@ class EventEmitter {
     public function filter($event) {
         $args = func_get_args();
         array_shift($args);
-        if(!isset($this->callbacks[$event])) return;
+        if(!isset($this->callbacks[$event])) return $args[0];
         foreach($this->callbacks[$event] as $callback) {
             $args[0] = call_user_func_array($callback, $args);
         }

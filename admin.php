@@ -3,8 +3,8 @@
 define('WIKI_ADMIN', true);	// has to be before includes
 
 require_once("rw-includes/config.php");
-require_once("rw-includes/templating.php");
 require_once("rw-includes/stdlib.php");
+require_once("rw-includes/templating.php");
 
 require('rw-admin/require-authentication.php');
 
