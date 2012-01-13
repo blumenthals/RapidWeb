@@ -19,6 +19,7 @@ function OpenDataBase() {
         $msg .= sprintf("MySQL error: %s", mysql_error());
         ExitWiki($msg);
     }
+    mysql_query("SET NAMES 'utf8'", $dbc);
     $dbi['dbc'] = $dbc;
     $dbi['table'] = 'wiki';
 
