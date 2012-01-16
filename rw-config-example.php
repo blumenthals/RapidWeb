@@ -11,5 +11,6 @@ $mysql_user = 'user_rw';
 $mysql_pwd = 'password';
 $mysql_db = 'user_rw';
 $TemplateName = 'default';
+$MobileTemplate = 'mobile';
 
 //	define('RW_CONTACT_EMAIL', 'admin@rapidweb.info');
