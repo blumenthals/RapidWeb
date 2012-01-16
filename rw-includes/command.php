@@ -133,6 +133,7 @@ class Action {
     }
 }
 
+// @todo refactor remove completely
 function rw_capture_command($command) {
     ob_start();
     rw_do_command($command);
@@ -141,6 +142,7 @@ function rw_capture_command($command) {
     return $content;
 }
 
+// @todo refactor into rapidweb class
 function rw_do_command($command) {
     try {
         $action = new Action($_SERVER['REQUEST_METHOD'], $command);
@@ -170,6 +172,7 @@ function rw_do_command($command) {
     }
 }
 
+// @todo refactor into its own handler class
 function rw_POST_upload_image_ajax($request, $response) {
     $file = $request['img'];
     $dir = realpath(dirname(__FILE__).'/../images/upload/').'/'.$request['pagename'];
@@ -239,11 +242,13 @@ function rw_POST_upload_image_ajax($request, $response) {
     }
 }
 
+// @todo refactor into the gallery plugin
 function rw_GET_display_gallery($request, $response) {
     global $pagehash; // @todo: refactor display.php
     $response->render('display_gallery', $pagehash);
 }
 
+// @todo refactor into the wikipage plugin
 function rw_GET_display_page($request, $response) {
     global $pagehash; // @todo: refactor display.php and transform.php
     // transform.php returns $html containing all the HTML markup
@@ -251,6 +256,7 @@ function rw_GET_display_page($request, $response) {
     $response->renderText($html);
 }
 
+// @todo refactor into a namespace of some sort
 function _spaces($s) {
     return str_replace(' ', '%20', $s);
 }
