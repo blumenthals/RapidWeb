@@ -32,13 +32,19 @@ function in_head($cb) {
     $_rw_head_funcs[] = $cb;
 }
 
+// @todo Move this into RapidWeb class
 function _dohead(&$page) {
     global $_rw_head_funcs;
     list($top, $rest) = preg_split('/(?=<head)/i', $page, 2);
-    list($headtag, $rest) = preg_split('/>/', $rest, 2);
-    $top .= $headtag . '>';
+    if($rest) {
+        list($headtag, $rest) = preg_split('/(?<=>)/', $rest, 2);
+        $top .= $headtag;
+        $page = $top;
+    } else {
+        $rest = $page;
+        $page = '';
+    }
 
-    $page = $top;
     foreach ($_rw_head_funcs as $f) $page .= call_user_func($f);
     $page .= $rest;
 }
