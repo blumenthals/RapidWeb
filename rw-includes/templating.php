@@ -80,17 +80,17 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     if ($template == 'BROWSE' and isset($hash['template'])) {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($RapidWeb->filter('template_select', $hash['template'], 'browse'));
+        $view->render($templates[$template]);
         $page = ob_get_contents();
         ob_end_clean();
     } elseif($template == 'EDITPAGE') {
         $view = new EditPage(new RapidWebPage($hash), $RapidWeb);
-        $view->render($RapidWeb->filter('template_select', $templates[$template], 'edit'));
+        $view->render($templates[$template]);
         return;
     } else {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($RapidWeb->filter('template_select', $templates[$template], $template == 'BROWSE' ? 'browse' : 'other'));
+        $view->render($templates[$template]);
         $page = ob_get_contents();
         ob_end_clean();
     }
@@ -176,13 +176,22 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
 define('TEMPLATEFSBASE', realpath(dirname(__FILE__))."/../rw-content/templates/");
 define('TEMPLATEPATH', TEMPLATEFSBASE."$TemplateName/");
 
+// @todo move into RapidWeb class
+function _rw_pathfind($name) {
+    global $RapidWeb;
+    return rw_pathsearch(
+        $RapidWeb->filter('template_path', array(TEMPLATEPATH, TEMPLATEFSBASE."default/")),
+        $RapidWeb->filter('template_component', $name)
+    );
+}
+
 // Template files (filenames are relative to script position)
 $templates = array(
-    "BROWSE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'browse'),
-    "EDITPAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'editpage'),
-    "EDITLINKS" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'editlinks'),
-    "MESSAGE" => rw_pathsearch(array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'browse'),
-    "functions.php" => rw_pathsearch($p=array(TEMPLATEPATH, TEMPLATEFSBASE."default/"), 'functions.php', array(''))
+    "BROWSE" => _rw_pathfind('browse'),
+    "EDITPAGE" => _rw_pathfind('editpage'),
+    "EDITLINKS" => _rw_pathfind('editlinks'),
+    "MESSAGE" => _rw_pathfind('browse'),
+    "functions.php" => _rw_pathfind('functions.php')
 );
 
 define('RAPIDWEB', true);
