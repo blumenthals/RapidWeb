@@ -3,6 +3,7 @@
 class OldTemplate extends View {
     public function render($templateFile) {
         global $VARIABLES;
+        extract($VARIABLES);
         include $templateFile;
     }
 
