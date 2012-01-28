@@ -1,0 +1,80 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © 2011 Online Buddies, Inc. - All Rights Reserved
+ *
+ * @package Modyllic
+ * @author bturner@online-buddies.com
+ */
+
+require_once "Modyllic/Commandline.php";
+require_once "Modyllic/Diff.php";
+require_once "Modyllic/Generator.php";
+
+$args = Modyllic_Commandline::getArgs(array(
+    'description' => 'Generate a PHP helper class for the stored procs in the schema',
+    'options' => array(
+        'fromschema' => array(
+            'short_name'  => '-f',
+            'long_name'   => '--from',
+            'action'      => 'StoreArray',
+            ),
+        'toschema' => array(
+            'short_name'  => '-t',
+            'long_name'   => '--to',
+            'action'      => 'StoreArray',
+            ),
+        'dialect' => array(
+            'short_name'  => '-d',
+            'long_name'   => '--dialect',
+            'description' => 'dialect to output in',
+            'action'      => 'Dialect',
+            'default'     => 'Modyllic_Generator_NativeSQL' ) ),
+    'arguments' => array(
+        'fromschema' => array('optional'=>true),
+        'toschema' => array('optional'=>true)
+        )));
+
+if ( (isset($args->options['fromschema']) or isset($args->options['toschema'])) and isset($args->args['fromschema']) ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( "You can't specify a schema both positionally and via options" );
+}
+
+$fromschema = array();
+if ( isset($args->args['fromschema']) ) {
+    $fromschema[] = $args->args['fromschema'];
+}
+if ( isset($args->options['fromschema']) ) {
+    $fromschema += $args->options['fromschema'];
+}
+if ( count($fromschema) == 0 ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( 'You must specify a from schema to compare');
+}
+
+$toschema = array();
+if ( isset($args->args['toschema']) ) {
+    $toschema[] = $args->args['toschema'];
+}
+if ( isset($args->options['toschema']) ) {
+    $toschema += $args->options['toschema'];
+}
+if ( count($fromschema) == 0 ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( 'You must specify a to schema to compare');
+}
+
+$from = Modyllic_Commandline::schema($fromschema);
+$to   = Modyllic_Commandline::schema($toschema);
+
+$diff = new Modyllic_Diff( $from, $to );
+
+if ( ! $diff->changeset->has_changes() ) {
+    print "-- No changes detected.\n";
+    exit(0);
+}
+
+$class = Modyllic_Generator::dialectToClass( $args->options['dialect'] );
+$gen = new $class();
+
+print $gen->alter_sql($diff);

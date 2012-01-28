@@ -1,0 +1,115 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © 2011 Online Buddies, Inc. - All Rights Reserved
+ *
+ * @package Modyllic
+ * @author bturner@online-buddies.com
+ */
+
+require_once "Modyllic/Commandline.php";
+require_once "Modyllic/Generator.php";
+require_once "Modyllic/Diff.php";
+require_once "Modyllic/SQL.php";
+
+$args = Modyllic_Commandline::getArgs(array(
+    'description' => 'Generate a PHP helper class for the stored procs in the schema',
+    'options' => array(
+        'fromschema' => array(
+            'short_name'  => '-f',
+            'long_name'   => '--from',
+            'action'      => 'StoreString',
+            'description' => 'The DSN of the database to update',
+            ),
+        'toschema' => array(
+            'short_name'  => '-t',
+            'long_name'   => '--to',
+            'action'      => 'StoreArray',
+            'description' => 'The schema to update the database to match',
+            ),
+        'create' => array(
+            'long_name'   => '--create',
+            'description' => 'create the database if its missing',
+            'action'      => 'StoreTrue',
+            ) ),
+        ));
+
+if ( ! isset($args->options['fromschema']) ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( 'the fromschema is required');
+}
+if ( ! isset($args->options['toschema']) ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( 'the toschema is required');
+}
+
+if ( ! Modyllic_Schema_Loader::is_dsn($args->options['fromschema']) ) {
+    $parser = Modyllic_Commandline::getParser();
+    $parser->displayError( 'the fromschema must be a database');
+}
+
+list( $dsn, $dbname, $user, $pass ) = Modyllic_Schema_Loader::parse_dsn($args->options['fromschema']);
+
+$base_dsn = "mysql:";
+if ( isset($host) ) {
+    $base_dsn .= "host=$host;";
+}
+$dsn = $base_dsn . "dbname=$dbname";
+try {
+    $dbh = new PDO( $dsn, $user, $pass, array( PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION ) );
+}
+catch (Exception $e) {
+    if ( strpos( $e->getMessage(), "Unknown database" ) !== FALSE ) {
+        if ( $args->options['create'] ) {
+            $dbh = new PDO( $base_dsn, $user, $pass, array( PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION ) );
+            $dbh->exec("CREATE DATABASE ".Modyllic_SQL::quote_ident($dbname));
+        }
+        else {
+            print $e->getMessage()."\n";
+            exit(1);
+        }
+    }
+    else {
+        throw $e;
+    }
+}
+
+$from = Modyllic_Commandline::schema( array($args->options['fromschema']) );
+
+$to   = Modyllic_Commandline::schema($args->options['toschema']);
+
+Modyllic_Status::verbose("Comparing...\n");
+$diff = new Modyllic_Diff( $from, $to );
+
+if ( ! $diff->changeset->has_changes() ) {
+    print "-- No changes detected.\n";
+    exit(0);
+}
+
+$dbh->exec("USE ".Modyllic_SQL::quote_ident($dbname));
+
+$gen = new Modyllic_Generator_SQL();
+foreach ( $gen->sql_header() as $sql ) {
+    $dbh->exec( $sql );
+}
+$gen->alter($diff);
+$cmds = count($gen->sql_commands());
+try {
+    $ii = 0;
+    Modyllic_Status::$sourceName = "changes into database";
+    Modyllic_Status::$sourceCount = 1;
+    Modyllic_Status::$sourceIndex = 1;
+    foreach ($gen->sql_commands() as $cmd) {
+        Modyllic_Status::status( ++$ii, $cmds );
+        $dbh->exec($cmd);
+    }
+}
+catch (PDOException $e) {
+    Modyllic_Status::clear_progress();
+    print $e->getMessage()."\n";
+    print "Full context of command:\n";
+    print $cmd."\n";
+    exit(1);
+}
+Modyllic_Status::clear_progress();
+Modyllic_Status::verbose("Database updated");
