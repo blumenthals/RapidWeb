@@ -54,23 +54,10 @@ define('RAPIDWEB_DB_VERSION', 11);
 function OpenDataBase() {
     global $mysql_server, $mysql_user, $mysql_pwd, $mysql_db;
 
-    if (!($dbc = mysql_pconnect($mysql_server, $mysql_user, $mysql_pwd))) {
-        $msg = "Cannot establish connection to database, giving up.";
-        $msg .= "<BR>";
-        $msg .= sprintf("MySQL error: %s", mysql_error());
-        ExitWiki($msg);
-    }
-    if (!mysql_select_db($mysql_db, $dbc)) {
-        $msg =  sprintf("Cannot open database %s, giving up.", $mysql_db);
-        $msg .= "<BR>";
-        $msg .= sprintf("MySQL error: %s", mysql_error());
-        ExitWiki($msg);
-    }
-    mysql_query("SET NAMES 'utf8'", $dbc);
-    $dbi['dbc'] = $dbc;
-    $dbi['table'] = 'wiki';
+    $dbc = new PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
+    $dbc->exec("SET NAMES 'utf8'");
 
-    $db_version = rw_db_get_version();
+    $db_version = rw_db_get_version($dbc);
 
     if($db_version < RAPIDWEB_DB_VERSION) {
         echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
@@ -89,32 +76,33 @@ function OpenDataBase() {
         die("Database now at $db_version");
     }
 
-    return $dbi;
+    return $dbc;
 }
 
-function rw_db_get_version() {
-  $db_version = -1;
+function rw_db_get_version(PDO $dbc) {
+    $db_version = -1;
 
-  if($r = mysql_query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'")) {
-     $row = mysql_fetch_assoc($r);
-     if($row) {
-        $db_version = $row['value'];
-     } else {
-        $db_version = 0;
-     }
-  } else {
-     $e = mysql_error();
-     if(preg_match("/doesn't exist/", $e)) {
-        $db_version = 0;
-     } else {
-        die("Database error: $e");
-     }
-  }
-  return $db_version;
+    try {
+        $r = $dbc->query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'");
+        $row = $r->fetch(PDO::FETCH_ASSOC);
+        if($row) {
+            $db_version = $row['value'];
+        } else {
+            $db_version = 0;
+        }
+    } catch (Exception $e) {
+        // FIXME
+        if(preg_match("/doesn't exist/", $e)) {
+            $db_version = 0;
+        } else {
+            die("Database error: $e");
+        }
+    }
+    return $db_version;
 }
 
-function rw_db_query($sql) {
-  if(!$r = mysql_query($sql)) echo("Query failed (".mysql_error()."): $sql");
+function rw_db_query($dbc, $sql) {
+  if(!$r = $dbc->exec($sql)) echo("Query failed (".mysql_error()."): $sql");
   return $r;
 }
 
@@ -137,46 +125,44 @@ function MakeDBHash($pagename, $pagehash) {
 
 
 /** Deserialize components of page data coming from MySQL */
-function MakePageHash($dbhash) {
+function MakePageHash(PDO $dbc, $dbhash) {
   $dbhash['refs'] = unserialize($dbhash['refs']);
   $dbhash['gallery'] = json_decode($dbhash['gallery']);
   if(!$dbhash['plugins'] = json_decode($dbhash['plugins'])) $dbhash['plugins'] = new StdClass;
-  $dbhash['settings'] = RetrieveSettings();
+  $dbhash['settings'] = RetrieveSettings($dbc);
   return $dbhash;
 }
 
 
 /** Return hash of page + attributes or default
 *
-* @param $dbi the database connection information hash
+* @param $dbc the database connection
 * @param $pagename the page name to fetch
 *
 * @returns a page hash
 *
 * @todo Move into RapidWebPage class
 */
-function RetrievePage($dbi, $pagename) {
-  $pagename = mysql_real_escape_string($pagename, $dbi['dbc']);
-  if ($res = mysql_query("select * from {$dbi['prefix']}wiki where pagename='$pagename'", $dbi['dbc'])) {
-     if ($dbhash = mysql_fetch_assoc($res)) {
-        return MakePageHash($dbhash);
-     }
-  }
-  return array(
-      "version" => 0,
-      'lastmodified' => time(),
-      'author' => '',
-      'plugins' => new StdClass(),
-      'settings' => RetrieveSettings()
-  );
+function RetrievePage(PDO $dbc, $pagename) {
+    $res = $dbc->prepare("select * FROM wiki WHERE pagename = ?");
+    if ($res->execute(array($pagename))) {
+        if ($dbhash = $res->fetch(PDO::FETCH_ASSOC)) {
+            return MakePageHash($dbc, $dbhash);
+        }
+    }
+    return array(
+        "version" => 0,
+        'lastmodified' => time(),
+        'author' => '',
+        'plugins' => new StdClass(),
+        'settings' => RetrieveSettings()
+    );
 }
 
 
 // Either insert or replace a key/value (a page)
-function InsertPage($dbi, $pagename, $pagehash) {
+function InsertPage($dbc, $pagename, $pagehash) {
     $pagehash = MakeDBHash($pagename, $pagehash);
-
-    $COLUMNS = "author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins";
 
     $VALUES = array(
         $pagehash['author'], $pagehash['content'],
@@ -191,23 +177,15 @@ function InsertPage($dbi, $pagename, $pagehash) {
         $pagehash['plugins']
     );
 
-    foreach($VALUES as $k => $v) {
-        if($v === null || $v === 'NULL') {
-            $VALUES[$k] = 'NULL';
-        } else {
-            $VALUES[$k] = "'".mysql_real_escape_string($v, $dbi['dbc'])."'";
-        }
-    }
-    $VALUES = join($VALUES, ', ');
-    if (!mysql_query($q = "replace into ${$dbi[prefix]}wiki ($COLUMNS) values ($VALUES)", $dbi['dbc'])) {
+    if (!$dbc->exec("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $VALUES)) {
         $msg = sprintf("Error writing page '%s'", $pagename);
         $msg .= "<BR>";
-        $msg .= sprintf("MySQL error: %s", mysql_error()." in $q");
+        $msg .= sprintf("MySQL error: %s", mysql_error());
         ExitWiki($msg);
    }
 }
 
-function SaveSettings($settingshash) {
+function SaveSettings(PDO $dbc, $settingshash) {
    foreach($settingshash as $key => $value) {
       $key = addslashes($key);
       $value = addslashes($value);
@@ -215,10 +193,10 @@ function SaveSettings($settingshash) {
    }
 }
 
-function RetrieveSettings() {
-  if ($settings = mysql_query("SELECT name, value FROM settings")) {
+function RetrieveSettings(PDO $dbc) {
+  if ($settings = $dbc->query("SELECT name, value FROM settings")) {
     $settingshash = array();
-    while(list($key, $value) = mysql_fetch_row($settings)) {
+    while(list($key, $value) = $settings->fetch(PDO::FETCH_ASSOC)) {
        $settingshash[$key] = $value;
     }
     return $settingshash;
@@ -236,12 +214,14 @@ function SaveCopyToArchive($dbi, $pagename, $pagehash) {
 }
 
 
-function IsWikiPage($dbi, $pagename) {
-  $pagename = addslashes($pagename);
-  if ($res = mysql_query("select count(*) from $dbi[table] where pagename='$pagename'", $dbi['dbc'])) {
-     return(mysql_result($res, 0));
-  }
-  return 0;
+function IsWikiPage(PDO $dbc, $pagename) {
+    $pagename = addslashes($pagename);
+    $res = $dbc->prepare("SELECT count(*) AS count FROM wiki WHERE pagename = ?");
+    if ($res->execute(array($pagename))) {
+        $row = $res->fetch(PDO::FETCH_ASSOC);
+        return $row['count'];
+    }
+    return 0;
 }
 
 function IsInArchive($dbi, $pagename) {
