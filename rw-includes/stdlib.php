@@ -272,6 +272,7 @@ function rw_parse_intent($line) {
 /// @todo move to its own startup file
 // All requests require the database
 $dbc = OpenDataBase();
+update_modyllic($dbc);
 $RapidWeb = new RapidWeb();
 $RapidWeb->add_plugins_directory(dirname(__FILE__)."/../rw-content/plugins");
 $RapidWeb->initialize();

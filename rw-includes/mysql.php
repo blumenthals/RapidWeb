@@ -2,40 +2,48 @@
 
 ini_set('include_path', ini_get('include_path').":".dirname(__FILE__)."/modyllic");
 require_once "Modyllic/Generator.php";
+require_once "Modyllic/Generator/SQL.php";
+require_once "Modyllic/Loader.php";
 require_once "Modyllic/Diff.php";
 require_once "Modyllic/SQL.php";
 
-function update_modyllic() {
+function update_modyllic($dbc) {
+    global $mysql_user;
+    global $mysql_pwd;
+    global $mysql_host;
+    global $mysql_db;
 
-    list( $dsn, $dbname, $user, $pass ) = Modyllic_Schema_Loader::parse_dsn($dsn); // FIXME
+    $dsn = "mysql:host=$mysql_host;dbname=$mysql_db;username=$mysql_user;password=$mysql_pwd";
 
-    $base_dsn = "mysql:";
-    if ( isset($host) ) {
-        $base_dsn .= "host=$host;";
+    $from = Modyllic_Loader::load(array($dsn));
+
+    $schemas = array(
+        dirname(__FILE__).'/schema.sql'
+    );
+
+    foreach(glob(dirname(__FILE__).'/../rw-content/plugins/*/schema.sql') as $file) {
+        $schemas[] = $file;
     }
-    $dsn = $base_dsn . "dbname=$dbname";
-        $dbh = new PDO( $dsn, $user, $pass, array( PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION ) );
 
-    $from = Modyllic_Loader::load($dsnFIXME);
-    $to = Modyllic_Loader::load(dirname(__FILE__).'');
+    $to = Modyllic_Loader::load($schemas);
 
     $diff = new Modyllic_Diff( $from, $to );
 
     if ( ! $diff->changeset->has_changes() ) {
         print "-- No changes detected.\n";
-       return(0);
+        return(0);
     }
 
     $gen = new Modyllic_Generator_SQL();
     foreach ( $gen->sql_header() as $sql ) {
-        $dbh->exec( $sql );
+        $dbc->exec( $sql );
     }
+
     $gen->alter($diff);
-    $cmds = count($gen->sql_commands());
+
     try {
-        $ii = 0;
         foreach ($gen->sql_commands() as $cmd) {
-            $dbh->exec($cmd);
+            $dbc->exec($cmd);
         }
     }
     catch (PDOException $e) {
@@ -55,6 +63,7 @@ function OpenDataBase() {
     global $mysql_server, $mysql_user, $mysql_pwd, $mysql_db;
 
     $dbc = new PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
+    $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbc->exec("SET NAMES 'utf8'");
 
     $db_version = rw_db_get_version($dbc);
