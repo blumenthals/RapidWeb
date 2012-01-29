@@ -101,11 +101,6 @@ function rw_db_get_version(PDO $dbc) {
     return $db_version;
 }
 
-function rw_db_query($dbc, $sql) {
-  if(!$r = $dbc->exec($sql)) echo("Query failed (".mysql_error()."): $sql");
-  return $r;
-}
-
 /** prepare page data hash for storing in mysql */
 function MakeDBHash($pagename, $pagehash) {
   if (!isset($pagehash["flags"]))
