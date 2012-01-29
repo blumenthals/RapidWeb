@@ -158,7 +158,7 @@ function RetrievePage(PDO $dbc, $pagename) {
         'lastmodified' => time(),
         'author' => '',
         'plugins' => new StdClass(),
-        'settings' => RetrieveSettings()
+        'settings' => RetrieveSettings($dbc)
     );
 }
 
