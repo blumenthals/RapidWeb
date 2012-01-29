@@ -159,7 +159,7 @@ body {
 <?php } ?>
 <?php
         if($_REQUEST['admin_page'] != 'submit_settings') {
-		$settings = RetrieveSettings();
+		$settings = RetrieveSettings($dbc);
 		display_page($settings);
 	} else {
 		$settingshash = array();
@@ -169,7 +169,7 @@ body {
 			$settingshash['default_meta_description'] = $_REQUEST['default_meta_description'];
 		if(isset($_REQUEST['default_meta_keywords']))
 			$settingshash['default_meta_keywords'] = $_REQUEST['default_meta_keywords'];
-		SaveSettings($settingshash);
+		SaveSettings($dbc, $settingshash);
 		display_thanks($settingshash);
 	}
 

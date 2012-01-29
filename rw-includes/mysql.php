@@ -189,8 +189,8 @@ function SaveSettings(PDO $dbc, $settingshash) {
 function RetrieveSettings(PDO $dbc) {
   if ($settings = $dbc->query("SELECT name, value FROM settings")) {
     $settingshash = array();
-    while(list($key, $value) = $settings->fetch(PDO::FETCH_ASSOC)) {
-       $settingshash[$key] = $value;
+    while($row = $settings->fetch(PDO::FETCH_ASSOC)) {
+       $settingshash[$row['name']] = $row['value'];
     }
     return $settingshash;
   }
