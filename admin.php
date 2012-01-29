@@ -57,7 +57,7 @@ if(preg_match('!^text/json(; .*)?$!', $_SERVER['CONTENT_TYPE'])) {
       } else {
         $removeok = $_REQUEST['removeok'];
       }
-      RemovePage($dbi, $removeok);
+      RemovePage($dbc, $removeok);
       $html = sprintf(gettext ("Removed page '%s' succesfully."),
         htmlspecialchars($removeok));
       GeneratePage('MESSAGE', $html, gettext ("Remove page"), 0);

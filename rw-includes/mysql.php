@@ -180,17 +180,14 @@ function InsertPage($dbc, $pagename, $pagehash) {
     $res = $dbc->prepare("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$res->execute($VALUES)) {
         $msg = sprintf("Error writing page '%s'", $pagename);
-        $msg .= "<BR>";
-        $msg .= sprintf("MySQL error: %s", mysql_error());
         ExitWiki($msg);
    }
 }
 
 function SaveSettings(PDO $dbc, $settingshash) {
    foreach($settingshash as $key => $value) {
-      $key = addslashes($key);
-      $value = addslashes($value);
-      mysql_query("REPLACE INTO settings (name, value) VALUES ('$key', '$value');");
+      $stmt = $dbc->prepare("REPLACE INTO settings (name, value) VALUES (?, ?);");
+      $stmt->execute(array($key, $value));
    }
 }
 
@@ -236,9 +233,9 @@ function IsInArchive($dbc, $pagename) {
     }
 }
 
-function RemovePage($dbc, $pagename) {
+function RemovePage(PDO $dbc, $pagename) {
     $stmt = $dbc->prepare("DELETE FROM wiki WHERE pagename = ?");
-    $dbc->execute(array($pagename));
+    $stmt->execute(array($pagename));
 }
 
 function MakeSQLSearchClause($search, $column) {
@@ -270,8 +267,8 @@ function InitTitleSearch($dbc, $search) {
 
 
 // iterating through database
-function TitleSearchNextMatch($dbi, $res) {
-  if($o = mysql_fetch_object($res)) {
+function TitleSearchNextMatch($res) {
+  if($o = $res->fetch(PDO::FETCH_ASSOC)) {
      return $o->pagename;
   }
   else {
@@ -288,7 +285,7 @@ function InitFullSearch($dbc, $search) {
 }
 
 // iterating through database
-function FullSearchNextMatch($dbi, $res) {
+function FullSearchNextMatch($res) {
     if($hash = $res->fetch(PDO::FETCH_ASSOC)) {
         return MakePageHash($hash);
     } else {
@@ -296,11 +293,12 @@ function FullSearchNextMatch($dbi, $res) {
     }
 }
 
-function GetAllWikiPageNames($dbi) {
-  $res = mysql_query("select pagename from {$dbi['prefix']}wiki", $dbi["dbc"]);
-  $rows = mysql_num_rows($res);
-  for ($i = 0; $i < $rows; $i++) {
-    $pages[$i] = mysql_result($res, $i);
-  }
-  return $pages;
+function GetAllWikiPageNames($dbc) {
+    $res = $dbc->query("SELECT pagename FROM wiki");
+    $rows = $res->numRows();
+    for ($i = 0; $i < $rows; $i++) {
+        $row = $res->fetch(PDO::FETCH_ASSOC);
+        $pages[$i] = $row['pagename'];
+    }
+    return $pages;
 }

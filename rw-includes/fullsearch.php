@@ -10,14 +10,14 @@ $html = "<P><B>"
    . "</B></P>\n<DL>\n";
 
 // search matching pages
-$query = InitFullSearch($dbi, $full);
+$query = InitFullSearch($dbc, $full);
 
 // quote regexp chars (space are treated as "or" operator)
 $full = preg_replace("/\s+/", "|", preg_quote($full));
 
 $found = 0;
 $count = 0;
-while ($pagehash = FullSearchNextMatch($dbi, $query)) {
+while ($pagehash = FullSearchNextMatch($query)) {
   $html .= "<DT><B>" . LinkExistingWikiWord($pagehash["pagename"]) . "</B>\n";
   $count++;
 

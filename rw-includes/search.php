@@ -13,9 +13,9 @@ $html = "<P><B>"
 $search = preg_quote($search);
 
 // search matching pages
-$query = InitTitleSearch($dbi, $search);
+$query = InitTitleSearch($dbc, $search);
 $found = 0;
-while ($page = TitleSearchNextMatch($dbi, $query)) {
+while ($page = TitleSearchNextMatch($query)) {
   $found++;
   $html .= LinkExistingWikiWord($page) . "<br>\n";
 }
