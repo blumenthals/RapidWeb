@@ -30,7 +30,6 @@ function update_modyllic($dbc) {
     $diff = new Modyllic_Diff( $from, $to );
 
     if ( ! $diff->changeset->has_changes() ) {
-        print "-- No changes detected.\n";
         return(0);
     }
 
