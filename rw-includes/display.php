@@ -15,7 +15,7 @@ if(!isset($pagename)) $pagename = "home";
 
 $html = "";
 $enc_name = rawurlencode($pagename);
-$pagehash = RetrievePage($dbi, $pagename);
+$pagehash = RetrievePage($dbc, $pagename);
 
 // we render the page if it exists, else ask the user to write one.
 if (is_array($pagehash)) {

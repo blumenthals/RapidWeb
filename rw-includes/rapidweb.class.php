@@ -86,8 +86,8 @@ class RapidWeb extends EventEmitter {
     }
 
     public function do_savePage($page) {
-        global $dbi;
-        $pagehash = RetrievePage($dbi, $page->pagename);
+        global $dbc;
+        $pagehash = RetrievePage($dbc, $page->pagename);
 
         // if this page doesn't exist yet, now's the time!
         if (! is_array($pagehash)) {
@@ -95,7 +95,7 @@ class RapidWeb extends EventEmitter {
             $newpage = 1;
         }
 
-        $settings = RetrieveSettings();
+        $settings = RetrieveSettings($dbc);
 
         // set new pageinfo
         $pagehash['lastmodified'] = time();
@@ -143,7 +143,7 @@ class RapidWeb extends EventEmitter {
             $pagehash['content'] = array('');
         }
 
-        InsertPage($dbi, $page->pagename, $pagehash);
+        InsertPage($dbc, $page->pagename, $pagehash);
 
         header('Content-Type: text/json');
 

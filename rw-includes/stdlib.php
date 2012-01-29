@@ -17,11 +17,8 @@ function ExitWiki($errormsg) {
   static $exitwiki = 0;
   global $dbi;
 
-  if($exitwiki)		// just in case CloseDataBase calls us
-     exit();
+  if($exitwiki) exit();
   $exitwiki = 1;
-
-  CloseDataBase($dbi);
 
   if($errormsg <> '') {
      print "<P><hr noshade><h2>" . ("RapidWeb Fatal Error") . "</h2>\n";
@@ -112,7 +109,7 @@ function CookSpaces($pagearray) {
 
 
 function ParseAndLink($bracketlink) {
-  global $dbi, $ScriptUrl, $AllowedProtocols, $InlineImages;
+  global $dbc, $ScriptUrl, $AllowedProtocols, $InlineImages;
 
   // $bracketlink will start and end with brackets; in between
   // will be either a page name, a URL or both separated by a pipe.
@@ -144,7 +141,7 @@ function ParseAndLink($bracketlink) {
      $linktype = 'simple';
   }
 
-  if (IsWikiPage($dbi, $URL)) {
+  if (IsWikiPage($dbc, $URL)) {
      $link['type'] = "wiki-$linktype";
      $link['link'] = LinkExistingWikiWord($URL, $linkname, $target);
   } elseif (preg_match("#^($AllowedProtocols):#", $URL)) {
@@ -176,7 +173,7 @@ function ParseAndLink($bracketlink) {
 /** encapsulates transform.php into a proper function, so we can include it as part of an expression.
 */
 function _pagecontent($page) {
-  global $dbi, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
+  global $dbc, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
   if(is_array($page)) {
     if(preg_match('/^["\']|\\$/', $page[1])) {
       $pageName = eval("return ".$page[1].";");
@@ -193,7 +190,7 @@ function _pagecontent($page) {
     $tagcontext = trim($tagcontext);
   }
   $html = "Page $pageName doesn't exist";
-  $pagehash = RetrievePage($dbi, $pageName);
+  $pagehash = RetrievePage($dbc, $pageName);
   if (is_array($pagehash)) {
       require_once('rw-includes/transformlib.php');
       $p = new Parser($pagehash);
@@ -274,7 +271,7 @@ function rw_parse_intent($line) {
 
 /// @todo move to its own startup file
 // All requests require the database
-$dbi = OpenDataBase();
+$dbc = OpenDataBase();
 $RapidWeb = new RapidWeb();
 $RapidWeb->add_plugins_directory(dirname(__FILE__)."/../rw-content/plugins");
 $RapidWeb->initialize();

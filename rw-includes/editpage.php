@@ -6,7 +6,7 @@ if ($edit) {
     $pagename = rawurldecode($edit);
     if (get_magic_quotes_gpc()) $pagename = stripslashes($pagename);
     $banner = htmlspecialchars($pagename);
-    $pagehash = RetrievePage($dbi, $pagename);
+    $pagehash = RetrievePage($dbc, $pagename);
 } else {
     ExitWiki("No page name passed into editpage!");
 }
@@ -14,7 +14,7 @@ if ($edit) {
 if (is_array($pagehash)) {
 
     if ($pagehash["version"] > 1) {
-        if(IsInArchive($dbi, $pagename))
+        if(IsInArchive($dbc, $pagename))
             $pagehash["copy"] = 1;
     }
 

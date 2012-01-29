@@ -177,7 +177,8 @@ function InsertPage($dbc, $pagename, $pagehash) {
         $pagehash['plugins']
     );
 
-    if (!$dbc->exec("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $VALUES)) {
+    $res = $dbc->prepare("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if (!$res->execute($VALUES)) {
         $msg = sprintf("Error writing page '%s'", $pagename);
         $msg .= "<BR>";
         $msg .= sprintf("MySQL error: %s", mysql_error());
