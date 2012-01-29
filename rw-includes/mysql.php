@@ -224,57 +224,47 @@ function IsWikiPage(PDO $dbc, $pagename) {
     return 0;
 }
 
-function IsInArchive($dbi, $pagename) {
-  global $ArchivePageStore;
-
-  $pagename = addslashes($pagename);
-  if ($res = mysql_query("select count(*) from $ArchivePageStore where pagename='$pagename'", $dbi['dbc'])) {
-     return(mysql_result($res, 0));
-  }
-  return 0;
+function IsInArchive($dbc, $pagename) {
+    try {
+        $stmt = $dbc->prepare("SELECT count(*) AS count FROM archive WHERE pagename = ?");
+        $stmt->execute(array($pagename));
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res['count'];
+    } catch(Exception $e) {
+        return 0;
+    }
 }
 
-
-function RemovePage($dbi, $pagename) {
-  global $ArchivePageStore;
-
-  $pagename = addslashes($pagename);
-  $msg = ("Cannot delete '%s' from table '%s'");
-  $msg .= "<br>\n";
-  $msg .= ("MySQL error: %s");
-
-  if (!mysql_query("delete from {$dbi['prefix']}wiki where pagename='$pagename'", $dbi['dbc']))
-     ExitWiki(sprintf($msg, $pagename, mysql_error()));
-
-  if (!mysql_query("delete from $ArchivePageStore where pagename='$pagename'", $dbi['dbc']))
-     ExitWiki(sprintf($msg, $pagename, $ArchivePageStore, mysql_error()));
+function RemovePage($dbc, $pagename) {
+    $stmt = $dbc->prepare("DELETE FROM wiki WHERE pagename = ?");
+    $dbc->execute(array($pagename));
 }
-
 
 function MakeSQLSearchClause($search, $column) {
-  $search = addslashes(preg_replace("/\s+/", " ", $search));
-  $term = strtok($search, ' ');
-  $clause = '';
-  while($term) {
-     $word = "$term";
-if ($word[0] == '-') {
-   $word = substr($word, 1);
-   $clause .= "not ($column like '%$word%') ";
-} else {
-   $clause .= "($column like '%$word%') ";
-}
-if ($term = strtok(' '))
-   $clause .= 'and ';
-  }
-  return $clause;
+    // This could be refactored
+    $search = addslashes(preg_replace("/\s+/", " ", $search));
+    $term = strtok($search, ' ');
+    $clause = '';
+    while($term) {
+        $word = "$term";
+        if ($word[0] == '-') {
+            $word = substr($word, 1);
+            $clause .= "not ($column like '%$word%') ";
+        } else {
+            $clause .= "($column like '%$word%') ";
+        }
+        if ($term = strtok(' ')) {
+            $clause .= 'and ';
+        }
+    }
+    return $clause;
 }
 
 // setup for title-search
-function InitTitleSearch($dbi, $search) {
-  $clause = MakeSQLSearchClause($search, 'pagename');
-  $res = mysql_query("select pagename from $dbi[table] where $clause order by pagename", $dbi["dbc"]);
-
-  return $res;
+function InitTitleSearch($dbc, $search) {
+    $clause = MakeSQLSearchClause($search, 'pagename');
+    $res = $dbc->exec("SELECT pagename FROM wiki WHERE $clause ORDER BY pagename");
+    return $res;
 }
 
 
@@ -290,21 +280,19 @@ function TitleSearchNextMatch($dbi, $res) {
 
 
 // setup for full-text search
-function InitFullSearch($dbi, $search) {
-  $clause = MakeSQLSearchClause($search, 'content');
-  $res = mysql_query("select * from $dbi[table] where $clause", $dbi["dbc"]);
-
-  return $res;
+function InitFullSearch($dbc, $search) {
+    $clause = MakeSQLSearchClause($search, 'content');
+    $res = $dbc->exec("SELECT * FROM wiki WHERE $clause");
+    return $res;
 }
 
 // iterating through database
 function FullSearchNextMatch($dbi, $res) {
-  if($hash = mysql_fetch_array($res)) {
-     return MakePageHash($hash);
-  }
-  else {
-     return 0;
-  }
+    if($hash = $res->fetch(PDO::FETCH_ASSOC)) {
+        return MakePageHash($hash);
+    } else {
+        return 0;
+    }
 }
 
 function GetAllWikiPageNames($dbi) {

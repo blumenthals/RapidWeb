@@ -52,6 +52,4 @@
       include "rw-includes/display.php"; // defaults to 'home'
    }
 
-   CloseDataBase($dbi);
-
 ?>
