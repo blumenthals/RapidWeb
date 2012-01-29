@@ -4,8 +4,10 @@ class RapidWeb extends EventEmitter {
     private $pageTypes = array();
     private $plugins = array();
     public $globalURL;
+    public $dbc;
 
     public function __construct() {
+        global $dbc;
         /* Find the root of the rapidweb installation */
         $real = dirname($_SERVER['SCRIPT_FILENAME']);
         while($real and !file_exists("$real/rw-config.php")) $real = dirname($real);
@@ -31,6 +33,8 @@ class RapidWeb extends EventEmitter {
 
         /* Register basic page type plugin */
         $this->registerPlugin('WikiPage');
+
+        $this->dbc = $dbc; // @todo: move this into this class entirely, and perform the connection here
 
     }
 
