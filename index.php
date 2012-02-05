@@ -9,7 +9,16 @@
     require_once "rw-includes/templating.php";
 
 	if(get_magic_quotes_gpc()) {
-		foreach($_REQUEST as $k => $v) $_REQUEST[$k] = stripslashes($v);
+        function strip_r(&$req) {
+            foreach($req as $k => $v) {
+                if(is_array($v)) {
+                    strip_r($v);
+                } else if(is_string($v)) {
+                    $req[$k] = stripslashes($v);
+                }
+            }
+        }
+        strip_r($_REQUEST);
 	}
 
    // Backward Compatibility
