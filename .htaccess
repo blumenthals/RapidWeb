@@ -9,6 +9,10 @@ PHP_Value memory_limit 256M
 
 RewriteEngine On
 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule (.*) index.php/$1 
+
 ExpiresActive on
 ExpiresByType text/css "access plus 1 month"
 ExpiresByType application/javascript "access plus 1 month"
