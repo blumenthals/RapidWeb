@@ -50,6 +50,7 @@ class RapidWeb extends EventEmitter {
 
     public function register_endpoint($name, $handler) {
         $this->endpoints[$name] = $handler;
+        return $this->rootURL.$name;
     }
 
     public function add_plugins_directory($directory) {
