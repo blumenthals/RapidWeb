@@ -2,6 +2,7 @@
 
 class RapidWeb extends EventEmitter {
     private $pageTypes = array();
+    private $endpoints = array();
     private $plugins = array();
     public $globalURL;
     public $dbc;
@@ -45,6 +46,10 @@ class RapidWeb extends EventEmitter {
 
     public function register_pagetype($slug, $handler) {
         $this->pageTypes[$slug] = $handler;
+    }
+
+    public function register_endpoint($name, $handler) {
+        $this->endpoints[$name] = $handler;
     }
 
     public function add_plugins_directory($directory) {
