@@ -438,8 +438,3 @@ function parse($str, $tagcontext = null) {
    // end SetHTMLOutputMode
 }
 // end class definition
-
-
-
-$p = new Parser($pagehash);
-$html = $p->parse($pagehash['content']);

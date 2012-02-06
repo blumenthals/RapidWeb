@@ -192,7 +192,6 @@ function _pagecontent($page) {
   $html = "Page $pageName doesn't exist";
   $pagehash = RetrievePage($dbc, $pageName);
   if (is_array($pagehash)) {
-      require_once('rw-includes/transformlib.php');
       $p = new Parser($pagehash);
       $html = $p->parse($pagehash['content'], $tagcontext);
   }
