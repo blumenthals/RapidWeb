@@ -166,4 +166,21 @@ class RapidWeb extends EventEmitter {
             )
         ));
     }
+
+    function linkExistingWikiWord($wikiword, $linktext='', $target = '') {
+        global $LinkStyle;
+        global $ScriptUrl;
+        $enc_word = rawurlencode($wikiword);
+        if(empty($linktext)) $linktext = htmlspecialchars($wikiword);
+        if($target) $dtarget = " target='$target'";
+        if (isset($LinkStyle) and $LinkStyle == 'path') {
+            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
+                return "<a href='$ScriptUrl/$enc_word'$dtarget>$linktext</a>";
+            } else {
+                return "<a href='{$this->rootURL}$enc_word'$dtarget>$linktext</a>";
+            }
+        } else {
+            return "<a href='$ScriptUrl?$enc_word'$dtarget>$linktext</a>";
+        }
+    }
 }

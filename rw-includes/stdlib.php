@@ -30,12 +30,8 @@ function ExitWiki($errormsg) {
 
 
 function LinkExistingWikiWord($wikiword, $linktext='', $target = '') {
-  global $ScriptUrl;
-  $enc_word = rawurlencode($wikiword);
-  if(empty($linktext))
-     $linktext = htmlspecialchars($wikiword);
-  if($target) $dtarget = " target='$target'";
-  return "<a href=\"$ScriptUrl?$enc_word\"$dtarget>$linktext</a>";
+    global $RapidWeb;
+    return $RapidWeb->linkExistingWikiWord($wikiword, $linktext, $target);
 }
 
 function LinkUnknownWikiWord($wikiword, $linktext='', $target = '') {
