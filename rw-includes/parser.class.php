@@ -1,11 +1,4 @@
 <?php
-   /*
-         class Stack { push(), pop(), cnt(), top() }
-         class Parser {
-             ....
-             SetHTMLOutputMode($newmode, $depth)
-         }
-    */
 
 class Parser {
     private $pagehash;
