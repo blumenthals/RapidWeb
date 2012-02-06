@@ -1,7 +1,7 @@
 <?php
 
 /** fetch page or get default content
- * calls transform.php for actual transformation of wiki markup to HTML 
+ * calls into Parser for actual transformation of wiki markup to HTML 
  * if we got GET data, the first item is always a page name. 
  * If it wasn't this file would not have been included
  */

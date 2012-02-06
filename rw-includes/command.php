@@ -117,9 +117,10 @@ function rw_GET_display_gallery($request, $response) {
 
 // @todo refactor into the wikipage plugin
 function rw_GET_display_page($request, $response) {
-    global $pagehash; // @todo: refactor display.php and transform.php
-    // transform.php returns $html containing all the HTML markup
-    include("rw-includes/transform.php");
+    global $pagehash; // @todo: refactor display.php
+
+    $p = new Parser($pagehash);
+    $html = $p->parse($pagehash['content']);
     $response->renderText($html);
 }
 

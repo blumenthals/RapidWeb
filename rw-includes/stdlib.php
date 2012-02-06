@@ -166,7 +166,7 @@ function ParseAndLink($bracketlink) {
 }
 
 
-/** encapsulates transform.php into a proper function, so we can include it as part of an expression.
+/** encapsulates transform into a proper function, so we can include it as part of an expression.
 */
 function _pagecontent($page) {
   global $dbc, $AllowedProtocols, $logo, $FieldSeparator, $datetimeformat, $WikiNameRegexp;
