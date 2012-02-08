@@ -97,6 +97,7 @@ class RapidWeb extends EventEmitter {
 
     public function do_savePage($page) {
         global $dbc;
+        global $LinkStyle;
         $pagehash = RetrievePage($dbc, $page->pagename);
 
         // if this page doesn't exist yet, now's the time!
@@ -157,14 +158,25 @@ class RapidWeb extends EventEmitter {
 
         header('Content-Type: text/json');
 
-        print(json_encode(
-            array(
-                'page' => array(
-                    'public' => $this->rootURL . 'index.php?' . $page->pagename,
-                    'private' => $this->rootURL . 'admin.php?' . $page->pagename
+        if (isset($LinkStyle) and $LinkStyle == 'path') {
+            print(json_encode(
+                array(
+                    'page' => array(
+                        'public' => $this->rootURL . $page->pagename,
+                        'private' => $this->rootURL . 'admin.php/' . $page->pagename
+                    )
                 )
-            )
-        ));
+            ));
+        } else {
+            print(json_encode(
+                array(
+                    'page' => array(
+                        'public' => $this->rootURL . 'index.php?' . $page->pagename,
+                        'private' => $this->rootURL . 'admin.php?' . $page->pagename
+                    )
+                )
+            ));
+        }
     }
 
     function linkExistingWikiWord($wikiword, $linktext='', $target = '') {

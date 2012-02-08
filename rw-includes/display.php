@@ -6,9 +6,16 @@
  * If it wasn't this file would not have been included
  */
 
-if (!empty($_SERVER['QUERY_STRING'])) {
-    $args = explode('&', rawurldecode($_SERVER['argv'][0]));
-    if(!strstr($args[0], '=')) $pagename = $args[0];
+if (isset($LinkStyle) and $LinkStyle == 'path') {
+    if (!empty($_SERVER['PATH_INFO'])) {
+        $pagename = $_SERVER['PATH_INFO'];
+        if ($pagename{0} == '/') $pagename = substr($pagename, 1);
+    }
+} else {
+    if (!empty($_SERVER['QUERY_STRING'])) {
+        $args = explode('&', rawurldecode($_SERVER['argv'][0]));
+        if(!strstr($args[0], '=')) $pagename = $args[0];
+    }
 }
 
 if(!isset($pagename)) $pagename = "home";

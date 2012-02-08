@@ -1,3 +1,4 @@
+<?php if (!isset($GLOBALS['LinkStyle']) or $GLOBALS['LinkStyle'] != 'path') throw new Exception('This theme requires $LinkStyle to be "path"'); ?>
 <!doctype html>
 <html>
 <head>
@@ -40,14 +41,14 @@
                     <tr>
                       <td background="<?php bloginfo('template_directory'); ?>/images/menubg.gif">
                         <ul class='rw-menu'>
-                          <li><a href="###SCRIPTURL###?home">Home</a></li>
-                          <li><a href="###SCRIPTURL###?ContactUs">Contact Us</a></li>
-                          <li><a href="###SCRIPTURL###?FindPage">Search</a></li>
+                          <li><a href="home">Home</a></li>
+                          <li><a href="ContactUs">Contact Us</a></li>
+                          <li><a href="FindPage">Search</a></li>
                           <li><a href="###ADMINURL###?###PAGEURL###">Admin</a></li>
-                          <li><a href="###SCRIPTURL###?SiteMap">Sitemap</a></li>
-                          <li><a href="###SCRIPTURL###?RecentChanges">Recent Changes</a></li>
+                          <li><a href="SiteMap">Sitemap</a></li>
+                          <li><a href="RecentChanges">Recent Changes</a></li>
                           <li><a href="http://www.rapidweb.info/index.php?TryIt">Editing Help</a></li>
-                          <li><a href="###SCRIPTURL###?BlumenthalsSupport">Support</a></li>
+                          <li><a href="BlumenthalsSupport">Support</a></li>
                           PAGECONTENT(navigation, UL)
                          </ul>
                       </td>
