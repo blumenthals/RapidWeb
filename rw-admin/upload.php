@@ -1,9 +1,10 @@
 <?php 
-	require_once '../rw-config.php'; 
+	
+    require_once '../rw-includes/config.php'; 
+    require_once '../rw-includes/stdlib.php'; 
     require_once "../rw-includes/templating.php";
-	require_once '../rw-includes/stdlib.php'; 
-	require_once '../rw-includes/wp-compat.php'; 
-	require_once 'require-authentication.php'; 
+    require_once '../rw-includes/wp-compat.php'; 
+    require_once 'require-authentication.php'; 
 ?>
 <html>
 <head>
