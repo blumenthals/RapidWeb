@@ -44,11 +44,11 @@ class RapidWeb extends EventEmitter {
         $this->trigger('rw-init', $this);
     }
 
-    public function register_pagetype($slug, $handler) {
+    public function registerPagetype($slug, $handler) {
         $this->pageTypes[$slug] = $handler;
     }
 
-    public function register_endpoint($name, $handler) {
+    public function registerEndpoint($name, $handler) {
         $this->endpoints[$name] = $handler;
         return $this->rootURL.$name;
     }
@@ -195,4 +195,51 @@ class RapidWeb extends EventEmitter {
             return "<a href='$ScriptUrl?$enc_word'$dtarget>$linktext</a>";
         }
     }
+
+    public function dispatch($command) {
+        try {
+            if ($command instanceof RapidWeb\Action) {
+                $action = $command;
+            } else {
+                $action = new RapidWeb\CommandAction($_SERVER['REQUEST_METHOD'], $command);
+            }
+
+            $request = new RapidWeb\Request($_REQUEST, $_SERVER, $_FILES);
+
+            $options = array();
+            if($request['jsonp']) $options['jsonp'] = $request['jsonp'];
+            $response = new RapidWeb\Response($options);
+
+            $action->execute($request, $response);
+
+            foreach($response->headers as $k => $v) {
+                header("$k: $v");
+            }
+
+            print($response->body);
+
+        } catch (Exception $e) {
+            header('HTTP/1.1 500 Internal Error');
+            print($e->getMessage());
+        }
+    }
+
+    function capture($command) {
+        ob_start();
+        $this->dispatch($command);
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
+    }
+
+    function route() {
+        if (strpos($_SERVER['REQUEST_URI'], $this->rootURL) == 0) {
+            $potentialEndpoint = substr($_SERVER['REQUEST_URI'], strlen($this->rootURL));
+            if (isset($this->endpoints[$potentialEndpoint])) {
+                return call_user_func($this->endpoints[$potentialEndpoint]);
+            }
+        }
+        return false;
+    }
+
 }

@@ -188,7 +188,7 @@ function _pagecontent($page) {
   $html = "Page $pageName doesn't exist";
   $pagehash = RetrievePage($dbc, $pageName);
   if (is_array($pagehash)) {
-      $p = new Parser($pagehash);
+      $p = new \Rapidweb\Parser($pagehash);
       $html = $p->parse($pagehash['content'], $tagcontext);
   }
   $page = $html;

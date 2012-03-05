@@ -59,7 +59,9 @@ if (isset($_REQUEST['edit']) && defined('WIKI_ADMIN')) {
     include "rw-includes/sendform.php";
 } elseif (isset($_REQUEST['command'])) {
     include "rw-includes/command.php";
-    rw_do_command($_REQUEST['command']);
+    $RapidWeb->dispatch($_REQUEST['command']);
+} elseif ($action = $RapidWeb->route()) {
+    $action->execute(new Rapidweb\Request($_REQUEST, $_SERVER, $_FILES), new Rapidweb\Response());
 } else {
     include "rw-includes/display.php"; // defaults to 'home'
 }

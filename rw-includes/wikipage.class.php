@@ -3,7 +3,7 @@
 class WikiPage extends RWPlugin implements RWPageType {
     public function __construct(RapidWeb $rapidweb) {
         parent::__construct($rapidweb);
-        $rapidweb->register_pagetype('page', $this);
+        $rapidweb->registerPagetype('page', $this);
     }
 
     public function getPageTypeName() {

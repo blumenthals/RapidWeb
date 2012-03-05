@@ -26,8 +26,7 @@ $pagehash = RetrievePage($dbc, $pagename);
 
 // we render the page if it exists, else ask the user to write one.
 if (is_array($pagehash)) {
-    include('rw-includes/command.php');
-    $html = rw_capture_command('display_page');
+    $html = $RapidWeb->capture('display_page');
 }
 
 GeneratePage('BROWSE', $html, $pagename, $pagehash);

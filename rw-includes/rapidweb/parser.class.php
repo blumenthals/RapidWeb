@@ -1,4 +1,5 @@
 <?php
+namespace Rapidweb {
 
 class Parser {
     private $pagehash;
@@ -430,4 +431,5 @@ function parse($str, $tagcontext = null) {
    }
    // end SetHTMLOutputMode
 }
-// end class definition
+
+}

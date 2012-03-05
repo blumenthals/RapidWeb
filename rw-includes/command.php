@@ -1,44 +1,6 @@
 <?php
 
 // @todo refactor remove completely
-function rw_capture_command($command) {
-    ob_start();
-    rw_do_command($command);
-    $content = ob_get_contents();
-    ob_end_clean();
-    return $content;
-}
-
-// @todo refactor into rapidweb class
-function rw_do_command($command) {
-    try {
-        $action = new Action($_SERVER['REQUEST_METHOD'], $command);
-
-        $action->request = new Request($_REQUEST, $_SERVER, $_FILES);
-
-        $options = array();
-        if($request['jsonp']) $options['jsonp'] = $request['jsonp'];
-        $action->response = new Response($options);
-
-        $func = 'rw_'.strtoupper($_SERVER['REQUEST_METHOD'])."_".$command;
-        if(function_exists($func)) {
-            call_user_func($func, $action->request, $action->response);
-        } else {
-            throw new Exception("Can't find handler for $command via {$_SERVER['REQUEST_METHOD']}");
-        }
-
-        foreach($action->response->headers as $k => $v) {
-            header("$k: $v");
-        }
-
-        print($action->response->body);
-
-    } catch (Exception $e) {
-        header('HTTP/1.1 500 Internal Error');
-        print($e->getMessage());
-    }
-}
-
 // @todo refactor into its own handler class
 function rw_POST_upload_image_ajax($request, $response) {
     $file = $request['img'];
@@ -113,15 +75,6 @@ function rw_POST_upload_image_ajax($request, $response) {
 function rw_GET_display_gallery($request, $response) {
     global $pagehash; // @todo: refactor display.php
     $response->render('display_gallery', $pagehash);
-}
-
-// @todo refactor into the wikipage plugin
-function rw_GET_display_page($request, $response) {
-    global $pagehash; // @todo: refactor display.php
-
-    $p = new Parser($pagehash);
-    $html = $p->parse($pagehash['content']);
-    $response->renderText($html);
 }
 
 // @todo refactor into a namespace of some sort

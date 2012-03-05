@@ -1,5 +1,7 @@
 <?php
 
+namespace Rapidweb {
+
 class Stack {
 	private $items = array();
 	private $size = 0;
@@ -29,4 +31,5 @@ class Stack {
 			return '';
 	}
 }
-// end class definition
+
+}
