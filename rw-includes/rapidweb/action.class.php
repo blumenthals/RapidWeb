@@ -5,8 +5,10 @@ namespace RapidWeb {
         public $request;
         public $response;
         public $content = NULL;
+        protected $app;
 
-        public function __construct() {
+        public function __construct(\RapidWeb $app) {
+            $this->app = $app;
         }
 
         public function getPresentation() {
