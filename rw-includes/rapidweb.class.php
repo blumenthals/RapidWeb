@@ -1,5 +1,9 @@
 <?php 
 
+/* Requires for things that should be available site-wide
+ */
+require_once dirname(__FILE__)."/php-selector/selector.inc";
+
 class RapidWeb extends EventEmitter {
     private $pageTypes = array();
     private $endpoints = array();
