@@ -17,15 +17,23 @@ define('SELECTOR_VERSION', '1.1.3');
 
 class SelectorDOM {
   public function SelectorDOM($html) {
-    $this->html = $html;
-    $this->dom = new DOMDocument();
-    @$this->dom->loadHTML($html);
+    if ($html instanceof DOMDocument) { 
+        $this->dom = $html;
+        $this->context = $this->dom->documentElement;
+    } elseif ($html instanceof DOMElement) {
+        $this->dom = $html->ownerDocument;
+        $this->context = $html;
+    } else {
+        $this->dom = new DOMDocument();
+        @$this->dom->loadHTML($html);
+        $this->context = $this->dom->documentElement;
+    }
     $this->xpath = new DOMXpath($this->dom);
   }
   
   public function select($selector, $as_array = true) {
-    $elements = $this->xpath->evaluate(selector_to_xpath($selector));
-    return $as_array ? elements_to_array($elements) : $element;
+    $elements = $this->xpath->evaluate(selector_to_xpath($selector), $this->context);
+    return $as_array ? elements_to_array($elements) : $elements;
   }
 }
 
@@ -81,9 +89,9 @@ function element_to_array($element) {
  */
 
 function selector_to_xpath($selector) {
-  $selector = 'descendant-or-self::' . $selector;
+  $selector = 'descendant-or-self!!' . $selector;
   // ,
-  $selector = preg_replace('/\s*,\s*/', '|descendant-or-self::', $selector);
+  $selector = preg_replace('/\s*,\s*/', '|descendant-or-self!!', $selector);
   // :button, :submit, etc
   $selector = preg_replace('/:(button|submit|file|checkbox|radio|image|reset|text|password)/', 'input[@type="\1"]', $selector);
   // [id]
@@ -117,12 +125,13 @@ function selector_to_xpath($selector) {
   // >
   $selector = preg_replace('/\s*>\s*/', '/', $selector);
   // ~
-  $selector = preg_replace('/\s*~\s*/', '/following-sibling::', $selector);
+  $selector = preg_replace('/\s*~\s*/', '/following-sibling!!', $selector);
   // + 
-  $selector = preg_replace('/\s*\+\s*([\w\-]+)/', '/following-sibling::\1[position()=1]', $selector);
+  $selector = preg_replace('/\s*\+\s*([\w\-]+)/', '/following-sibling!!\1[position()=1]', $selector);
   // ' '
-  $selector = preg_replace('/\s+/', '/descendant::', $selector);
+  $selector = preg_replace('/\s+/', '/descendant!!', $selector);
   $selector = str_replace(']*', ']', $selector);
   $selector = str_replace(']/*', ']', $selector);
+  $selector = str_replace('!!', '::', $selector);
   return $selector;
 }
