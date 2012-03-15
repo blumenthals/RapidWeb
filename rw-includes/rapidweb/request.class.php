@@ -30,7 +30,7 @@ namespace RapidWeb {
         }
 
         public function offsetGet($offset) {
-            if(isset($this->params[$offset])) {
+            if(array_key_exists($offset, $this->params)) {
                 return $this->params[$offset];
             } else {
                 return NULL;
