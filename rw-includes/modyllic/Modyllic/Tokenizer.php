@@ -170,7 +170,7 @@ class Modyllic_Token_String extends Modyllic_Token {
 
 /**
  * The tokenizer doesn't produce token lists itself, but parsers may find it
- * useful to clump up a bunch of tokens and reinject them as a single token. 
+ * useful to clump up a bunch of tokens and reinject them as a single token.
  * This is here to provide that facility.
  */
 class Modyllic_Token_List extends Modyllic_Token { }
@@ -197,18 +197,23 @@ class Modyllic_Token_EOF extends Modyllic_Token_EOC {}
  * one it will always be returned by next().
  */
 class Modyllic_Token_Error extends Modyllic_Token_Except {
-    private $row;
-    private $col;
+    protected $row;
+    protected $col;
     function __construct($pos, $row,$col) {
         $this->pos = $pos;
         $this->row = $row;
         $this->col = $col;
     }
     function value() {
-        return "Syntax Error at ".$this->row.", ".$this->col;
+        return "Syntax error";
     }
 }
 
+class Modyllic_Token_Delimiter_Error extends Modyllic_Token_Error {
+    function value() {
+        return "Invalid delimiter declaration";
+    }
+}
 
 class Modyllic_Token_SOC extends Modyllic_Token_EOC {}
 
@@ -237,7 +242,7 @@ class Modyllic_Tokenizer {
     private $other_symbol_chars  = array(  '/'=>true, '-'=>true );
     private $ident_re;
     private $reserved_re;
-    
+
     protected static $on_advance;
 
     static public function on_advance($todo) {
@@ -255,7 +260,7 @@ class Modyllic_Tokenizer {
         $this->ident_re = '/\G('.Modyllic_SQL::$valid_ident_re.')/';
         $this->cur = new Modyllic_Token_SOC(0);
     }
-    
+
     private $delimiter = ';';
 
     /**
@@ -277,7 +282,7 @@ class Modyllic_Tokenizer {
         $this->inject( new Modyllic_Token_Delim($this->pos) );
         return $rest;
     }
-    
+
     /**
      * Calculates the number of lines the last token ended on
      */
@@ -285,7 +290,7 @@ class Modyllic_Tokenizer {
         $sofar = substr( $this->cmdstr, 0, $this->pos );
         return preg_match_all( "/\n/", $sofar, $matches );
     }
-    
+
     /**
      * Calculates the column that the last token ended at
      */
@@ -307,7 +312,7 @@ class Modyllic_Tokenizer {
         return substr( $this->cmdstr, $token->pos - $start_len, $start_len ) . "<---HERE--->".
                substr( $this->cmdstr, $token->pos, 200 );
     }
-    
+
     /**
      * Generate the reserved words regexp, from the list as the bottom of the class.
      */
@@ -325,10 +330,10 @@ class Modyllic_Tokenizer {
         foreach ( $strans as $word ) {
             $reserved[] = substr($word,3);
         }
-        
+
         self::$reserved_words_re = '/\G(' . implode('|',$reserved) .')\b/si';
     }
-    
+
     private $injected = array();
 
     /**
@@ -341,15 +346,15 @@ class Modyllic_Tokenizer {
     /**
      * Return the next token without removing it from the token-stream.
      *
-     * @param bool $whitespace (default: FALSE) If this is TRUE, whitespace
+     * @param bool $whitespace (default: false) If this is true, whitespace
      * tokens will be returned rather then suppressed.
-     */    
-    function peek_next($whitespace = FALSE) {
+     */
+    function peek_next($whitespace = false) {
         $prev = $this->prev;
         $cur = $this->cur;
         $ws = array();
         do {
-            $next = $this->next(TRUE);
+            $next = $this->next(true);
             if ($whitespace or ! $next instanceOf Modyllic_Token_Whitespace) {
                 break;
             }
@@ -374,7 +379,7 @@ class Modyllic_Tokenizer {
         return isset($this->delimiter) and preg_match( "/\G\Q$this->delimiter\E/", $this->cmdstr, $matches, 0, $this->pos );
     }
     function is_new_delimiter(&$matches) {
-        return $this->prev instanceOf Modyllic_Token_SOC and preg_match( "/\G(DELIMITER\s+(\S+)\s*(?:\n|\z))/i", $this->cmdstr, $matches, 0, $this->pos);
+        return $this->prev instanceOf Modyllic_Token_SOC and preg_match( "/\G(DELIMITER\s+(\S+)([^\n]*?)(?=\n|\z))/i", $this->cmdstr, $matches, 0, $this->pos);
     }
     function is_string() {
         return isset( $this->quote_chars[$this->cmdstr[$this->pos]] );
@@ -409,10 +414,10 @@ class Modyllic_Tokenizer {
     function is_other_symbol() {
         return isset( $this->other_symbol_chars[$this->cmdstr[$this->pos]] );
     }
-    
+
     function rest_next() {
         do {
-            $redo = FALSE;
+            $redo = false;
             // If any tokens were injected into the head of the stream, we return those immediately
             if ( $this->is_injected() ) {
                 $cur = array_shift($this->injected);
@@ -423,12 +428,12 @@ class Modyllic_Tokenizer {
                     return $cur->literal();
                 }
             }
-            
+
             // If our position is at or past(?!) the end, return EOF
             else if ($this->is_eof()) {
                 return null;
             }
-            
+
             // Match the command delimiter...
             else if ( $this->is_delimiter() ) {
                 $this->pos += strlen($this->delimiter);
@@ -446,7 +451,7 @@ class Modyllic_Tokenizer {
             else if ( $this->is_mysql_comment($matches) ) {
 
                 // Zero out the */ at the end of the comment
-                $eod = $this->pos + strlen($matches[1]); 
+                $eod = $this->pos + strlen($matches[1]);
                 $this->cmdstr[$eod] = ' ';
                 $this->cmdstr[$eod+1] = ' ';
                 $len = $this->pos+strlen($matches[2]);
@@ -454,7 +459,7 @@ class Modyllic_Tokenizer {
                 for ( ; $this->pos < $len; $this->pos++ ) {
                     $this->cmdstr[$this->pos] = ' ';
                 }
-                $redo = TRUE;
+                $redo = true;
             }
             // SQL style comments
             else if ( $this->is_sql_comment($matches) or $this->is_shell_comment($matches) ) {
@@ -473,7 +478,7 @@ class Modyllic_Tokenizer {
                 $this->pos ++;
                 return $char;
             }
-            
+
             else if ( preg_match( '{\G([^-/#"\''.$this->delimiter.']+)}sm', $this->cmdstr, $matches, 0, $this->pos ) ) {
                 $this->pos += strlen($matches[1]);
                 return $matches[1];
@@ -488,38 +493,38 @@ class Modyllic_Tokenizer {
     /**
      * Return the next token
      *
-     * @param bool $whitespace (default: FALSE) If this is TRUE, whitespace
+     * @param bool $whitespace (default: false) If this is true, whitespace
      * tokens will be returned rather then suppressed.
      */
-    function next( $whitespace = FALSE, $peek = FALSE ) {
+    function next( $whitespace = false, $peek = false ) {
         $at_eof = $this->cur instanceOf Modyllic_Token_EOF;
         if ( ! $this->cur instanceOf Modyllic_Token_Whitespace and
              ! $this->cur instanceOf Modyllic_Token_Comment ) {
             $this->prev = $this->cur;
         }
-        
+
         // As we optionally supress whitespace and also mangle the input to
         // handle MySQL conditional comments, we may need to make more then
         // one go at getting a token.  We loop rather then recursing.
         do {
-            $redo = FALSE;
-            
+            $redo = false;
+
             // If any tokens were injected into the head of the stream, we return those immediately
             if ( $this->is_injected() ) {
                 $this->cur = array_shift($this->injected);
             }
-            
+
             // If our position is at or past(?!) the end, return EOF
             else if ($this->is_eof()) {
                 $this->cur = new Modyllic_Token_EOF($this->pos);
             }
-            
+
             // Match the command delimiter...
             else if ( $this->is_delimiter() ) {
                 $this->pos += strlen($this->delimiter);
                 $this->cur = new Modyllic_Token_Delim($this->pos,$this->delimiter);
             }
-            
+
             // Symbol characters
             else if ( $this->is_safe_symbol() ) {
                 $char = $this->cmdstr[$this->pos];
@@ -530,16 +535,23 @@ class Modyllic_Tokenizer {
             else if ( $this->is_string() ) {
                 $this->cur = $this->next_string();
             }
-            
+
             // Our simple regexp token matchers...
             else if ( $this->is_whitespace($matches) ) {
                 $this->pos += strlen($matches[1]);
                 $this->cur = new Modyllic_Token_Whitespace( $this->pos, $matches[1] );
             }
             else if ( $this->is_new_delimiter($matches) ) {
-                $this->pos += strlen($matches[1]);
                 $this->delimiter = $matches[2];
-                $this->cur = new Modyllic_Token_NewDelim( $this->pos, $matches[1]);
+                $this->pos += strlen($matches[1]);
+                if ( preg_match("/\S/",$matches[3], $offset, PREG_OFFSET_CAPTURE) ) {
+                    $this->pos -= strlen($matches[3]);
+                    $this->pos += $offset[0][1];
+                    $this->cur = new Modyllic_Token_Delimiter_Error($this->pos, $this->line(), $this->col() );
+                }
+                else {
+                    $this->cur = new Modyllic_Token_NewDelim( $this->pos, $matches[1]);
+                }
             }
             else if ( $this->is_reserved($matches) ) {
                 $this->pos += strlen($matches[1]);
@@ -561,7 +573,7 @@ class Modyllic_Tokenizer {
             else if ( $this->is_mysql_comment($matches) ) {
 
                 // Zero out the */ at the end of the comment
-                $eod = $this->pos + strlen($matches[1]); 
+                $eod = $this->pos + strlen($matches[1]);
                 $this->cmdstr[$eod] = ' ';
                 $this->cmdstr[$eod+1] = ' ';
                 $len = $this->pos+strlen($matches[2]);
@@ -569,9 +581,9 @@ class Modyllic_Tokenizer {
                 for ( ; $this->pos < $len; $this->pos++ ) {
                     $this->cmdstr[$this->pos] = ' ';
                 }
-                $redo = TRUE;
+                $redo = true;
             }
-            
+
             // SQL style comments
             else if ( $this->is_sql_comment($matches) ) {
                 $this->pos += strlen($matches[1]);
@@ -599,12 +611,12 @@ class Modyllic_Tokenizer {
             else {
                 $this->cur = new Modyllic_Token_Error($this->pos,$this->line(), $this->col());
             }
-            
+
             // Supress whitespace unless we were asked for it
             if ( $this->cur instanceOf Modyllic_Token_Whitespace and ! $whitespace ) {
-                $redo = TRUE;
+                $redo = true;
             }
-            
+
         } while ($redo);
 
 /*
@@ -661,10 +673,10 @@ class Modyllic_Tokenizer {
         else {
             $token = new Modyllic_Token_String($this->pos,$str);
             // If we're followed by whitespace and a string, then concatenate the string
-            if ( $this->peek_next(TRUE) instanceOf Modyllic_Token_Whitespace ) {
-                $ws = $this->next(TRUE);
-                if ( $this->peek_next(TRUE) instanceOf Modyllic_Token_String ) {
-                    $token = new Modyllic_Token_String($this->pos, Modyllic_SQL::quote_str( $token->unquote() . $this->next(FALSE)->unquote() ) );
+            if ( $this->peek_next(true) instanceOf Modyllic_Token_Whitespace ) {
+                $ws = $this->next(true);
+                if ( $this->peek_next(true) instanceOf Modyllic_Token_String ) {
+                    $token = new Modyllic_Token_String($this->pos, Modyllic_SQL::quote_str( $token->unquote() . $this->next(false)->unquote() ) );
                 }
                 else {
                     $this->inject($ws);
@@ -673,10 +685,11 @@ class Modyllic_Tokenizer {
             return $token;
         }
     }
-    
+
     static private $reserved_words_re;
     static private function reserved_words() {
         return array(
+            "AFTER",
             "ALGORITHM",
             "ALIASES", // Special
             "ALTER",
@@ -687,6 +700,7 @@ class Modyllic_Tokenizer {
             "AT",
             "AVG_ROW_LENGTH",
             "BINARY",
+            "BEFORE",
             "BEGIN",
             "BIGINT",
             "BINARY",
@@ -728,6 +742,7 @@ class Modyllic_Tokenizer {
             "DECIMAL",
             "DEFAULT",
             "DEFINER",
+            "DELETE",
             "DELIMITER",
             "DETERMINISTIC",
             "DISABLE",
@@ -751,6 +766,7 @@ class Modyllic_Tokenizer {
             "FLOAT",
             "FULLTEXT",
             "FUNCTION",
+            "FOR EACH ROW",
             "FOREIGN KEY",
             "GEOMETRY",
             "HASH",
@@ -764,6 +780,7 @@ class Modyllic_Tokenizer {
             "INDEX",
             "INNODB",
             "INOUT",
+            "INSERT",
             "INSERT INTO",
             "INT",
             "INTEGER",
@@ -841,6 +858,7 @@ class Modyllic_Tokenizer {
             "TINYTEXT",
             "TRANSACTION ISOLATION LEVEL",
             "TRUNCATE",
+            "TRIGGER",
             "UNDEFINED",
             "UNICODE",
             "UNIQUE",

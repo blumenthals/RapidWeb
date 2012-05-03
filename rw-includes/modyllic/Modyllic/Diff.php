@@ -25,17 +25,17 @@ class Modyllic_Diff {
         $this->to   = $to;
         $this->calculate_changeset();
     }
-    
+
     /**
      * @returns Modyllic_Changeset
      */
     function changeset() {
         return $this->changeset;
     }
-    
+
     private function calculate_changeset() {
         $this->changeset = new Modyllic_Changeset();
-        
+
         $this->changeset->schema->name = $this->to->name;
         $this->changeset->schema->from = $this->from;
         if ( $this->from->charset != $this->to->charset ) {
@@ -45,12 +45,6 @@ class Modyllic_Diff {
             $this->changeset->schema->collate = $this->to->collate;
         }
 
-        // If our metadata table doesn't yet exist, create it
-        if ( ! $this->from->sqlmeta_exists ) {
-            $this->changeset->create_sqlmeta = TRUE;
-            
-        }
-        
         # Find completely new tables
         foreach ($this->to->tables as $name=>$table) {
             if ( ! isset($this->from->tables[$name]) ) {
@@ -62,13 +56,13 @@ class Modyllic_Diff {
                 }
             }
         }
-        
+
         # Find new and updated routines
         foreach ($this->to->routines as $name=>$routine) {
             if ( ! isset($this->from->routines[$name]) ) {
                 $this->changeset->add_routine($routine);
             }
-            else if ( ! $routine->equalTo($this->from->routines[$name]) ) {
+            else if ( ! $routine->equal_to($this->from->routines[$name]) ) {
                 $other = $this->from->routines[$name];
                 $routine->from = $this->from->routines[$name];
                 $this->changeset->update_routine($routine);
@@ -82,7 +76,7 @@ class Modyllic_Diff {
                 continue;
             }
             $fromevt = $this->from->events[$name];
-            if ( ! $toevt->equalTo($fromevt) ) {
+            if ( ! $toevt->equal_to($fromevt) ) {
                 $updevt = new Modyllic_Event_Changeset();
                 $updevt->name = $name;
                 $updevt->from = $fromevt;
@@ -115,7 +109,8 @@ class Modyllic_Diff {
                 continue;
             }
             $fromview = $this->from->views[$name];
-            if ( ! $toview->equalTo($fromview) ) {
+            if ( ! $toview->equal_to($fromview) ) {
+                $toview->from = $fromview;
                 $this->changeset->update_view( $toview );
             }
         }
@@ -131,13 +126,37 @@ class Modyllic_Diff {
             }
         }
 
+        # New and updated triggers
+        foreach ($this->to->triggers as $name=>$totrigger) {
+            if ( ! isset($this->from->triggers[$name]) ) {
+                $this->changeset->add_trigger($totrigger);
+                continue;
+            }
+            $fromtrigger = $this->from->triggers[$name];
+            if ( ! $totrigger->equal_to($fromtrigger) ) {
+                $totrigger->from = $fromtrigger;
+                $this->changeset->update_trigger( $totrigger );
+            }
+        }
+        # Deleted triggers
+        foreach ($this->from->triggers as $name=>$fromtrigger) {
+            if ( ! isset($this->to->triggers[$name]) ) {
+                if ( isset($this->to->tables[$name]) ) {
+                    # If a table exists for this trigger, then we'll ignore this
+                }
+                else {
+                    $this->changeset->remove_trigger($fromtrigger);
+                }
+            }
+        }
+
         # Find removed tables
         foreach ($this->from->tables as $name=>$table) {
             if ( ! isset($this->to->tables[$name]) ) {
                 $this->changeset->remove_table($table);
             }
         }
-        
+
         # Find removed routines
         foreach ($this->from->routines as $name=>$routine) {
             if ( ! isset($this->to->routines[$name]) ) {
@@ -149,15 +168,15 @@ class Modyllic_Diff {
         foreach ($this->to->tables as $tablename=>$totable) {
             if ( ! isset($this->from->tables[$tablename]) ) { continue; }
             $fromtable = $this->from->tables[$tablename];
-            
+
             $tablediff = new Modyllic_Table_Changeset($tablename);
-            
+
             $tablediff->from = $fromtable;
-            
+
             if ( $fromtable->static != $totable->static ) {
                 $tablediff->static = $totable->static;
             }
-            
+
             # Check to see if any options changed
             if ( $totable->engine != $fromtable->engine ) {
                 $tablediff->update_option( 'engine', $totable->engine );
@@ -168,7 +187,7 @@ class Modyllic_Diff {
             if ( $totable->collate != $fromtable->collate ) {
                 $tablediff->update_option( 'collate', $totable->collate );
             }
-            
+
             # First let's build some column maps:
             $tonames = array(); $fromnames = array();
             foreach ( $totable->columns as $toname=>$tocolumn ) {
@@ -199,7 +218,7 @@ class Modyllic_Diff {
                     }
                 }
             }
-            
+
             # Find new and updated columns
             foreach ( $totable->columns as $name=>$tocolumn ) {
                 if ( isset( $tonames[$name] ) ) {
@@ -210,26 +229,26 @@ class Modyllic_Diff {
                     continue;
                 }
                 $fromcolumn = $fromtable->columns[$fromname];
-                if ( ! $tocolumn->equalTo($fromcolumn) ) {
+                if ( ! $tocolumn->equal_to($fromcolumn) ) {
                     $tocolumn->previously = $fromname;
                     $tocolumn->from = $fromcolumn;
                     $tablediff->update_column($tocolumn);
                 }
-                
+
             }
-            
+
             # Find removed columns;
             foreach ( $fromtable->columns as $name=>$fromcolumn ) {
                 if ( ! isset($fromnames[$name]) ) {
                     $tablediff->remove_column($fromcolumn);
                 }
             }
-            
+
             ##### First, detect new indexes
             foreach ( $totable->indexes as $name=>$toindex ) {
-                $match = FALSE;
+                $match = false;
                 foreach ($fromtable->indexes as $name=>$fromindex ) {
-                    $match = $toindex->equalTo( $fromindex );
+                    $match = $toindex->equal_to( $fromindex, $fromnames );
                     if ( $match ) { break; }
                 }
                 if ( ! $match ) {
@@ -238,42 +257,50 @@ class Modyllic_Diff {
             }
             ##### Next, detect removed indexes
             foreach ( $fromtable->indexes as $name=>$fromindex ) {
-                $match = FALSE;
+                $match = false;
                 foreach ($totable->indexes as $name=>$toindex ) {
-                    $match = $fromindex->equalTo( $toindex );
+                    $match = $fromindex->equal_to( $toindex, $tonames );
                     if ( $match ) { break; }
                 }
                 if ( ! $match ) {
                     $tablediff->remove_index( $fromindex );
                 }
             }
-            
+
             # Find data changes...
             $from_data = isset($fromtable->data)? $fromtable->data: array();
             $to_data   = isset($totable->data)?   $totable->data:   array();
 
             if ( isset($totable->data) and ! isset($fromtable->data) ) {
-                $tablediff->update_option("static",TRUE);
+                $tablediff->update_option("static",true);
             }
             else if ( ! isset($totable->data) and isset($fromtable->data) ) {
-                $tablediff->update_option("static",FALSE);
+                $tablediff->update_option("static",false);
             }
             if ( isset($totable->data) ) {
                 $primary = $totable->primary_key();
-                
+
                 # First, new and updated rows
                 foreach ( $to_data as $torow ) {
-                    $exists = FALSE;
+                    $exists = false;
                     foreach ( $from_data as $fromrow ) {
-                        $match = TRUE;
-                        foreach ( $primary as $key ) {
-                            if ( @$torow[$key] != @$fromrow[$key] ) {
-                                $match = FALSE;
-                                break;
+                        $match = true;
+                        foreach ( $primary as $key => $len ) {
+                            if ( $len === false ) {
+                                if ( @$torow[$key] != @$fromrow[$key] ) {
+                                    $match = false;
+                                    break;
+                                }
+                            }
+                            else {
+                                if ( @substr($torow[$key],0,$len) != @substr($fromrow[$key],0,$len) ) {
+                                    $match = false;
+                                    break;
+                                }
                             }
                         }
                         if ( $match ) {
-                            $exists = TRUE;
+                            $exists = true;
                             $set = array();
                             foreach ($torow as $col=>$toval) {
                                 if ( !isset($fromrow[$col]) or $fromrow[$col]!=$toval ) {
@@ -292,17 +319,25 @@ class Modyllic_Diff {
                 }
                 # And then removed rows
                 foreach ( $from_data as $fromrow ) {
-                    $exists = FALSE;
+                    $exists = false;
                     foreach ( $to_data as $torow ) {
-                        $match = TRUE;
-                        foreach ( $primary as $key ) {
-                            if ( @$torow[$key] != @$fromrow[$key] ) {
-                                $match = FALSE;
-                                break;
+                        $match = true;
+                        foreach ( $primary as $key=>$len ) {
+                            if ( $len === false ) {
+                                if ( @$torow[$key] != @$fromrow[$key] ) {
+                                    $match = false;
+                                    break;
+                                }
+                            }
+                            else {
+                                if ( @substr($torow[$key],0,$len) != @substr($fromrow[$key],0,$len) ) {
+                                    $match = false;
+                                    break;
+                                }
                             }
                         }
                         if ( $match ) {
-                            $exists = TRUE;
+                            $exists = true;
                             break;
                         }
                     }
@@ -311,14 +346,14 @@ class Modyllic_Diff {
                     }
                 }
             }
-            
+
             # If anything in this table changed, then we mark the table as updated.
             if ( $tablediff->has_changes() ) {
                 $tablediff->from = $fromtable;
                 $this->changeset->update_table( $tablediff );
             }
         }
-        
+
     }
 }
 
@@ -330,46 +365,48 @@ class Modyllic_Changeset {
     public $remove;
     public $update;
     public $schema;
-    public $create_sqlmeta = FALSE;
-    
+
     function __construct() {
         $this->add = array(
             "tables" => array(),
             "routines"  => array(),
             "events" => array(),
             "views"  => array(),
+            "triggers" => array(),
             );
         $this->remove = array(
             "tables" => array(),
             "routines"  => array(),
             "events" => array(),
             "views"  => array(),
+            "triggers" => array(),
             );
         $this->update = array(
             "tables" => array(),
             "routines"  => array(),
             "events" => array(),
             "views"  => array(),
+            "triggers" => array(),
             );
         $this->schema = new Modyllic_Schema_Changeset();
     }
-    
+
     /**
      * Note that a table was added
-     * @param Modyllic_Table $table
+     * @param Modyllic_Schema_Table $table
      */
     function add_table( $table ) {
         $this->add['tables'][$table->name] = $table;
     }
-    
+
     /**
      * Note that a table was removed
-     * @param Modyllic_Table $table
+     * @param Modyllic_Schema_Table $table
      */
     function remove_table( $table ) {
         $this->remove['tables'][$table->name] = $table;
     }
-    
+
     /**
      * Note that a table was updated (and how)
      * @param Modyllic_Table_Changeset $table
@@ -377,64 +414,105 @@ class Modyllic_Changeset {
     function update_table( $table ) {
         $this->update['tables'][$table->name] = $table;
     }
-    
+
+    /**
+     * @param Modyllic_Schema_View $view
+     */
+    function add_view( $view ) {
+        $this->add['views'][$view->name] = $view;
+    }
+
+    /**
+     * @param Modyllic_Schema_View_Changeset $view
+     */
+    function update_view( $view ) {
+        $this->update['views'][$view->name] = $view;
+    }
+
+    /**
+     * @param Modyllic_Schema_View $view
+     */
+    function remove_view( $view ) {
+        $this->remove['views'][$view->name] = $view;
+    }
+
     /**
      * Note that a routine was added
-     * @param Modyllic_Routine $routine
+     * @param Modyllic_Schema_Routine $routine
      */
     function add_routine( $routine ) {
         $this->add['routines'][$routine->name] = $routine;
     }
-    
+
     /**
      * Note that a routine was removed
-     * @param Modyllic_Routine $routine
+     * @param Modyllic_Schema_Routine $routine
      */
     function remove_routine( $routine ) {
         $this->remove['routines'][$routine->name] = $routine;
     }
-    
+
     /**
      * Note that a routine was updated
-     * @param Modyllic_Routine $routine
+     * @param Modyllic_Schema_Routine $routine
      */
     function update_routine( $routine ) {
         $this->update['routines'][$routine->name] = $routine;
     }
-    
+
     /**
-     * @param Modyllic_Event $event
+     * @param Modyllic_Schema_Event $event
      */
     function add_event( $event ) {
         $this->add['events'][$event->name] = $event;
     }
-    
+
     /**
      * @param Modyllic_Event_Changeset $event
      */
     function update_event( $event ) {
         $this->update['events'][$event->name] = $event;
     }
-    
+
     /**
-     * @param Modyllic_Event $event
+     * @param Modyllic_Schema_Event $event
      */
     function remove_event( $event ) {
         $this->remove['events'][$event->name] = $event;
     }
-    
+
+    /**
+     * @param Modyllic_Schema_Trigger $trigger
+     */
+    function add_trigger( $trigger ) {
+        $this->add['triggers'][$trigger->name] = $trigger;
+    }
+
+    /**
+     * @param Modyllic_Schema_Trigger_Changeset $trigger
+     */
+    function update_trigger( $trigger ) {
+        $this->update['triggers'][$trigger->name] = $trigger;
+    }
+
+    /**
+     * @param Modyllic_Schema_Trigger $trigger
+     */
+    function remove_trigger( $trigger ) {
+        $this->remove['triggers'][$trigger->name] = $trigger;
+    }
+
     /**
      * Check to see if this object actually contains any changes
      */
     function has_changes() {
-        $changed = (count($this->add['tables'])    + count($this->add['routines'])+
-                    count($this->add['events'])    + count($this->add['views'])+
-                    count($this->remove['tables']) + count($this->remove['routines'])+
-                    count($this->remove['events']) + count($this->remove['views'])+
-                    count($this->update['tables']) + count($this->update['routines'])+
-                    count($this->update['events']) + count($this->update['views'])
+        $changed = (count($this->add['tables'  ]) + count($this->update['tables'  ]) + count($this->remove['tables'  ]) +
+                    count($this->add['routines']) + count($this->update['routines']) + count($this->remove['routines']) +
+                    count($this->add['events'  ]) + count($this->update['events'  ]) + count($this->remove['events'  ]) +
+                    count($this->add['views'   ]) + count($this->update['views'   ]) + count($this->remove['views'   ]) +
+                    count($this->add['triggers']) + count($this->update['triggers']) + count($this->remove['triggers'])
                     );
-        return ($changed != 0 or $this->create_sqlmeta or isset($this->schema->charset) or isset($this->schema->collate));
+        return ($changed != 0 or isset($this->schema->charset) or isset($this->schema->collate));
     }
 }
 
@@ -446,7 +524,7 @@ class Modyllic_Schema_Changeset {
     public $charset;
     public $collate;
     public $from;
-    
+
     /**
      * Check to see if anything has actually been changed
      */
@@ -466,7 +544,7 @@ class Modyllic_Table_Changeset {
     public $from;
     public $options;
     public $static;
-    
+
     /**
      * @param string $name
      */
@@ -491,44 +569,44 @@ class Modyllic_Table_Changeset {
 
     /**
      * Note that a column was added
-     * @param Modyllic_Column $column
+     * @param Modyllic_Schema_Column $column
      */
     function add_column($column) {
         $this->add['columns'][$column->name] = $column;
     }
-    
+
     /**
      * Note that a column was removed
-     * @param Modyllic_Column $column
+     * @param Modyllic_Schema_Column $column
      */
     function remove_column($column) {
         $this->remove['columns'][$column->name] = $column;
     }
-    
+
     /**
      * Note that a column was updated
-     * @param Modyllic_Column $column
+     * @param Modyllic_Schema_Column $column
      */
     function update_column($column) {
         $this->update['columns'][$column->name] = $column;
     }
-    
+
     /**
      * Note that an index was added
-     * @param Modyllic_Index $index
+     * @param Modyllic_Schema_Index $index
      */
     function add_index($index) {
         $this->add['indexes'][] = $index;
     }
-    
+
     /**
      * Note that an index was removed
-     * @param Modyllic_Index $index
+     * @param Modyllic_Schema_Index $index
      */
     function remove_index($index) {
         $this->remove['indexes'][] = $index;
     }
-    
+
     /**
      * Note that a table option was changed
      * @param string $option
@@ -537,21 +615,21 @@ class Modyllic_Table_Changeset {
     function update_option($option,$value) {
         $this->options->$option = $value;
     }
-    
+
     /**
      * @param array $row
      */
     function add_row($row) {
         $this->add['data'][] = $row;
     }
-    
+
     /**
      * @param array $row
      */
     function remove_row($row) {
         $this->remove['data'][] = $row;
     }
-    
+
     /**
      * @param array $updated
      * @param array $where
@@ -569,7 +647,7 @@ class Modyllic_Table_Changeset {
     }
 
     function has_schema_changes() {
-        $changed 
+        $changed
             = count($this->add['columns']) + count($this->remove['columns']) + count($this->update['columns'])
             + count($this->add['indexes']) + count($this->remove['indexes']) + ($this->static != $this->from->static )
             + $this->options->has_changes()
@@ -582,7 +660,7 @@ class Modyllic_Table_Options {
     public $charset;
     public $collate;
     public $engine;
-    
+
     /**
      * @returns true if this object contains any changes
      */

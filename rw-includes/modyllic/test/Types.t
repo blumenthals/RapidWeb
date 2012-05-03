@@ -11,8 +11,8 @@ require_once dirname(__FILE__)."/../testlib/testmore.php";
 
 $sql_types = array(
     "BIT"              => "Modyllic_Bit",
-    "BOOL"             => "Modyllic_TinyInt",
-    "BOOLEAN"          => "Modyllic_TinyInt",
+    "BOOL"             => "Modyllic_Boolean",
+    "BOOLEAN"          => "Modyllic_Boolean",
     "TINYINT"          => "Modyllic_TinyInt",
     "SMALLINT"         => "Modyllic_SmallInt",
     "MEDIUMINT"        => "Modyllic_MediumInt",
@@ -51,7 +51,7 @@ $sql_types = array(
     );
 
 
-plan( 8 + count($sql_types) );
+plan( 15 + count($sql_types) );
 
 require_ok("Modyllic/Types.php");
 
@@ -69,14 +69,25 @@ catch (Exception $e) {
     is( $e->getMessage(), "Unknown SQL type: BOGUS", "Creating a bogus type throws exception" );
 }
 
+$bool = Modyllic_Type::create("BOOLEAN");
+is( $bool->length, 1, "Boolean always have a length of 1");
+is( $bool->to_sql(), "BOOLEAN", "Boolean types properly become themselves");
+$tinyint = Modyllic_Type::create("TINYINT");
+ok( $bool->isa_equivalent($tinyint), "BOOLEAN as a type is equivalent of TINYINT");
+ok( !$bool->equal_to($tinyint), "A full type declaration of BOOLEAN is not the same as just TINYINT");
+ok( !$tinyint->equal_to($bool), "A full type declaration of just TINYINT is not the same as BOOLEAN");
+$tinyint->length = 1;
+ok( $bool->equal_to($tinyint), "A full type declaration of BOOLEAN is the same as TINYINT(1)");
+ok( $tinyint->equal_to($bool), "A full type declaration of TINYINT(1) is the same as BOOLEAN");
+
 $bit = Modyllic_Type::create("BIT");
 is( $bit->name, "BIT", "Name property is set");
-is( $bit->toSql(), "BIT", "SQL name is correct");
+is( $bit->to_sql(), "BIT", "SQL name is correct");
 
 $num = Modyllic_Type::create("INTEGER");
-ok( ! $bit->equalTo($num), "Bits are not integers" );
-ok( $bit->equalTo($bit), "Bits are indeed bits" );
-ok( $bit->isValid(), "Bits are valid" );
+ok( ! $bit->equal_to($num), "Bits are not integers" );
+ok( $bit->equal_to($bit), "Bits are indeed bits" );
+ok( $bit->is_valid(), "Bits are valid" );
 
 $int = Modyllic_Type::create("INTEGER");
 is( $int->length, $int->default_length, "Length is initialized properly" );

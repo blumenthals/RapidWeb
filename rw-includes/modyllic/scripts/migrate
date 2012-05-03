@@ -7,12 +7,13 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/Commandline.php";
+require_once "Modyllic/CommandLine.php";
 require_once "Modyllic/Generator.php";
 require_once "Modyllic/Diff.php";
 require_once "Modyllic/SQL.php";
+require_once "Modyllic/Loader/DB.php";
 
-$args = Modyllic_Commandline::getArgs(array(
+$args = Modyllic_CommandLine::get_args(array(
     'description' => 'Generate a PHP helper class for the stored procs in the schema',
     'options' => array(
         'fromschema' => array(
@@ -35,60 +36,62 @@ $args = Modyllic_Commandline::getArgs(array(
         ));
 
 if ( ! isset($args->options['fromschema']) ) {
-    $parser = Modyllic_Commandline::getParser();
-    $parser->displayError( 'the fromschema is required');
+    Modyllic_CommandLine::display_error( 'the fromschema is required');
 }
 if ( ! isset($args->options['toschema']) ) {
-    $parser = Modyllic_Commandline::getParser();
-    $parser->displayError( 'the toschema is required');
+    Modyllic_CommandLine::display_error( 'the toschema is required');
 }
 
-if ( ! Modyllic_Schema_Loader::is_dsn($args->options['fromschema']) ) {
-    $parser = Modyllic_Commandline::getParser();
-    $parser->displayError( 'the fromschema must be a database');
+if ( ! Modyllic_Loader_DB::is_dsn($args->options['fromschema']) ) {
+    Modyllic_CommandLine::display_error( 'the fromschema must be a database');
 }
 
-list( $dsn, $dbname, $user, $pass ) = Modyllic_Schema_Loader::parse_dsn($args->options['fromschema']);
+list( $driver, $dsn, $dbname, $user, $pass ) = Modyllic_Loader_DB::parse_dsn($args->options['fromschema']);
 
-$base_dsn = "mysql:";
-if ( isset($host) ) {
-    $base_dsn .= "host=$host;";
+try {
+    $gen_class = Modyllic_Generator::dialect_to_class($driver);
 }
-$dsn = $base_dsn . "dbname=$dbname";
+catch (Exception $e) {
+    Modyllic_Commandline::display_error( 'Could not find a compatible dialect for '.$driver );
+}
 try {
     $dbh = new PDO( $dsn, $user, $pass, array( PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION ) );
 }
-catch (Exception $e) {
-    if ( strpos( $e->getMessage(), "Unknown database" ) !== FALSE ) {
-        if ( $args->options['create'] ) {
-            $dbh = new PDO( $base_dsn, $user, $pass, array( PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION ) );
-            $dbh->exec("CREATE DATABASE ".Modyllic_SQL::quote_ident($dbname));
-        }
-        else {
-            print $e->getMessage()."\n";
-            exit(1);
-        }
-    }
-    else {
-        throw $e;
-    }
+catch (PDOException $e) {
+    Modyllic_Commandline::display_error( 'error connecting to database server: '.$e->getMessage() );
 }
 
-$from = Modyllic_Commandline::schema( array($args->options['fromschema']) );
+/// @todo Eeek, MySQL specific stuff in a generic script, push this out to a layer that knows
+/// how to talk to actual databases.  Perhaps some layer that includes what the MySQL loader
+/// currently does.
+$sth = $dbh->prepare('SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=?');
+$sth->execute(array($dbname));
+list($count) = $sth->fetch(PDO::FETCH_NUM);
+if ( $count == 0 ) {
+    if ( $args->options['create'] ) {
+        $dbh->exec("CREATE DATABASE ".Modyllic_SQL::quote_ident($dbname));
+    }
+    else {
+        Modyllic_CommandLine::display_error( "database $dbname does not exist" );
+    }
+}
+// End MySQL specific stuff
 
-$to   = Modyllic_Commandline::schema($args->options['toschema']);
+$from = Modyllic_CommandLine::schema( array($args->options['fromschema']) );
+
+$to   = Modyllic_CommandLine::schema($args->options['toschema']);
 
 Modyllic_Status::verbose("Comparing...\n");
 $diff = new Modyllic_Diff( $from, $to );
 
 if ( ! $diff->changeset->has_changes() ) {
-    print "-- No changes detected.\n";
+    Modyllic_Status::verbose("No changes detected.\n");
     exit(0);
 }
 
 $dbh->exec("USE ".Modyllic_SQL::quote_ident($dbname));
 
-$gen = new Modyllic_Generator_SQL();
+$gen = new $gen_class();
 foreach ( $gen->sql_header() as $sql ) {
     $dbh->exec( $sql );
 }
@@ -96,9 +99,9 @@ $gen->alter($diff);
 $cmds = count($gen->sql_commands());
 try {
     $ii = 0;
-    Modyllic_Status::$sourceName = "changes into database";
-    Modyllic_Status::$sourceCount = 1;
-    Modyllic_Status::$sourceIndex = 1;
+    Modyllic_Status::$source_name = "changes into database";
+    Modyllic_Status::$source_count = 1;
+    Modyllic_Status::$source_index = 1;
     foreach ($gen->sql_commands() as $cmd) {
         Modyllic_Status::status( ++$ii, $cmds );
         $dbh->exec($cmd);

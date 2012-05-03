@@ -6,19 +6,24 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/Generator/SQL.php";
+require_once "Modyllic/SQL.php";
+require_once "Modyllic/Generator/MySQL.php";
 require_once "Modyllic/Schema.php";
 
-class Modyllic_Generator_NativeSQL extends Modyllic_Generator_SQL {
+class Modyllic_Generator_ModyllicSQL extends Modyllic_Generator_MySQL {
+    function sqlmeta_exists($schema) {
+        return false;
+    }
+
     // We include weak constraints as well as regular ones
     function ignore_index( $index ) {
-        return FALSE;
+        return false;
     }
-    
+
     function create_sqlmeta() {}
     function insert_meta($kind,$which,array $what) {}
     function delete_meta($kind,$which) {}
-    function update_meta($kind,$which,$what) {}
+    function update_meta($kind,$which,array $meta) {}
     function add_column( $column ) {
         parent::add_column( $column );
         $this->column_aliases($column);
@@ -38,13 +43,13 @@ class Modyllic_Generator_NativeSQL extends Modyllic_Generator_SQL {
         }
     }
     function foreign_key($index) {
-        if ( $index->weak != Modyllic_Index_Foreign::WEAK_DEFAULT ) {
+        if ( $index->weak != Modyllic_Schema_Index_Foreign::WEAK_DEFAULT ) {
             $this->add( " WEAKLY REFERENCES %id", $index->references['table'] );
         }
         else {
             $this->add( " REFERENCES %id", $index->references['table'] );
         }
-        $this->add( " (" . implode(",",array_map(array("SQL","quote_ident"),array_map("trim",
+        $this->add( " (" . implode(",",array_map(array("Modyllic_SQL","quote_ident"),array_map("trim",
                             $index->references['columns'] ))) .")" );
         if ( $index->references['on_delete'] ) {
            $this->add( " ON DELETE %lit", $index->references['on_delete'] );
@@ -54,12 +59,12 @@ class Modyllic_Generator_NativeSQL extends Modyllic_Generator_SQL {
         }
     }
     function routine_attrs( $routine ) {
-        if ( $routine->args_type != Modyllic_Routine::ARGS_TYPE_DEFAULT ) {
+        if ( $routine->args_type != Modyllic_Schema_Routine::ARGS_TYPE_DEFAULT ) {
             $this->extend("ARGS %lit",$routine->args_type);
         }
-        if ( $routine instanceOf Modyllic_Proc ) {
+        if ( $routine instanceOf Modyllic_Schema_Proc ) {
             switch ($routine->returns["type"]) {
-            case Modyllic_Proc::RETURNS_TYPE_DEFAULT:
+            case Modyllic_Schema_Proc::RETURNS_TYPE_DEFAULT:
                 break;
             case "COLUMN":
             case "LIST":
@@ -73,15 +78,15 @@ class Modyllic_Generator_NativeSQL extends Modyllic_Generator_SQL {
             }
         }
         switch ( $routine->txns ) {
-            case Modyllic_Routine::TXNS_DEFAULT:
+            case Modyllic_Schema_Routine::TXNS_DEFAULT:
                 break;
-            case Modyllic_Routine::TXNS_HAS:
+            case Modyllic_Schema_Routine::TXNS_HAS:
                 $this->extend("CONTAINS TRANSACTIONS");
                 break;
-            case Modyllic_Routine::TXNS_CALL:
+            case Modyllic_Schema_Routine::TXNS_CALL:
                 $this->extend("CALL IN TRANSACTION");
                 break;
-            case Modyllic_Routine::TXNS_NONE:
+            case Modyllic_Schema_Routine::TXNS_NONE:
                 $this->extend("NO TRANSACTIONS");
                 break;
         }
