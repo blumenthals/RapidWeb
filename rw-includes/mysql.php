@@ -65,48 +65,9 @@ function OpenDataBase() {
     $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbc->exec("SET NAMES 'utf8'");
 
-    $db_version = rw_db_get_version($dbc);
-
-    if($db_version < RAPIDWEB_DB_VERSION) {
-        echo("Database needs upgrade from $db_version to ".RAPIDWEB_DB_VERSION);
-        do {
-            $last = $db_version;
-            $func = 'rw_upgrade_database_'.$db_version.'_'.($db_version + 1);
-            if(function_exists($func)) {
-                call_user_func($func);
-                $db_version = rw_db_get_version();
-                if($db_version == $last) die("Upgrade failed, version still at $db_version");
-            } else {
-                die("Can't upgrade database");
-            }
-        } while($db_version < RAPIDWEB_DB_VERSION);
-
-        die("Database now at $db_version");
-    }
+    update_modyllic($dbc);
 
     return $dbc;
-}
-
-function rw_db_get_version(PDO $dbc) {
-    $db_version = -1;
-
-    try {
-        $r = $dbc->query("SELECT value FROM rapidwebinfo WHERE name = 'db_version'");
-        $row = $r->fetch(PDO::FETCH_ASSOC);
-        if($row) {
-            $db_version = $row['value'];
-        } else {
-            $db_version = 0;
-        }
-    } catch (Exception $e) {
-        // FIXME
-        if(preg_match("/doesn't exist/", $e)) {
-            $db_version = 0;
-        } else {
-            die("Database error: $e");
-        }
-    }
-    return $db_version;
 }
 
 /** prepare page data hash for storing in mysql */
