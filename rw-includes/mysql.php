@@ -33,7 +33,7 @@ function update_modyllic($dbc) {
         return(0);
     }
 
-    $gen = new Modyllic_Generator_SQL();
+    $gen = new Modyllic_Generator_MySQL();
     foreach ( $gen->sql_header() as $sql ) {
         $dbc->exec( $sql );
     }
