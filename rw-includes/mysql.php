@@ -2,7 +2,7 @@
 
 ini_set('include_path', ini_get('include_path').":".dirname(__FILE__)."/modyllic");
 require_once "Modyllic/Generator.php";
-require_once "Modyllic/Generator/SQL.php";
+require_once "Modyllic/Generator/MySQL.php";
 require_once "Modyllic/Loader.php";
 require_once "Modyllic/Diff.php";
 require_once "Modyllic/SQL.php";
