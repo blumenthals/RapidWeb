@@ -9,64 +9,184 @@
 require_once "Modyllic/SQL.php";
 require_once "Modyllic/Schema.php";
 
-class Modyllic_Generator_SQL {
+class Modyllic_Generator_MySQL {
+
+    protected $delim;
+    protected $sep;
+    protected $what;
+    protected $source;
+    protected $from_sqlmeta_exists;
+    protected $to_sqlmeta_exists;
+
+    function __construct( $delim=';;', $sep=true ) {
+        $this->set_what( $this->schema_types() );
+        $this->delim = $delim;
+        $this->sep = $sep;
+    }
+
+    function sqlmeta_exists($schema) {
+        foreach ($schema->tables as $table) {
+            if ( count($this->table_meta($table)) ) {
+                return true;
+            }
+            foreach ($table->columns as $column) {
+                if ( count($this->column_meta($column)) ) {
+                    return true;
+                }
+            }
+            foreach ($table->indexes as $index) {
+                if ( count($this->index_meta($index)) ) {
+                    return true;
+                }
+            }
+        }
+        foreach ($schema->routines as $routine) {
+            if ( count($this->routine_meta($routine)) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function set_what($what) {
+        $this->what = $what;
+        $this->validate_schema_types($what);
+        foreach ($what as $type) {
+            $this->what[$type] = true;
+        }
+    }
+
+    function schema_types() {
+        return array('database','sqlmeta','tables','views','routines','events','triggers');
+    }
+
+    function validate_schema_types(array $what) {
+        $diff = array_diff($what, $this->schema_types());
+        if ( count($diff) ) {
+            throw new Exception("Unknown kind of SQL schema element: ".implode(", ",$diff));
+        }
+    }
 
 // ALTER
 
-    function alter_sql( Modyllic_Diff $diff, $delim=";;", $sep=TRUE ) {
+    function alter_sql( Modyllic_Diff $diff ) {
         $this->alter( $diff );
-        return $this->sql_document( $delim, $sep );
+        return $this->sql_document( $this->delim, $this->sep );
     }
 
     function alter( Modyllic_Diff $diff ) {
+        $this->from_sqlmeta_exists = $this->sqlmeta_exists($diff->from);
+        $this->to_sqlmeta_exists = $this->sqlmeta_exists($diff->to);
+
+        $this->source = $diff->changeset;
         if ( ! $diff->changeset->has_changes() ) {
             $this->cmd("-- No changes detected.");
             return $this;
         }
-        $this->alter_database( $diff->changeset->schema );
-        
-        if ( $diff->changeset->create_sqlmeta ) {
-            $this->create_sqlmeta();
+        if ( isset($this->what['database']) ) {
+            $this->alter_database( $diff->changeset->schema );
+        }
+        if ( isset($this->what['sqlmeta']) ) {
+            if ( $this->to_sqlmeta_exists and ! $this->from_sqlmeta_exists ) {
+                $this->create_sqlmeta();
+            }
         }
 
-        $this->drop_events( $diff->changeset->remove['events'] );
-        $this->drop_routines( $diff->changeset->remove['routines'] );
-        $this->drop_views( $diff->changeset->remove['views'] );
-        $this->drop_tables( $diff->changeset->remove['tables'] );
-        
-        $this->create_tables( $diff->changeset->add['tables'], $diff->changeset->schema );
-        $this->create_views( $diff->changeset->add['views'] );
-        $this->create_routines( $diff->changeset->add['routines'] );
-        $this->create_events( $diff->changeset->add['events'] );
-        
-        $this->alter_tables( $diff->changeset->update['tables'] );
-        $this->alter_views( $diff->changeset->update['views'] );
-        $this->alter_routines( $diff->changeset->update['routines'] );
-        $this->alter_events( $diff->changeset->update['events'] );
+        if ( isset($this->what['triggers']) ) {
+            $this->drop_triggers( $diff->changeset->remove['triggers'] );
+        }
+        if ( isset($this->what['events']) ) {
+            $this->drop_events( $diff->changeset->remove['events'] );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->drop_routines( $diff->changeset->remove['routines'] );
+        }
+        if ( isset($this->what['views']) ) {
+            $this->drop_views( $diff->changeset->remove['views'] );
+        }
+        if ( isset($this->what['tables']) ) {
+            $this->drop_tables( $diff->changeset->remove['tables'] );
+        }
+
+        if ( isset($this->what['tables']) ) {
+            $this->create_tables( $diff->changeset->add['tables'], $diff->changeset->schema );
+        }
+        if ( isset($this->what['views']) ) {
+            $this->create_views( $diff->changeset->add['views'] );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->create_routines( $diff->changeset->add['routines'] );
+        }
+        if ( isset($this->what['events']) ) {
+            $this->create_events( $diff->changeset->add['events'] );
+        }
+        if ( isset($this->what['triggers']) ) {
+            $this->create_triggers( $diff->changeset->add['triggers'] );
+        }
+
+        if ( isset($this->what['tables']) ) {
+            $this->alter_tables( $diff->changeset->update['tables'] );
+        }
+        if ( isset($this->what['views']) ) {
+            $this->alter_views( $diff->changeset->update['views'] );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->alter_routines( $diff->changeset->update['routines'] );
+        }
+        if ( isset($this->what['events']) ) {
+            $this->alter_events( $diff->changeset->update['events'] );
+        }
+        if ( isset($this->what['triggers']) ) {
+            $this->alter_triggers( $diff->changeset->update['triggers'] );
+        }
+        if ( isset($this->what['sqlmeta']) ) {
+            if ( $this->from_sqlmeta_exists and ! $this->to_sqlmeta_exists ) {
+                $this->drop_sqlmeta();
+            }
+        }
+        $this->source = null;
         return $this;
     }
 
 // CREATE
-    
-    function create_sql( Modyllic_Schema $schema, $delim=";;", $sep=TRUE  ) {
+
+    function create_sql( Modyllic_Schema $schema ) {
         $this->create( $schema );
-        return $this->sql_document( $delim, $sep );
+        return $this->sql_document( $this->delim, $this->sep );
     }
 
-    function create( Modyllic_Schema $schema, $delim=";;", $sep=TRUE  ) {
-        $this->create_database( $schema );
-        $this->create_sqlmeta();
-        $this->create_tables( $schema->tables, $schema );
-        $this->create_views( $schema->views );
-        $this->create_routines( $schema->routines );
-        $this->create_events( $schema->events );
+    function create( Modyllic_Schema $schema) {
+        $this->source = $schema;
+        $this->to_sqlmeta_exists = $this->sqlmeta_exists($schema);
+        if ( isset($this->what['database']) ) {
+            $this->create_database( $schema );
+        }
+        if ( isset($this->what['sqlmeta']) and $this->to_sqlmeta_exists ) {
+            $this->create_sqlmeta();
+        }
+        if ( isset($this->what['tables']) ) {
+            $this->create_tables( $schema->tables, $schema );
+        }
+        if ( isset($this->what['views']) ) {
+            $this->create_views( $schema->views );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->create_routines( $schema->routines );
+        }
+        if ( isset($this->what['events']) ) {
+            $this->create_events( $schema->events );
+        }
+        if ( isset($this->what['triggers']) ) {
+            $this->create_triggers( $schema->triggers );
+        }
+        $this->source = null;
         return $this;
     }
-    
+
     function create_sqlmeta() {
         $this->begin_cmd();
         $this->extend( "-- This is used to store metadata used by the schema management tool" );
-        $this->extend("CREATE TABLE SQLMETA (");
+        $this->extend("CREATE TABLE SQLMETA IF NOT EXISTS (");
         $this->indent();
         $this->begin_list();
         $this->extend("kind CHAR(9) NOT NULL");
@@ -79,26 +199,50 @@ class Modyllic_Generator_SQL {
         $this->end_cmd();
     }
 
+
 // DROP
-    
-    function drop_sql( Modyllic_Schema $schema, $delim=";", $sep=FALSE  ) {
+
+    function drop_sql( Modyllic_Schema $schema ) {
         $this->drop($schema);
-        return $this->sql_document( $delim, $sep );
+        return $this->sql_document( $this->delim, $this->sep );
     }
-    
+
     function drop( Modyllic_Schema $schema ) {
-        $this->drop_events( $schema->events );
-        $this->drop_routines( $schema->routines );
-        $this->drop_views( $schema->views );
-        $this->drop_tables( $schema->tables );
-        $this->drop_database( $schema );
+        $this->source = $schema;
+        $this->to_sqlmeta_exists = $this->sqlmeta_exists($schema);
+        if ( isset($this->what['triggers']) ) {
+            $this->drop_triggers( $schema->triggers );
+        }
+        if ( isset($this->what['events']) ) {
+            $this->drop_events( $schema->events );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->drop_routines( $schema->routines );
+        }
+        if ( isset($this->what['views']) ) {
+            $this->drop_views( $schema->views );
+        }
+        if ( isset($this->what['tables']) ) {
+            $this->drop_tables( $schema->tables );
+        }
+        if ( isset($this->what['sqlmeta']) and $this->to_sqlmeta_exists ) {
+            $this->drop_sqlmeta();
+        }
+        if ( isset($this->what['database']) ) {
+            $this->drop_database( $schema );
+        }
+        $this->source = null;
         return $this;
     }
 
+    function drop_sqlmeta() {
+        $this->cmd('DROP TABLE IF EXISTS SQLMETA');
+    }
+
 // DATABASE
-    
+
     function create_database($schema) {
-        if ($schema->nameIsDefault) return $this;
+        if ($schema->name_is_default) return $this;
         $this->begin_cmd( "CREATE DATABASE %id", $schema->name );
         $this->extend( "DEFAULT CHARACTER SET=%lit", $schema->charset );
         $this->extend( "DEFAULT COLLATE=%lit", $schema->collate );
@@ -127,13 +271,13 @@ class Modyllic_Generator_SQL {
         $this->end_cmd();
         return $this;
     }
-    
+
     function drop_database($schema) {
-        if ($schema->nameIsDefault) return $this;
-        $this->cmd( "DROP DATABASE %id", $schema->name );
+        if ($schema->name_is_default) return $this;
+        $this->cmd( "DROP DATABASE IF EXISTS %id", $schema->name );
         return $this;
     }
-    
+
 // TABLES
 
     function create_tables( $tables, $schema ) {
@@ -142,7 +286,7 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_tables( $tables ) {
         foreach ( $tables as $table ) {
             $this->alter_table($table);
@@ -158,14 +302,14 @@ class Modyllic_Generator_SQL {
     }
 
 // VIEWS
-    
+
     function create_views( $views ) {
         foreach ( $views as $view ) {
             $this->create_view($view);
         }
         return $this;
     }
-    
+
     function alter_views( $views ) {
         foreach ( $views as $view ) {
             $this->alter_view($view);
@@ -188,7 +332,7 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_routines( $routines ) {
         foreach ( $routines as $routine ) {
             $this->alter_routine($routine);
@@ -211,7 +355,7 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_events( $events ) {
         foreach ( $events as $event ) {
             $this->alter_event($event);
@@ -225,12 +369,35 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
+// TRIGGERS
+
+    function create_triggers( $triggers ) {
+        foreach ( $triggers as $trigger ) {
+            $this->create_trigger($trigger);
+        }
+        return $this;
+    }
+
+    function alter_triggers( $triggers ) {
+        foreach ( $triggers as $trigger ) {
+            $this->alter_trigger($trigger);
+        }
+        return $this;
+    }
+
+    function drop_triggers( $triggers ) {
+        foreach ( array_reverse($triggers) as $trigger ) {
+            $this->drop_trigger($trigger);
+        }
+        return $this;
+    }
+
 // TABLE
 
     function table_meta($table) {
-        if ( $table->static != Modyllic_Table::STATIC_DEFAULT ) {
-            return array( "static", $table->static );
+        if ( $table->static != Modyllic_Schema_Table::STATIC_DEFAULT ) {
+            return array( "static"=>$table->static );
         }
         else {
             return array();
@@ -242,10 +409,15 @@ class Modyllic_Generator_SQL {
         $this->table_docs( $table );
         $this->extend( "CREATE TABLE %id (", $table->name );
         $this->indent();
-        $entries = count($table->columns) + count($table->indexes);
+        $indexes = $table->indexes;
+        $entries = count($table->columns) + count($indexes);
         $completed = 0;
         foreach ( $table->columns as $column ) {
             $this->create_column( $column );
+            if ( $column->is_primary ) {
+                unset($indexes['!PRIMARY KEY']);
+                $entries --;
+            }
             if ( ++$completed < $entries ) {
                 $this->add(",");
             }
@@ -253,8 +425,8 @@ class Modyllic_Generator_SQL {
                 $this->add( " -- ".$column->docs );
             }
         }
-        ksort($table->indexes);
-        foreach ( $table->indexes as $index ) {
+        ksort($indexes);
+        foreach ( $indexes as $index ) {
             $this->create_index( $index );
             if ( ++$completed < $entries ) {
                 $this->add(",");
@@ -266,7 +438,7 @@ class Modyllic_Generator_SQL {
         $this->reindent("  ", true);
         $this->table_options( $table, $schema );
         $this->end_cmd();
-        
+
         $this->create_table_data( $table );
         $this->insert_meta( "TABLE", $table->name, $this->table_meta($table) );
         foreach ( $table->columns as $column ) {
@@ -277,10 +449,10 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_table( $table ) {
         if ( $table->has_schema_changes() ) {
-            if ( $table->options->has_changes() or 
+            if ( $table->options->has_changes() or
                  count($table->add['columns'])+count($table->remove['columns'])+count($table->update['columns'])+
                  count($table->add['indexes'])+count($table->remove['indexes']) > 0 ) {
                 $this->begin_cmd( "ALTER TABLE %id ", $table->name );
@@ -306,18 +478,13 @@ class Modyllic_Generator_SQL {
                 $this->end_list();
                 $this->end_cmd();
             }
-            
-            $tometa = $this->table_meta($table);
-            $frommeta = $this->table_meta($table);
-            if ( $tometa != $frommeta ) {
-                if ( count($tometa) == 0 ) {
-                    $this->delete_meta( "TABLE", $table->name );
-                }
-                else if ( count($frommeta) == 0 ) {
-                    $this->insert_meta( "TABLE", $table->name, $tometa );
+
+            if ( isset($table->static) ) {
+                if ( $table->static ) {
+                    $this->insert_meta( "TABLE", $table->name, $this->table_meta($table) );
                 }
                 else {
-                    $this->update_meta( "TABLE", $table->name, $tometa );
+                    $this->delete_meta( "TABLE", $table->name );
                 }
             }
             foreach ($table->add['columns'] as $column) {
@@ -337,46 +504,48 @@ class Modyllic_Generator_SQL {
             }
         }
 
-        if ( isset($table->static) and $table->static ) {
+        if ( isset($table->static) and $table->static and ! $table->from->static ) {
             $this->cmd("TRUNCATE %id", $table->name);
         }
-        foreach ($table->remove['data'] as $row ) {
-            $this->begin_cmd();
-            $this->partial( "DELETE FROM %id WHERE ", $table->name);
-            $this->begin_list( " AND " );
-            foreach ($row as $col=>$val) {
-                $this->next_list_item();
-                $this->partial( "%id=%lit", $col, $val );
+        if ( $table->static ) {
+            foreach ($table->remove['data'] as $row ) {
+                $this->begin_cmd();
+                $this->partial( "DELETE FROM %id WHERE ", $table->name);
+                $this->begin_list( " AND " );
+                foreach ($row as $col=>$val) {
+                    $this->next_list_item();
+                    $this->partial( "%id=%lit", $col, $val );
+                }
+                $this->end_list();
+                $this->end_cmd();
             }
-            $this->end_list();
-            $this->end_cmd();
-        }
-        foreach ($table->update['data'] as $row ) {
-            $this->begin_cmd();
-            $this->partial( "UPDATE %id SET ", $table->name );
-            $this->begin_list();
-            foreach ($row['updated'] as $col=>$val) {
-                $this->next_list_item();
-                $this->partial( "%id=%lit", $col, $val );
+            foreach ($table->update['data'] as $row ) {
+                $this->begin_cmd();
+                $this->partial( "UPDATE %id SET ", $table->name );
+                $this->begin_list();
+                foreach ($row['updated'] as $col=>$val) {
+                    $this->next_list_item();
+                    $this->partial( "%id=%lit", $col, $val );
+                }
+                $this->end_list();
+                $this->partial(" WHERE ");
+                $this->begin_list(" AND ");
+                foreach ($row['where'] as $col=>$val) {
+                    $this->next_list_item();
+                    $this->partial( "%id=%lit", $col, $val );
+                }
+                $this->end_list();
+                $this->end_cmd();
             }
-            $this->end_list();
-            $this->partial(" WHERE ");
-            $this->begin_list(" AND ");
-            foreach ($row['where'] as $col=>$val) {
-                $this->next_list_item();
-                $this->partial( "%id=%lit", $col, $val );
+            foreach ($table->add['data'] as $row ) {
+                $this->create_data( $table, $row );
             }
-            $this->end_list();
-            $this->end_cmd();
-        }
-        foreach ($table->add['data'] as $row ) {
-            $this->create_data( $table, $row );
         }
         return $this;
     }
-    
+
     function drop_table( $table ) {
-        $this->cmd( "DROP TABLE %id", $table->name );
+        $this->cmd( "DROP TABLE IF EXISTS %id", $table->name );
         if ( count($this->table_meta($table)) > 0 ) {
             $this->delete_meta("TABLE",$table->name);
         }
@@ -388,16 +557,16 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function column_meta($col) {
-        if ( count($col->aliases) ) { 
+        if ( count($col->aliases) ) {
             return array( "aliases" => $col->aliases );
         }
         else {
             return array();
         }
     }
-    
+
     function add_column( $column ) {
         $this->partial("ADD COLUMN " );
         $this->create_column($column);
@@ -414,7 +583,7 @@ class Modyllic_Generator_SQL {
         if ( $column->from ) {
             $this->reindent("--  ");
             $this->partial( "BEFORE        ");
-            $this->create_column( $column->from );
+            $this->create_column( $column->from, false );
             $this->reindent();
         }
         if ( $column->previously != $column->name ) {
@@ -423,7 +592,7 @@ class Modyllic_Generator_SQL {
         else {
             $this->partial( "MODIFY COLUMN " );
         }
-        $this->create_column($column);
+        $this->create_column($column, false);
         return $this;
     }
 
@@ -432,12 +601,12 @@ class Modyllic_Generator_SQL {
         return $this;
     }
 
-    function create_column( $column ) {
+    function create_column( $column, $with_key=true ) {
         if ( isset($column->from) ) {
-            $this->extend("%id %lit", $column->name, $column->type->toSql($column->from->type) );
+            $this->extend("%id %lit", $column->name, $column->type->to_sql($column->from->type) );
         }
         else {
-            $this->extend("%id %lit", $column->name, $column->type->toSql() );
+            $this->extend("%id %lit", $column->name, $column->type->to_sql() );
         }
         if ( ! $column->null ) {
             $this->add( " NOT NULL" );
@@ -453,12 +622,15 @@ class Modyllic_Generator_SQL {
         if ( $column->on_update ) {
             $this->add( " ON UPDATE %lit", $column->on_update );
         }
+        if ( $with_key and $column->is_primary ) {
+            $this->add( " PRIMARY KEY" );
+        }
         return $this;
     }
 
     function index_meta($index) {
-        if ( $index instanceOf Modyllic_Index_Foreign ) {
-            if ( $index->weak != Modyllic_Index_Foreign::WEAK_DEFAULT ) { 
+        if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
+            if ( $index->weak != Modyllic_Schema_Index_Foreign::WEAK_DEFAULT ) {
                 return array( "weak" => $index->weak );
             }
             else {
@@ -469,14 +641,14 @@ class Modyllic_Generator_SQL {
             return array();
         }
     }
-    
+
     function add_index( $index ) {
         $this->create_index($index, "ADD ");
         return $this;
     }
 
     function drop_index( $index ) {
-        if ( $index instanceOf Modyllic_Index_Foreign ) {
+        if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
             $this->extend("DROP FOREIGN KEY %id", $index->cname);
         }
         else if ( $index->primary ) {
@@ -493,14 +665,14 @@ class Modyllic_Generator_SQL {
     }
 
     function ignore_index( $index ) {
-        if ( $index instanceOf Modyllic_Index_Foreign and $index->weak ) {
-            return TRUE;
+        if ( $index instanceOf Modyllic_Schema_Index_Foreign and $index->weak ) {
+            return true;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
-    
+
     function create_index( $index, $prefix=null ) {
         if ( $this->ignore_index( $index ) ) {
             return;
@@ -509,8 +681,8 @@ class Modyllic_Generator_SQL {
             $this->partial($prefix);
         }
         $this->extend();
-        if ( $index instanceOf Modyllic_Index_Foreign ) {
-            if ( $index->cname ) {
+        if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
+            if ( ! $index->dynamic_name and $index->cname ) {
                 $this->add( "CONSTRAINT %id ", $index->cname );
             }
             $this->add( "FOREIGN KEY " );
@@ -530,7 +702,7 @@ class Modyllic_Generator_SQL {
         else {
             $this->add( "KEY " );
         }
-        if ( !$index->primary and $index->name ) {
+        if ( !$index->primary and !$index->dynamic_name and $index->name ) {
             $this->add( "%id ", $index->name );
         }
         $this->add( "(" );
@@ -540,12 +712,12 @@ class Modyllic_Generator_SQL {
                 $this->add( "," );
             }
             $this->add( "%id", $name );
-            if ( $length !== FALSE ) {
+            if ( $length !== false ) {
                 $this->add( "(%lit)", $length );
             }
         }
         $this->add( ")" );
-        if ( $index instanceOf Modyllic_Index_Foreign ) {
+        if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
             $this->foreign_key( $index );
         }
         if ( isset($index->using) ) {
@@ -553,10 +725,10 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function foreign_key($index) {
         $this->add( " REFERENCES %id", $index->references['table'] );
-        $this->add( " (" . implode(",",array_map(array("SQL","quote_ident"),array_map("trim",
+        $this->add( " (" . implode(",",array_map(array("Modyllic_SQL","quote_ident"),array_map("trim",
                             $index->references['columns'] ))) .")" );
         if ( $index->references['on_delete'] ) {
            $this->add( " ON DELETE %lit", $index->references['on_delete'] );
@@ -565,7 +737,7 @@ class Modyllic_Generator_SQL {
            $this->add( " ON UPDATE %lit", $index->references['on_update'] );
         }
     }
-    
+
     function table_options($table,$schema=null) {
         if ( isset( $table->engine ) ) {
             $this->extend( "ENGINE=".$table->engine );
@@ -591,7 +763,7 @@ class Modyllic_Generator_SQL {
         $this->end_cmd();
         return $this;
     }
-    
+
     function create_table_data($table) {
         if ( $table->static ) {
             $this->cmd( "TRUNCATE TABLE %id", $table->name );
@@ -610,7 +782,7 @@ class Modyllic_Generator_SQL {
     }
 
 // VIEW
-    
+
     function create_view( $view ) {
         $this->cmd( "CREATE VIEW %id %lit", $view->name, $view->def );
         return $this;
@@ -621,35 +793,35 @@ class Modyllic_Generator_SQL {
         $this->create_view($view);
         return $this;
     }
-    
+
     function drop_view( $view ) {
-        $this->cmd( "DROP VIEW %id", $view->name );
+        $this->cmd( "DROP VIEW IF EXISTS %id", $view->name );
         return $this;
     }
 
 // ROUTINE
-    
+
     function routine_meta($routine) {
         $meta = array();
-        if ( $routine->args_type != Modyllic_Routine::ARGS_TYPE_DEFAULT ) {
+        if ( $routine->args_type != Modyllic_Schema_Routine::ARGS_TYPE_DEFAULT ) {
             $meta["args_type"] = $routine->args_type;
         }
-        if ( $routine instanceOf Modyllic_Proc ) {
-            if ( $routine->returns["type"] != Modyllic_Proc::RETURNS_TYPE_DEFAULT ) {
+        if ( $routine instanceOf Modyllic_Schema_Proc ) {
+            if ( $routine->returns["type"] != Modyllic_Schema_Proc::RETURNS_TYPE_DEFAULT ) {
                 $meta["returns"] = $routine->returns;
             }
         }
-        if ( $routine->txns != Modyllic_Routine::TXNS_DEFAULT ) {
+        if ( $routine->txns != Modyllic_Schema_Routine::TXNS_DEFAULT ) {
             $meta["txns"] = $routine->txns;
         }
         return $meta;
     }
 
-    function create_routine( $routine, $dometa=TRUE ) {
-        if ( $routine instanceOf Modyllic_Func ) {
+    function create_routine( $routine, $dometa=true ) {
+        if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->create_function( $routine );
         }
-        else if ($routine instanceOf Modyllic_Proc ) {
+        else if ($routine instanceOf Modyllic_Schema_Proc ) {
             $this->create_procedure( $routine );
         }
         else {
@@ -660,10 +832,10 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_routine( $routine ) {
-        $this->drop_routine( $routine->from, FALSE );
-        $this->create_routine( $routine, FALSE );
+        $this->drop_routine( $routine->from, false );
+        $this->create_routine( $routine, false );
         $frommeta = $this->routine_meta($routine->from);
         $tometa = $this->routine_meta($routine);
         if ( $frommeta != $tometa ) {
@@ -672,11 +844,11 @@ class Modyllic_Generator_SQL {
         return $this;
     }
 
-    function drop_routine( $routine, $dometa=TRUE ) {
-        if ( $routine instanceOf Modyllic_Func ) {
+    function drop_routine( $routine, $dometa=true ) {
+        if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->drop_function( $routine );
         }
-        else if ($routine instanceOf Modyllic_Proc ) {
+        else if ($routine instanceOf Modyllic_Schema_Proc ) {
             $this->drop_procedure( $routine );
         }
         else {
@@ -689,10 +861,10 @@ class Modyllic_Generator_SQL {
     }
 
     function routine_attrs( $routine ) {
-        if ( $routine->access != Modyllic_Routine::ACCESS_DEFAULT ) {
+        if ( $routine->access != Modyllic_Schema_Routine::ACCESS_DEFAULT ) {
             $this->extend( $routine->access );
         }
-        if ( $routine->deterministic != Modyllic_Routine::DETERMINISTIC_DEFAULT ) {
+        if ( $routine->deterministic != Modyllic_Schema_Routine::DETERMINISTIC_DEFAULT ) {
             $this->extend( $routine->deterministic ? "DETERMINISTIC" : "NOT DETERMINISTIC" );
         }
         return $this;
@@ -734,7 +906,7 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function routine_arg( $arg, $indent="" ) {
         if ( $arg->dir != "IN" ) {
             $dir = $arg->dir . " ";
@@ -742,7 +914,7 @@ class Modyllic_Generator_SQL {
         else {
             $dir = "";
         }
-        $this->extend( "%lit%id %lit", $dir, $arg->name, $arg->type->toSql() );
+        $this->extend( "%lit%id %lit", $dir, $arg->name, $arg->type->to_sql() );
         return $this;
     }
 
@@ -755,7 +927,7 @@ class Modyllic_Generator_SQL {
         $this->indent();
         for ($ii=0; $ii<$argc; ++$ii ) {
             $arg = $routine->args[$ii];
-            if ( $routine->from and isset($routine->from->args[$ii]) and ! $arg->equalTo($routine->from->args[$ii]) ) {
+            if ( $routine->from and isset($routine->from->args[$ii]) and ! $arg->equal_to($routine->from->args[$ii]) ) {
                 $this->reindent("--  ");
                 $this->routine_arg( $routine->from->args[$ii] );
                 $this->reindent();
@@ -776,7 +948,7 @@ class Modyllic_Generator_SQL {
     }
 
 // FUNCTION
-    
+
     function create_function( $func ) {
         $this->begin_cmd();
         $this->routine_docs( $func );
@@ -789,9 +961,9 @@ class Modyllic_Generator_SQL {
         $this->end_cmd();
         return $this;
     }
-   
+
     function function_returns( $func ) {
-        $this->extend( "RETURNS %lit", $func->returns->toSql() );
+        $this->extend( "RETURNS %lit", $func->returns->to_sql() );
         return $this;
     }
 
@@ -800,10 +972,10 @@ class Modyllic_Generator_SQL {
         return $this;
     }
     function drop_function( $func ) {
-        $this->cmd( "DROP FUNCTION %id", $func->name );
+        $this->cmd( "DROP FUNCTION IF EXISTS %id", $func->name );
         return $this;
     }
-    
+
 
 // PROCEDURE
 
@@ -834,7 +1006,27 @@ class Modyllic_Generator_SQL {
         $this->cmd( "DROP PROCEDURE IF EXISTS %id", $proc->name );
         return $this;
     }
-    
+
+// TRIGGER
+
+    function create_trigger( $trigger ) {
+        $this->begin_cmd( "CREATE TRIGGER %id", $trigger->name );
+        $this->undent();
+        $this->extend( "%lit %lit ON %id", $trigger->time, $trigger->event, $trigger->table );
+        $this->extend( "FOR EACH ROW %lit", $trigger->body );
+        $this->end_cmd();
+        return $this;
+    }
+
+    function alter_trigger( $trigger ) {
+        $this->drop_trigger( $trigger->from );
+        $this->create_trigger( $trigger );
+    }
+
+    function drop_trigger( $trigger ) {
+        $this->cmd( "DROP TRIGGER IF EXISTS %id", $trigger->name );
+    }
+
 // EVENT
 
     function create_event( $event ) {
@@ -851,7 +1043,7 @@ class Modyllic_Generator_SQL {
         }
         return $this;
     }
-    
+
     function alter_event( $event ) {
         $this->begin_cmd( "ALTER EVENT %id", $event->name );
         if ( isset($event->schedule) ) {
@@ -879,39 +1071,45 @@ class Modyllic_Generator_SQL {
     }
 
     function drop_event( $event ) {
-        $this->cmd( "DROP EVENT %id", $event->name );
+        $this->cmd( "DROP EVENT IF EXISTS %id", $event->name );
         return $this;
     }
 
 // Helpers for data that we store that MySQL doesn't know how to store directly.
 
-    function insert_meta($kind,$which,array $what) {
-        if ( count($what) > 0 ) {
+    function insert_meta($kind,$which,array $meta) {
+        if ( count($meta) > 0 ) {
+            if ( ! isset($this->what['sqlmeta']) ) { return; }
             $this->cmd( "INSERT INTO SQLMETA (kind,which,value) VALUES (%str, %str, %str)",
-                $kind, $which, json_encode($what) );
+                $kind, $which, json_encode($meta) );
         }
     }
-    
+
     function delete_meta($kind,$which) {
+        if ( ! isset($this->what['sqlmeta']) ) { return; }
+        if ( ! $this->to_sqlmeta_exists ) { return; }
         $this->cmd( "DELETE FROM SQLMETA WHERE kind=%str AND which=%str",
             $kind, $which );
     }
-    
-    function update_meta($kind,$which,$what) {
-        if ( count($what) > 0 ) {
-            $this->cmd( "UPDATE SQLMETA SET value=%str WHERE kind=%str AND which=%str",
-                json_encode($what), $kind, $which );
+
+    function update_meta($kind,$which,array $meta) {
+        if ( ! isset($this->what['sqlmeta']) ) { return; }
+        if ( count($meta) > 0 ) {
+            $meta_str = json_encode($meta);
+            $this->cmd( "INSERT INTO SQLMETA SET kind=%str, which=%str, value=%str ON DUPLICATE KEY UPDATE value=%str",
+                 $kind, $which, $meta_str, $meta_str );
         }
         else {
+            if ( ! $this->to_sqlmeta_exists ) { return; }
             $this->delete_meta($kind,$which);
         }
     }
-    
 
-    
+
+
 // SQL document wrapper
 
-    function sql_document($delim=";", $sep=FALSE) {
+    function sql_document($delim=";", $sep=false) {
         $sql = implode(";\n",$this->sql_header()) . ";\n";
         if ( $delim != ";" ) {
             $sql .= "DELIMITER $delim\n";
@@ -925,8 +1123,8 @@ class Modyllic_Generator_SQL {
         $sql .= implode(";\n",$this->sql_footer()) . ";\n";
         return $sql;
     }
-    
-    function sql_dump($delim=";", $sep=FALSE) {
+
+    function sql_dump($delim=";", $sep=false) {
         $sql = "";
         if ( $delim != "\n" ) {
             if ( $sep ) {
@@ -937,7 +1135,7 @@ class Modyllic_Generator_SQL {
         $sql .= implode( $delim, $this->commands ) . $delim;
         return $sql;
     }
-    
+
     function sql_commands() {
         return $this->commands;
     }
@@ -963,8 +1161,8 @@ class Modyllic_Generator_SQL {
     protected $level = 0;
     protected $cmd_level = 0;
     protected $filters = array();
-    protected $partial = FALSE;
-    protected $in_list = FALSE;
+    protected $partial = false;
+    protected $in_list = false;
     protected $list_sep;
     protected $list_elem = 0;
 
@@ -987,7 +1185,7 @@ class Modyllic_Generator_SQL {
         if ( !is_array($args) ) {
             $args = func_get_args();
             array_shift($args); // Remove $str from the arg list
-        } 
+        }
         if ( count($args) ) {
             $str = $this->_format( $str, $args );
         }
@@ -1061,7 +1259,7 @@ class Modyllic_Generator_SQL {
         if ( !is_array($args) ) {
             $args = func_get_args();
             array_shift($args); // Remove $str from the arg list
-        } 
+        }
         $this->begin_cmd( $str, $args );
         $this->end_cmd();
         return $this;
@@ -1077,7 +1275,7 @@ class Modyllic_Generator_SQL {
             if ( !is_array($args) ) {
                 $args = func_get_args();
                 array_shift($args); // Remove $str from the arg list
-            } 
+            }
             $this->add( $this->_format( $str, $args ) );
             $this->indent();
         }
@@ -1089,7 +1287,7 @@ class Modyllic_Generator_SQL {
             if ( !is_array($args) ) {
                 $args = func_get_args();
                 array_shift($args); // Remove $str from the arg list
-            } 
+            }
             $this->add($str, $args);
         }
         if ( $this->level > $this->cmd_level ) {
@@ -1106,14 +1304,14 @@ class Modyllic_Generator_SQL {
     }
 
     protected function begin_list($list_sep=", ") {
-        $this->in_list = TRUE;
+        $this->in_list = true;
         $this->list_sep = $list_sep;
         $this->list_elem = 0;
         return $this;
     }
 
     protected function end_list() {
-        $this->in_list = FALSE;
+        $this->in_list = false;
         unset($this->list_sep);
         $this->list_elem = 0;
         return $this;
@@ -1132,9 +1330,9 @@ class Modyllic_Generator_SQL {
         if ( !is_array($args) ) {
             $args = func_get_args();
             array_shift($args); // Remove $str from the arg list
-        } 
+        }
         $this->add($str, $args);
-        $this->partial = FALSE;
+        $this->partial = false;
         return $this;
     }
 
@@ -1152,9 +1350,9 @@ class Modyllic_Generator_SQL {
         if ( !is_array($args) ) {
             $args = func_get_args();
             array_shift($args); // Remove $str from the arg list
-        } 
+        }
         $this->extend($str,$args);
-        $this->partial = TRUE;
+        $this->partial = true;
         return $this;
     }
 

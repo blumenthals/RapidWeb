@@ -10,14 +10,11 @@ class Modyllic_Status {
     static $width = 80;
     static $verbose = 0;
     static $progress = false;
-    static $isatty = false;
+    static $debug = false;
     static $in_file = "";
 
     static function init() {
-        if ( function_exists('posix_isatty') and posix_isatty(STDOUT) ) {
-            self::$isatty = true;
-        }
-        if ( ($cols = exec('tput cols')) !== FALSE ) {
+        if ( getenv('TERM') and ($cols = exec('tput cols')) !== false ) {
             self::$width = $cols;
         }
     }
@@ -25,7 +22,13 @@ class Modyllic_Status {
     static function warn( $msg ) {
         fwrite(STDERR, $msg);
     }
-    
+
+    static function debug( $msg ) {
+        if ( self::$debug ) {
+            self::warn($msg);
+        }
+    }
+
     static function verbose( $msg ) {
         if ( self::$verbose ) {
             self::warn($msg);
@@ -38,17 +41,17 @@ class Modyllic_Status {
         }
     }
 
-    static $sourceName = "";
-    static $sourceIndex = 0;
-    static $sourceCount = 0;
+    static $source_name = "";
+    static $source_index = 0;
+    static $source_count = 0;
 
     static function status( $pos, $len ) {
-        if ( self::$in_file != self::$sourceName ) {
+        if ( self::$in_file != self::$source_name ) {
              if ( self::$in_file != "" ) {
                  self::clear_progress();
              }
-             self::verbose("Loading ".self::$sourceName."...\n");
-             self::$in_file = self::$sourceName;
+             self::verbose("Loading ".self::$source_name."...\n");
+             self::$in_file = self::$source_name;
         }
 
         if ( ! self::$progress ) {
@@ -69,20 +72,20 @@ class Modyllic_Status {
             self::$progress = false;
             return;
         }
-        
-        $filename = self::$sourceName;
+
+        $filename = self::$source_name;
 
         # if we can fit the entire filename on the line then we size the progress bar
-        if ( $min_width+strlen(self::$sourceName) < (self::$width-1) ) {
+        if ( $min_width+strlen(self::$source_name) < (self::$width-1) ) {
             $progress_size = self::$width - ($min_width+strlen($filename)+1);
         }
         else {
             $filename = substr($filename, 0, self::$width - ($min_width+1) );
         }
 
-        $percent_per_file = 1 / self::$sourceCount;
-        $already_done = (self::$sourceIndex-1) * $percent_per_file;
-        $in_file = $pos / $len;
+        $percent_per_file = 1 / self::$source_count;
+        $already_done = (self::$source_index-1) * $percent_per_file;
+        $in_file = $len==0 ? 1 : ($pos / $len);
         $overall = $already_done + $percent_per_file*$in_file;
 
         $fill_count = floor($overall * $progress_size);
@@ -90,7 +93,7 @@ class Modyllic_Status {
 
         $fill = str_repeat("*",$fill_count);
         $blank = str_repeat("-",$blank_count);
-        
+
         self::warn(sprintf("\rLoading %s [%s%s] %2.1f%%", $filename, $fill, $blank, $overall*100 ));
     }
 }

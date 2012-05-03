@@ -8,19 +8,19 @@
 
 class Modyllic_Generator {
     static private $dialect_map;
-    static public function dialectToClass($dialect) {
+    static public function dialect_to_class($dialect) {
         if ( !isset(self::$dialect_map) ) { self::$dialect_map = array(); }
         if ( ! isset(self::$dialect_map[$dialect]) ) {
-            $capDialect = preg_replace( "/sql/", "SQL", $dialect );
-            $classes_to_try = array(
-                "Modyllic_Generator_".ucfirst($capDialect),
+            $cap_dialect = preg_replace( "/sql/", "SQL", $dialect );
+            $classes_to_try = array_unique( array(
+                "Modyllic_Generator_".ucfirst($cap_dialect),
                 "Modyllic_Generator_".ucfirst($dialect)."SQL",
                 "Modyllic_Generator_".ucfirst($dialect),
-                "Modyllic_Generator_".$capDialect,
+                "Modyllic_Generator_".$cap_dialect,
                 "Modyllic_Generator_".$dialect."SQL",
                 "Modyllic_Generator_".$dialect,
                 $dialect,
-                );
+                ) );
             foreach ($classes_to_try as $class) {
                 $file = preg_replace("/_/","/", $class) . ".php";
                 @include_once $file;

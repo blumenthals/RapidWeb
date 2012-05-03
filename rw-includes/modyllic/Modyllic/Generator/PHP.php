@@ -15,7 +15,7 @@ class Modyllic_Generator_PHP {
     protected $level = 0;
     protected $in_cmd = 0;
     protected $filters = array();
-    
+
     protected function indent() {
         $this->add( str_repeat( $this->indent_with, $this->indent_by * $this->level ) );
         return $this;
@@ -60,7 +60,7 @@ class Modyllic_Generator_PHP {
         array_shift($this->filters);
         return $this;
     }
-    
+
     protected function begin_block($str="",$term="") {
         $this->cmd( $str, $term );
         $this->level ++;
@@ -71,7 +71,7 @@ class Modyllic_Generator_PHP {
         $this->cmd($str,$term);
         return $this;
     }
-    
+
     protected function begin_group() {
         $this->begin_cmd('(');
         return $this;
@@ -80,20 +80,20 @@ class Modyllic_Generator_PHP {
         $this->end_cmd(')',';');
         return $this;
     }
-    
+
     protected function add_str($str) {
-        $this->begin_str() 
-               ->add($str) 
+        $this->begin_str()
+               ->add($str)
              ->end_str();
         return $this;
     }
-    
+
     protected function begin_str() {
         $this->add("'");
         $this->push_filter( "addslashes" );
         return $this;
     }
-    
+
     protected function end_str() {
         $this->pop_filter();
         $this->add("'");
@@ -101,18 +101,18 @@ class Modyllic_Generator_PHP {
     }
 
     protected function add_dstr($str) {
-        $this->begin_dstr() 
-               ->add($str) 
+        $this->begin_dstr()
+               ->add($str)
              ->end_dstr();
         return $this;
     }
-    
+
     protected function begin_dstr() {
         $this->add('"');
         $this->push_filter( "addslashes" );
         return $this;
     }
-    
+
     protected function end_dstr() {
         $this->pop_filter();
         $this->add('"');
@@ -280,7 +280,7 @@ class Modyllic_Generator_PHP {
     }
     protected function begin_else() {
         $this->end_if()
-             ->cmd('else {') 
+             ->cmd('else {')
              ->begin_block();
         return $this;
     }
@@ -435,14 +435,14 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function add_false() {
-        $this->add('FALSE');
+        $this->add('false');
         return $this;
     }
     function add_true() {
-        $this->add('TRUE');
+        $this->add('true');
         return $this;
     }
-    
+
     function sep() {
         $this->add(', ');
         return $this;
@@ -495,7 +495,7 @@ class Modyllic_Generator_PHP {
         $this->add('@');
         return $this;
     }
-    
+
     /**
      * Generate PHP helper methods from a schema
      *
@@ -506,7 +506,7 @@ class Modyllic_Generator_PHP {
     function helpers($schema, $class) {
         $this->preamble( $class );
         $this->begin_class( $class );
-        
+
         foreach ( $schema->routines as $name=>$routine ) {
             if ( $name[0] == "_" ) {
                 // Names that start with _ are used only by other routines and are not exported
@@ -552,7 +552,7 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function begin_txns($routine) {
-        if ( $routine->txns == Modyllic_Routine::TXNS_HAS ) {
+        if ( $routine->txns == Modyllic_Schema_Routine::TXNS_HAS ) {
             $this->begin_cmd( 'if ( ')
                    ->dbh()
                    ->method( 'inTransaction' )
@@ -579,11 +579,11 @@ class Modyllic_Generator_PHP {
                        ->add('true')
                    ->end_assign()
                  ->end_block('}');
-                 
+
         }
     }
     function end_txns($routine) {
-        if ($routine->txns == Modyllic_Routine::TXNS_CALL ) {
+        if ($routine->txns == Modyllic_Schema_Routine::TXNS_CALL ) {
             $this->begin_cmd( 'if ( ')
                    ->func_var( 'isset', 'commitTransaction' )
                  ->end_cmd(' ) {')
@@ -597,7 +597,7 @@ class Modyllic_Generator_PHP {
     }
     function call($routine) {
         $this->begin_txns($routine);
-        
+
         $this->begin_assign('sth')
                ->dbh()
                ->begin_method( 'prepare' )
@@ -606,7 +606,7 @@ class Modyllic_Generator_PHP {
                  ->end_str()
                ->end_method()
              ->end_assign();
-        
+
         $this->bind_params($routine);
         $this->method('sth','execute');
         $this->returns($routine);
@@ -664,7 +664,7 @@ class Modyllic_Generator_PHP {
     }
     function args_list_docs($args) {
         foreach ($args as $arg) {
-            $this->phpdoc( '@param '.$arg->type->toSql().' $'.$arg->name.' '.$arg->docs );
+            $this->phpdoc( '@param '.$arg->type->to_sql().' $'.$arg->name.' '.$arg->docs );
         }
         return $this;
     }
@@ -696,7 +696,7 @@ class Modyllic_Generator_PHP {
             $max_len = max( $max_len, strlen($arg->name) );
         }
         foreach ($args as $arg) {
-            $this->phpdoc( sprintf('       %-'.$max_len.'s => %s %s',$arg->name,$arg->type->toSql(),$arg->docs ) );
+            $this->phpdoc( sprintf('       %-'.$max_len.'s => %s %s',$arg->name,$arg->type->to_sql(),$arg->docs ) );
         }
         return $this;
     }
@@ -974,16 +974,16 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function returns_docs($routine) {
-        if ( $routine instanceOf Modyllic_Func ) {
+        if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_returns_docs($routine->returns);
         }
-        else if ( $routine instanceOf Modyllic_Proc ) {
+        else if ( $routine instanceOf Modyllic_Schema_Proc ) {
             $this->proc_returns_docs($routine->returns);
         }
         return $this;
     }
     function func_returns_docs($returns) {
-            $this->phpdoc( "@returns ".$returns->toSql() );
+            $this->phpdoc( "@returns ".$returns->to_sql() );
         return $this;
     }
     function proc_returns_docs($returns) {
@@ -1016,10 +1016,10 @@ class Modyllic_Generator_PHP {
     }
 
     function call_sql($routine) {
-        if ( $routine instanceOf Modyllic_Func ) {
+        if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_call_sql($routine);
         }
-        else if ( $routine instanceOf Modyllic_Proc ) {
+        else if ( $routine instanceOf Modyllic_Schema_Proc ) {
             $this->proc_call_sql($routine);
         }
         else {
@@ -1027,7 +1027,7 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    
+
     function func_call_sql($routine) {
         $this->begin_sql_cmd( "SELECT" )
                ->begin_sql_func( $routine->name )
@@ -1045,7 +1045,7 @@ class Modyllic_Generator_PHP {
              ->end_sql_cmd();
         return $this;
     }
-    
+
     function args_sql($routine) {
         $argc = 0;
         foreach ($routine->args as $arg) {
@@ -1056,13 +1056,13 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    
+
     function arg_sql($arg) {
         $this->add(':'.$arg->name);
         return $this;
     }
-    
-    
+
+
     function bind_params($routine) {
         foreach ($routine->args as $arg) {
             $pdo_type = 'PDO::PARAM_STR';
@@ -1078,7 +1078,7 @@ class Modyllic_Generator_PHP {
             else if ($arg->type instanceOf Modyllic_Float) {
                 $php_type = "float";
             }
-            else if ($arg->type instanceOf Modyllic_VarBinary or 
+            else if ($arg->type instanceOf Modyllic_VarBinary or
                      $arg->type instanceOf Modyllic_Binary or
                      $arg->type instanceOf Modyllic_Blob) {
                 $php_type = "binary";
@@ -1109,10 +1109,10 @@ class Modyllic_Generator_PHP {
     }
     function returns($routine) {
         $this->begin_try();
-        if ( $routine instanceOf Modyllic_Func ) {
+        if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_returns($routine);
         }
-        else if ( $routine instanceOf Modyllic_Proc ) {
+        else if ( $routine instanceOf Modyllic_Schema_Proc ) {
             $this->proc_returns($routine);
         }
         else {
@@ -1126,28 +1126,18 @@ class Modyllic_Generator_PHP {
                    ->add_str('SQLSTATE[HY000]: General error')
                  ->end_cmd(')')
                  ->op('!==')
-                 ->add('FALSE')
+                 ->add('false')
                ->end_if_expr()
                  ->begin_throw()
                    ->begin_new('PDOException')
                      ->add_str('General error while fetching return value of '.$routine->name.
                          '; this usually means that you declared this routine as having a return value '.
                          'but it does not actually select any data before completing.')
-                     ->sep()
-                     ->add('0')
-                     ->sep()
-                     ->add_var('e')
                    ->end_new()
                  ->end_throw()
                ->begin_else()
                  ->begin_throw()
-                   ->begin_new('PDOException')
-                     ->add_str('Error while fetching return value of '.$routine->name)
-                     ->sep()
-                     ->add('0')
-                     ->sep()
-                     ->add_var('e')
-                   ->end_new()
+                   ->add_var('e')
                  ->end_throw()
                ->end_if()
              ->end_try();
@@ -1224,6 +1214,12 @@ class Modyllic_Generator_PHP {
                ->end_method()
              ->end_assign();
         $this->method('sth','closeCursor');
+        $this->begin_cmd( 'if (! isset(' )
+               ->add_var('row')
+             ->end_cmd(') ) {')
+             ->begin_block()
+               ->cmd('return',';')
+             ->end_block('}');
         $this->begin_assert()
                ->begin_cmd( 'isset(' )
                  ->index( 'row', $routine->returns['column'] )
@@ -1308,7 +1304,7 @@ class Modyllic_Generator_PHP {
         else {
             $this->index('row',$routine->returns['value']);
         }
-          $this->end_cmd('',';')  
+          $this->end_cmd('',';')
              ->end_while();
         $this->method('sth','closeCursor');
         $this->end_txns($routine);
