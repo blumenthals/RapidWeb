@@ -2,7 +2,7 @@
 
 ini_set('include_path', ini_get('include_path').":".dirname(__FILE__)."/modyllic");
 require_once "Modyllic/Generator.php";
-require_once "Modyllic/Generator/MySQL.php";
+require_once "Modyllic/Generator/StrippedMySQL.php"; // @fixme Fix with the regular MySQL generator
 require_once "Modyllic/Loader.php";
 require_once "Modyllic/Diff.php";
 require_once "Modyllic/SQL.php";
@@ -33,7 +33,7 @@ function update_modyllic($dbc) {
         return(0);
     }
 
-    $gen = new Modyllic_Generator_MySQL();
+    $gen = new Modyllic_Generator_StrippedMySQL(); // @fixme Fix with the regular MySQL generator
     foreach ( $gen->sql_header() as $sql ) {
         $dbc->exec( $sql );
     }
