@@ -1,6 +1,6 @@
 <?php
 
-class RWPlugin {
+class RWPlugin extends RWBundle {
     protected $rapidweb;
     protected $baseURL;
 
@@ -17,8 +17,11 @@ class RWPlugin {
     }
 
     public function loadJavascript($script) {
-        /// @todo: Make this look up resources from other bundles
-        echo "<script src='".$this->assetURL($script)."'></script>";
+        if (file_exists(__DIR__).$script) {
+            echo "<script src='".$this->assetURL($script)."'></script>";
+        } else {
+            return parent::loadJavascript($script);
+        }
     }
 
     public function assetURL($path) {
