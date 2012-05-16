@@ -32,7 +32,7 @@ class RapidWeb extends EventEmitter {
         if ($real{strlen($real) - 1} != '/') $real .= '/';
 
         /* Set up variables */
-        $this->documentRoot = $real;
+        $this->appRoot = realpath($real);
         $this->globalURL = "{$url}rw-global/";
         $this->rootURL = $url;
 
@@ -59,7 +59,7 @@ class RapidWeb extends EventEmitter {
 
     public function add_plugins_directory($directory) {
         $plugins = glob(realpath($directory).'/*/plugin.php');
-        if($plugins) {
+        if ($plugins) {
             foreach($plugins as $plugin) {
                 $last = end($this->plugins);
                 include $plugin;
@@ -72,8 +72,8 @@ class RapidWeb extends EventEmitter {
 
     public function urlForPath($path) {
         $path = realpath($path);
-        if(strpos($path, $this->documentRoot) === 0) {
-            $url = substr_replace($path, $this->rootURL, 0, strlen($this->documentRoot));
+        if (strpos($path, $this->appRoot) === 0) {
+            $url = substr_replace($path, $this->rootURL, 0, strlen($this->appRoot));
             if($url{strlen($url) - 1} != '/') $url .= '/'; 
             return $url;
         } else {
