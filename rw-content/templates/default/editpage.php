@@ -6,6 +6,7 @@
     <?php $this->do_head(); ?>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/switchcontent.js"></script>
     <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
+    <link rel='stylesheet' href='rw-global/css/rapidweb.css'> <!-- FIXME, use a function to get this path -->
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -32,9 +33,9 @@
           <td valign='middle'>
             <?php $this->the_pagetype_selector(); ?>
           </td> 
-          <td width="67" align="right">
-            <button name='save'>Save</button><br>
-            <button name='cencel' onClick="history.go(-1)">Cancel</button>
+          <td align="right">
+            <button name='save' class='btn'>Save</button>
+            <button name='cancel' class='btn' onClick="history.go(-1)">Cancel</button>
           </td>
         </tr>
       </table>
