@@ -1,15 +1,26 @@
 <?php
 
-class RWPlugin extends RWBundle {
+abstract class RWPlugin extends RWBundle {
     protected $rapidweb;
-    protected $baseURL;
+    private $baseURL;
+    private $baseDir;
 
     public function __construct(RapidWeb $rapidweb) {
         $this->rapidweb = $rapidweb;
     }
 
-    public function setBaseURL($url) {
-        $this->baseURL = $url;
+    public function setBaseDir($dir) {
+        if ($dir{strlen($dir) - 1}  != '/') $dir .= '/';
+        $this->baseDir = $dir;
+        $this->baseURL = $this->rapidweb->urlForPath($dir);
+    }
+
+    public function assetDir() {
+        return $this->baseDir;
+    }
+
+    public function assetURL($path) {
+        return $this->baseURL . $path;
     }
 
     public static function initialize($rapidweb) {
@@ -17,14 +28,11 @@ class RWPlugin extends RWBundle {
     }
 
     public function loadJavascript($script) {
-        if (file_exists(__DIR__).$script) {
+        if (file_exists($this->assetDir()).$script) {
             echo "<script src='".$this->assetURL($script)."'></script>";
         } else {
-            return parent::loadJavascript($script);
+            $this->rapidweb->loadJavascript($script);
         }
     }
 
-    public function assetURL($path) {
-        return $this->baseURL . $path;
-    }
 }

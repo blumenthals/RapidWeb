@@ -38,6 +38,13 @@ class RapidWeb extends EventEmitter {
 
         /* Register basic page type plugin */
         $this->registerPlugin('WikiPage');
+        foreach (array(
+            'rw-global/backbone',
+            'rw-global/backbone.modelbinder',
+            'rw-global'
+        ) as $assetDir) {
+            $this->registerBundle(new RWAssetBundle($this->appRoot."/$assetDir"));
+        }
 
         $this->dbc = $dbc; // @todo: move this into this class entirely, and perform the connection here
 
@@ -65,7 +72,7 @@ class RapidWeb extends EventEmitter {
                 include $plugin;
                 $current = end($this->plugins);
                 $url = $this->urlForPath(dirname($plugin));
-                if($last != $current) $current->setBaseURL($url);
+                if($last != $current) $current->setBaseDir(dirname($plugin));
             }
         }
     }
@@ -90,7 +97,13 @@ class RapidWeb extends EventEmitter {
     }
 
     public function registerPlugin($pluginClass) {
-        $this->plugins[] = new $pluginClass($this);
+        $plugin = new $pluginClass($this);
+        $this->plugins[] = $plugin;
+        $this->registerBundle($plugin);
+    }
+
+    public function registerBundle(RWBundle $bundle) {
+        $this->bundles[] = $bundle;
     }
 
     public function dispatchCommand($request) {
@@ -244,6 +257,18 @@ class RapidWeb extends EventEmitter {
             }
         }
         return false;
+    }
+
+    public function loadJavascript($script) {
+        $found = false;
+        foreach ($this->bundles as $bundle) {
+            if ($bundle->hasAsset($script)) {
+                $bundle->loadJavascript($script);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) throw new Exception("Can't find script '$script'");
     }
 
 }

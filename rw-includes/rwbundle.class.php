@@ -1,7 +1,17 @@
 <?php
 
-class RWBundle {
+abstract class RWBundle {
     public function loadJavascript($script) {
-        throw new Exception("'$script' not found in any assets path");
+        if ($this->hasAsset($script)) {
+            echo "<script src='".$this->assetURL($script)."'></script>";
+        } else {
+            throw new Exception("Can't find script '$script'");
+        }
     }
+
+    public function hasAsset($asset) {
+        return file_exists($this->assetDir()).$script;
+    }
+
+    abstract public function assetDir();
 }
