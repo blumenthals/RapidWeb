@@ -11,14 +11,14 @@ class RWGallery extends RWPlugin {
     }
 
     public function do_editor_head() {
-        echo "<script src='{$this->baseURL}/rw-gallery-edit.js'></script>";
+        $this->loadJavascript('rw-gallery-edit.js');
+        $this->loadJavascript('underscore-min.js');
+        $this->loadJavascript('knockout/build/output/knockout-latest.js');
         echo "<link rel='stylesheet' href='{$this->baseURL}/rw-gallery-edit.css'>";
-        echo "<script src='{$this->rapidweb->globalURL}/underscore-min.js'></script>";
-        echo "<script src='{$this->rapidweb->globalURL}/knockout/build/output/knockout-latest.js'></script>";
     }
 
     public function do_head($page) {
-        echo "<script src='" . $this->baseURL . '/colorbox/colorbox/jquery.colorbox-min.js' . "'></script>";
+        $this->loadJavascript('colorbox/colorbox/jquery.colorbox-min.js');
         echo "<link rel='stylesheet' href='" . $this->baseURL . '/colorbox.css' . "'>";
         echo "<script async>
             jQuery(function($) {

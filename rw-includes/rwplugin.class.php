@@ -2,7 +2,7 @@
 
 abstract class RWPlugin extends RWBundle {
     protected $rapidweb;
-    private $baseURL;
+    protected $baseURL;
     private $baseDir;
 
     public function __construct(RapidWeb $rapidweb) {
