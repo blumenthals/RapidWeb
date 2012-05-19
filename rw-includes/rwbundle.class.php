@@ -10,8 +10,9 @@ abstract class RWBundle {
     }
 
     public function hasAsset($asset) {
-        return file_exists($this->assetDir()).$script;
+        return file_exists($this->assetDir().$asset);
     }
 
     abstract public function assetDir();
+    abstract public function assetURL($asset);
 }

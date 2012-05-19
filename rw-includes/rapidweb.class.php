@@ -43,7 +43,7 @@ class RapidWeb extends EventEmitter {
             'rw-global/backbone.modelbinder',
             'rw-global'
         ) as $assetDir) {
-            $this->registerBundle(new RWAssetBundle($this->appRoot."/$assetDir"));
+            $this->registerBundle(new RWAssetBundle($this->appRoot."/$assetDir", $this->urlForPath($assetDir)));
         }
 
         $this->dbc = $dbc; // @todo: move this into this class entirely, and perform the connection here
@@ -97,9 +97,7 @@ class RapidWeb extends EventEmitter {
     }
 
     public function registerPlugin($pluginClass) {
-        $plugin = new $pluginClass($this);
-        $this->plugins[] = $plugin;
-        $this->registerBundle($plugin);
+        $this->plugins[] = new $pluginClass($this);
     }
 
     public function registerBundle(RWBundle $bundle) {

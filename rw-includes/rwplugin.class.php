@@ -28,7 +28,7 @@ abstract class RWPlugin extends RWBundle {
     }
 
     public function loadJavascript($script) {
-        if (file_exists($this->assetDir()).$script) {
+        if ($this->hasAsset($script)) {
             echo "<script src='".$this->assetURL($script)."'></script>";
         } else {
             $this->rapidweb->loadJavascript($script);
