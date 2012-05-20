@@ -1,3 +1,4 @@
 images/upload/
 rw-config.php
 rw-global/less/plugins.less
+*.sw[po]
