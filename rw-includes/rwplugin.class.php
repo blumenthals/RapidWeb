@@ -19,8 +19,12 @@ abstract class RWPlugin extends RWBundle {
         return $this->baseDir;
     }
 
-    public function assetURL($path) {
-        return $this->baseURL . $path;
+    public function assetURL($asset) {
+        if ($this->hasAsset($asset)) {
+            return $this->baseURL . $asset;
+        } else {
+            return $this->rapidweb->assetURL($asset);
+        }
     }
 
     public static function initialize($rapidweb) {
@@ -28,11 +32,6 @@ abstract class RWPlugin extends RWBundle {
     }
 
     public function loadJavascript($script) {
-        if ($this->hasAsset($script)) {
-            echo "<script src='".$this->assetURL($script)."'></script>";
-        } else {
-            $this->rapidweb->loadJavascript($script);
-        }
+        $this->rapidweb->loadJavascript($this->assetURL($script));
     }
-
 }

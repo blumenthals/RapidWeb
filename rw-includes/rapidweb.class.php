@@ -42,11 +42,12 @@ class RapidWeb extends EventEmitter {
             'rw-global/backbone',
             'rw-global/backbone.modelbinder',
             'rw-global'
+            /// @todo: Bundle more.
         ) as $assetDir) {
             $this->registerBundle(new RWAssetBundle($this->appRoot."/$assetDir", $this->urlForPath($assetDir)));
         }
 
-        $this->dbc = $dbc; // @todo: move this into this class entirely, and perform the connection here
+        $this->dbc = $dbc; /// @todo: move this into this class entirely, and perform the connection here
 
     }
 
@@ -257,16 +258,21 @@ class RapidWeb extends EventEmitter {
         return false;
     }
 
-    public function loadJavascript($script) {
-        $found = false;
-        foreach ($this->bundles as $bundle) {
-            if ($bundle->hasAsset($script)) {
-                $bundle->loadJavascript($script);
-                $found = true;
-                break;
-            }
+    protected $loadedScripts = array();
+
+    public function loadJavascript($url) {
+        if (!in_array($url, $this->loadedScripts)) {
+            $this->loadedScripts[] = $url;
+            echo "<script src='$url'></script>";
         }
-        if (!$found) throw new Exception("Can't find script '$script'");
+    }
+
+    public function assetURL($asset) {
+        assert('$asset');
+        foreach ($this->bundles as $bundle) {
+            if ($bundle->hasAsset($asset)) return $bundle->assetURL($asset);
+        }
+        throw new Exception("Can't find script '$asset'");
     }
 
 }

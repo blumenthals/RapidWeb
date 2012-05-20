@@ -15,8 +15,12 @@ class RWAssetBundle extends RWBundle {
         return $this->dir;
     }
 
-    public function assetURL($path) {
-        return $this->url . $path;
+    public function assetURL($asset) {
+        if ($this->hasAsset($asset)) {
+            return $this->url . $asset;
+        } else {
+            throw new Exception("Can't find asset '$asset'");
+        }
     }
 
 }
