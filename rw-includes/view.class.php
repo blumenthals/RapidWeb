@@ -16,4 +16,8 @@ abstract class View {
     protected function do_head() {
     }
 
+    public function loadJavascript($script) {
+        $this->rapidweb->loadJavascript($this->rapidweb->assetURL($script));
+    }
+
 }

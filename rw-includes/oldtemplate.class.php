@@ -8,7 +8,7 @@ class OldTemplate extends View {
     }
 
     public function do_head() {
-        echo "<script src='{$this->rapidweb->globalURL}jquery-1.7.js'></script>";
+        $this->loadJavascript('jquery-1.7.js');
         if($plugin = $this->getPlugin()) $plugin->do_head($this->page);
     }
 
