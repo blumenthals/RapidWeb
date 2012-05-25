@@ -77,7 +77,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
         $VARIABLES[trim($k)] = trim($v);
     }
 
-    if ($template == 'BROWSE' and isset($hash['template']) and $hash['template']) {
+    if ($template == 'BROWSE' and @$hash['template']) {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
         $view->render($hash['template']);
