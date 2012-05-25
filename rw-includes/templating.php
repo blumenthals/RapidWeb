@@ -80,7 +80,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     if ($template == 'BROWSE' and isset($hash['template'])) {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($templates[$template]);
+        $view->render(isset($hash['template']) ? $hash['template'] : $templates[$template]);
         $page = ob_get_contents();
         ob_end_clean();
     } elseif($template == 'EDITPAGE') {

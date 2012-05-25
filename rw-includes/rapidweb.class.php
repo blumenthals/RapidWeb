@@ -32,7 +32,7 @@ class RapidWeb extends EventEmitter {
         if ($real{strlen($real) - 1} != '/') $real .= '/';
 
         /* Set up variables */
-        $this->appRoot = realpath($real);
+        $this->appRoot = realpath($real).'/';
         $this->globalURL = "{$url}rw-global/";
         $this->rootURL = $url;
 
@@ -44,7 +44,7 @@ class RapidWeb extends EventEmitter {
             'rw-global'
             /// @todo: Bundle more.
         ) as $assetDir) {
-            $this->registerBundle(new RWAssetBundle($this->appRoot."/$assetDir", $this->urlForPath($assetDir)));
+            $this->registerBundle(new RWAssetBundle($this->appRoot."$assetDir", $this->urlForPath($assetDir)));
         }
 
         $this->dbc = $dbc; /// @todo: move this into this class entirely, and perform the connection here
