@@ -6,9 +6,6 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/Tokenizer.php";
-require_once "Modyllic/Schema.php";
-
 /**
  * Our SQL parser, this is intimately involved
  */
@@ -47,7 +44,7 @@ class Modyllic_Parser {
      * @param string $delim (default: "")
      * @returns array
      */
-    function partial($schema, $sql, $filename="SQL", $delim=null) {
+    function partial(Modyllic_Schema $schema, $sql, $filename="SQL", $delim=null) {
         $this->filename = $filename;
         $this->tok = new Modyllic_Tokenizer( $sql );
         $this->tok->set_delimiter( $delim );
@@ -616,7 +613,7 @@ class Modyllic_Parser {
         $this->load_routine_body($func);
     }
 
-    function load_routine_body($routine) {
+    function load_routine_body(Modyllic_Schema_CodeBody $routine) {
         // [characteristic ...] BEGIN routine_body END
         // characteristic:
         //   | [NOT] DETERMINISTIC
@@ -719,30 +716,30 @@ class Modyllic_Parser {
         $type = Modyllic_Type::create( $this->get_reserved() );
         if ( $this->peek_next()->value() == '(' ) {
             $this->get_symbol();
-            if ( $type instanceOf Modyllic_Numeric ) {
+            if ( $type instanceOf Modyllic_Type_Numeric ) {
                 $args = $this->get_array();
                 $type->length = $args[0];
                 if ( count($args) > 1 ) {
                     $type->scale = $args[1];
                 }
             }
-            else if ( $type instanceOf Modyllic_Float ) {
+            else if ( $type instanceOf Modyllic_Type_Float ) {
                 $args = $this->get_array();
                 $type->length = $args[0];
                 if ( count($args) > 1 ) {
                     $type->decimals = $args[1];
                 }
             }
-            else if ( $type instanceOf Modyllic_Compound ) {
+            else if ( $type instanceOf Modyllic_Type_Compound ) {
                 $type->values = $this->get_array();
             }
             else {
                 $type->length = $this->get_list();
-                if ( $type instanceOf Modyllic_VarChar and $type->length > 65535 ) {
-                    $type = new Modyllic_Text($type->name,$type->length);
+                if ( $type instanceOf Modyllic_Type_VarChar and $type->length > 65535 ) {
+                    $type = new Modyllic_Type_Text($type->name,$type->length);
                 }
-                else if ( $type instanceOf Modyllic_VarBinary and $type->length > 65535 ) {
-                    $type = new Modyllic_Blob($type->name,$type->length);
+                else if ( $type instanceOf Modyllic_Type_VarBinary and $type->length > 65535 ) {
+                    $type = new Modyllic_Type_Blob($type->name,$type->length);
                 }
             }
         }
@@ -775,7 +772,7 @@ class Modyllic_Parser {
             }
         }
 
-        if ( ( $type instanceOf Modyllic_VarChar or $type instanceOf Modyllic_Text ) and strtolower($type->charset()) == 'binary' ) {
+        if ( ( $type instanceOf Modyllic_Type_VarChar or $type instanceOf Modyllic_Type_Text ) and strtolower($type->charset()) == 'binary' ) {
             $type = $type->binary();
         }
         else if ( $binary ) {
@@ -852,7 +849,7 @@ class Modyllic_Parser {
             }
         }
         foreach ($this->ctx->columns as &$col) {
-            if ( $col->type instanceOf Modyllic_String ) {
+            if ( $col->type instanceOf Modyllic_Type_String ) {
                 $col->type->set_default_charset( $this->ctx->charset );
                 $col->type->set_default_collate( $this->ctx->collate );
             }
@@ -921,7 +918,7 @@ class Modyllic_Parser {
 
         if ( $column->type->name == 'SERIAL' ) {
             // SERIAL is an alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE.
-            $column->type = new Modyllic_BigInt('BIGINT');
+            $column->type = new Modyllic_Type_BigInt('BIGINT');
             $column->type->unsigned = true;
             $column->null = false;
             $column->auto_increment = true;
@@ -929,7 +926,7 @@ class Modyllic_Parser {
             $is_unique = true;
         }
 
-        if ( $column->type instanceOf Modyllic_Timestamp ) {
+        if ( $column->type instanceOf Modyllic_Type_Timestamp ) {
             $column->default = 'CURRENT_TIMESTAMP';
             $column->on_update = 'CURRENT_TIMESTAMP';
         }
@@ -1168,7 +1165,7 @@ class Modyllic_Parser {
         return $columns;
     }
 
-    function add_index($key) {
+    function add_index(Modyllic_Schema_Index $key) {
         // If a semantically identical key already exists, replace it.
         $match = null;
         foreach ($this->ctx->indexes as $array_index=>&$index) {
@@ -1183,17 +1180,17 @@ class Modyllic_Parser {
         $this->ctx->add_index( $key );
     }
 
-    function gen_constraint_name($key) {
+    function gen_constraint_name(Modyllic_Schema_Index $key) {
         $key->cname = $this->ctx->gen_index_name( $this->ctx->name . "_ibfk", true );
         $key->dynamic_name = true;
     }
 
-    function gen_index_name($key) {
+    function gen_index_name(Modyllic_Schema_Index $key) {
         $key->name = $this->ctx->gen_index_name( current(array_keys($key->columns)) );
         $key->dynamic_name = true;
     }
 
-    function add_foreign_key_index( $name, $key ) {
+    function add_foreign_key_index( $name, Modyllic_Schema_Index $key ) {
         // If a name was specified and it already exists as an index, then that
         // index must be compatible
         if ( $name and isset( $this->ctx->indexes[$name] ) ) {
@@ -1389,7 +1386,7 @@ class Modyllic_Parser {
         return $this->next()->value();
     }
 
-    function _value_map( $token ) {
+    function _value_map( Modyllic_Token $token ) {
         return $token->value();
     }
 
@@ -1452,18 +1449,3 @@ class Modyllic_Parser {
     }
 }
 
-/**
- * Our exception class, it takes a bunch of useful debugging information
- */
-class Modyllic_Exception extends Exception {
-    /**
-     * @param string $filename
-     * @param int $line
-     * @param int $col
-     * @param string $context
-     * @param string $message
-     */
-    function __construct( $filename, $line, $col, $context, $message ) {
-        parent::__construct("$message while parsing SQL in $filename on line $line at col $col:\n\n$context" );
-    }
-}

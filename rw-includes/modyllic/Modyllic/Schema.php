@@ -6,26 +6,6 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/SQL.php";
-require_once "Modyllic/Types.php";
-
-// Components
-require_once "Modyllic/Schema/View.php";
-require_once "Modyllic/Schema/Table.php";
-require_once "Modyllic/Schema/Event.php";
-require_once "Modyllic/Schema/Trigger.php";
-require_once "Modyllic/Schema/Proc.php";
-require_once "Modyllic/Schema/Func.php";
-
-/**
- * A base class for various schema objects.  Handles generic things like
- * providing previous values for the diff engine.  In a perfect world this
- * would be a runtime trait applied by the diff engine.
- */
-class Modyllic_Diffable {
-    public $from;
-}
-
 /**
  * A collection of SQL entities comprising a complete schema
  */
@@ -66,7 +46,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
         $this->name = $name;
     }
 
-    function merge( $schema ) {
+    function merge( Modyllic_Schema $schema ) {
         if ( $this->name_is_default ) {
             $this->set_name($schema->name);
         }
@@ -99,7 +79,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema_Table $table
      */
-    function add_table( $table ) {
+    function add_table(Modyllic_Schema_Table $table ) {
         $this->tables[$table->name] = $table;
         return $table;
     }
@@ -107,7 +87,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema_Routine $routine
      */
-    function add_routine( $routine ) {
+    function add_routine(Modyllic_Schema_Routine $routine ) {
         $this->routines[$routine->name] = $routine;
         return $routine;
     }
@@ -115,7 +95,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema_Event $event
      */
-    function add_event( $event ) {
+    function add_event(Modyllic_Schema_Event $event ) {
         $this->events[$event->name] = $event;
         return $event;
     }
@@ -123,7 +103,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema_Trigger $trigger
      */
-    function add_trigger( $trigger ) {
+    function add_trigger(Modyllic_Schema_Trigger $trigger ) {
         $this->triggers[$trigger->name] = $trigger;
         return $trigger;
     }
@@ -131,7 +111,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema_View $view
      */
-    function add_view( $view ) {
+    function add_view(Modyllic_Schema_View $view ) {
         $this->views[$view->name] = $view;
         return $view;
     }
@@ -194,13 +174,13 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * @param Modyllic_Schema $other
      */
-    function schema_def_equal_to( $other ) {
+    function schema_def_equal_to(Modyllic_Schema $other ) {
         if ( $this->charset != $other->charset ) { return false; }
         if ( $this->collate != $other->collate ) { return false; }
         return true;
     }
 
-    function equal_to( $other ) {
+    function equal_to(Modyllic_Schema $other ) {
         if ( ! $this->schema_def_equal_to($other) ) { return false; }
         if ( count($this->tables) != count($other->tables) ) { return false; }
         if ( count($this->routines) != count($other->routines) ) { return false; }

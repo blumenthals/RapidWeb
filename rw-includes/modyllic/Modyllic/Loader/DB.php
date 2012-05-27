@@ -7,6 +7,9 @@
  */
 
 class Modyllic_Loader_DB {
+    // Static class only
+    private function __construct() {}
+
     static private $dialect_map;
     static public function db_driver($dialect) {
         if ( !isset(self::$dialect_map) ) { self::$dialect_map = array(); }
@@ -23,7 +26,6 @@ class Modyllic_Loader_DB {
                 );
             foreach ($classes_to_try as $class) {
                 $file = preg_replace("/_/","/", $class) . ".php";
-                @include_once $file;
                 if ( class_exists($class) ) {
                     self::$dialect_map[$dialect] = $class;
                     self::$dialect_map[$class] = $class;

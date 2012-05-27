@@ -7,11 +7,7 @@
  * @author bturner@online-buddies.com
  */
 
-require_once dirname(__FILE__)."/../../testlib/testmore.php";
-
-require_once "Modyllic/SQL.php";
-require_once "Modyllic/Parser.php";
-require_once "Modyllic/Schema.php";
+require_once implode( DIRECTORY_SEPARATOR, array(dirname(__FILE__), "..", "test_environment.php") );
 
 $parser = new Modyllic_Parser();
 $schema = new Modyllic_Schema();
@@ -26,7 +22,7 @@ plan(5);
 ok( isset($schema->tables['a']), "Table 'a' exists" );
 $table = $schema->tables['a'];
 is( count($table->indexes), 1, "There is 1 index" );
-$index = array_pop( array_values($table->indexes)  );
+$index = current( array_values($table->indexes)  );
 is( count($index->columns), 1, "It indexes one column" );
 foreach ($index->columns as $name=>$length) {
     is( $name, "b", "The indexed column name is correct");

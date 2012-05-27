@@ -6,9 +6,6 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/SQL.php";
-require_once "Modyllic/Schema.php";
-
 class Modyllic_Generator_MySQL {
 
     protected $delim;
@@ -24,7 +21,7 @@ class Modyllic_Generator_MySQL {
         $this->sep = $sep;
     }
 
-    function sqlmeta_exists($schema) {
+    function sqlmeta_exists(Modyllic_Schema $schema) {
         foreach ($schema->tables as $table) {
             if ( count($this->table_meta($table)) ) {
                 return true;
@@ -186,7 +183,7 @@ class Modyllic_Generator_MySQL {
     function create_sqlmeta() {
         $this->begin_cmd();
         $this->extend( "-- This is used to store metadata used by the schema management tool" );
-        $this->extend("CREATE TABLE SQLMETA IF NOT EXISTS (");
+        $this->extend("CREATE TABLE IF NOT EXISTS SQLMETA (");
         $this->indent();
         $this->begin_list();
         $this->extend("kind CHAR(9) NOT NULL");
@@ -404,7 +401,7 @@ class Modyllic_Generator_MySQL {
         }
     }
 
-    function create_table( $table, $schema ) {
+    function create_table( Modyllic_Schema_Table $table, $schema ) {
         $this->begin_cmd();
         $this->table_docs( $table );
         $this->extend( "CREATE TABLE %id (", $table->name );
@@ -544,7 +541,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function drop_table( $table ) {
+    function drop_table( Modyllic_Schema_Table $table ) {
         $this->cmd( "DROP TABLE IF EXISTS %id", $table->name );
         if ( count($this->table_meta($table)) > 0 ) {
             $this->delete_meta("TABLE",$table->name);
@@ -558,7 +555,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function column_meta($col) {
+    function column_meta( Modyllic_Schema_Column $col) {
         if ( count($col->aliases) ) {
             return array( "aliases" => $col->aliases );
         }
@@ -567,7 +564,7 @@ class Modyllic_Generator_MySQL {
         }
     }
 
-    function add_column( $column ) {
+    function add_column( Modyllic_Schema_Column $column ) {
         $this->partial("ADD COLUMN " );
         $this->create_column($column);
         if ( $column->after == "" ) {
@@ -601,7 +598,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function create_column( $column, $with_key=true ) {
+    function create_column( Modyllic_Schema_Column $column, $with_key=true ) {
         if ( isset($column->from) ) {
             $this->extend("%id %lit", $column->name, $column->type->to_sql($column->from->type) );
         }
@@ -664,7 +661,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function ignore_index( $index ) {
+    function ignore_index(Modyllic_Schema_Index $index ) {
         if ( $index instanceOf Modyllic_Schema_Index_Foreign and $index->weak ) {
             return true;
         }
@@ -726,7 +723,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function foreign_key($index) {
+    function foreign_key(Modyllic_Schema_Index $index) {
         $this->add( " REFERENCES %id", $index->references['table'] );
         $this->add( " (" . implode(",",array_map(array("Modyllic_SQL","quote_ident"),array_map("trim",
                             $index->references['columns'] ))) .")" );
@@ -860,7 +857,7 @@ class Modyllic_Generator_MySQL {
         return $this;
     }
 
-    function routine_attrs( $routine ) {
+    function routine_attrs( Modyllic_Schema_Routine $routine ) {
         if ( $routine->access != Modyllic_Schema_Routine::ACCESS_DEFAULT ) {
             $this->extend( $routine->access );
         }

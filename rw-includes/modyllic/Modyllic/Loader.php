@@ -6,20 +6,12 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/Parser.php";
-require_once "Modyllic/Schema.php";
-require_once "Modyllic/Status.php";
-
-require_once "Modyllic/Loader/File.php";
-require_once "Modyllic/Loader/Dir.php";
-require_once "Modyllic/Loader/DB.php";
-
-class Modyllic_Loader_Exception extends Exception {}
-
 /**
  * Factory class for creating Schema objects from various sources
  */
 class Modyllic_Loader {
+    // Static class only
+    private function __construct() {}
 
     static function determine_loader($source) {
         if ( is_dir($source) ) {

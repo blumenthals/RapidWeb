@@ -6,8 +6,6 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/SQL.php";
-
 class Modyllic_Generator_PHP {
     protected $php;
     protected $indent_by = 4;
@@ -531,7 +529,7 @@ class Modyllic_Generator_PHP {
         $this->end_block("}");
         return $this;
     }
-    function routine_helper($routine) {
+    function routine_helper(Modyllic_Schema_Routine $routine) {
         $this->docs($routine);
         $this->begin_func($routine)
                ->args_init($routine)
@@ -540,7 +538,7 @@ class Modyllic_Generator_PHP {
              ->end_func();
         return $this;
     }
-    function begin_func($routine) {
+    function begin_func(Modyllic_Schema_Routine $routine) {
         $this->begin_cmd( 'public static function '.$routine->name.'(' )
                ->args($routine)
              ->end_cmd(') {');
@@ -551,7 +549,7 @@ class Modyllic_Generator_PHP {
         $this->end_block('}');
         return $this;
     }
-    function begin_txns($routine) {
+    function begin_txns(Modyllic_Schema_Routine $routine) {
         if ( $routine->txns == Modyllic_Schema_Routine::TXNS_HAS ) {
             $this->begin_cmd( 'if ( ')
                    ->dbh()
@@ -565,7 +563,7 @@ class Modyllic_Generator_PHP {
                    ->end_throw()
                  ->end_block();
         }
-        else if ($routine->txns == Modyllic_ROUTINE::TXNS_CALL ) {
+        else if ($routine->txns == Modyllic_Schema_Routine::TXNS_CALL ) {
             $this->begin_cmd( 'if ( ! ')
                    ->dbh()
                    ->method( 'inTransaction' )
@@ -582,7 +580,7 @@ class Modyllic_Generator_PHP {
 
         }
     }
-    function end_txns($routine) {
+    function end_txns(Modyllic_Schema_Routine $routine) {
         if ($routine->txns == Modyllic_Schema_Routine::TXNS_CALL ) {
             $this->begin_cmd( 'if ( ')
                    ->func_var( 'isset', 'commitTransaction' )
@@ -595,7 +593,7 @@ class Modyllic_Generator_PHP {
                  ->end_block('}');
         }
     }
-    function call($routine) {
+    function call(Modyllic_Schema_Routine $routine) {
         $this->begin_txns($routine);
 
         $this->begin_assign('sth')
@@ -616,7 +614,7 @@ class Modyllic_Generator_PHP {
         $this->add_var('dbh');
         return $this;
     }
-    function docs($routine) {
+    function docs(Modyllic_Schema_Routine $routine) {
         if ( $routine->docs != '' or count($routine->args) ) {
             $this->start_phpdoc();
             if ( $routine->docs ) {
@@ -631,7 +629,7 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function args_docs($routine) {
+    function args_docs(Modyllic_Schema_Routine $routine) {
         $this->args_docs_preamble($routine);
         switch ( $routine->args_type ) {
             case "LIST":
@@ -645,11 +643,11 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function args_docs_preamble($routine) {
+    function args_docs_preamble(Modyllic_Schema_Routine $routine) {
         $this->phpdoc('@param $dbh');
         return $this;
     }
-    function args($routine) {
+    function args(Modyllic_Schema_Routine $routine) {
         switch ( $routine->args_type ) {
             case "LIST":
                 $this->args_list($routine->args);
@@ -662,13 +660,13 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function args_list_docs($args) {
+    function args_list_docs(array $args) {
         foreach ($args as $arg) {
             $this->phpdoc( '@param '.$arg->type->to_sql().' $'.$arg->name.' '.$arg->docs );
         }
         return $this;
     }
-    function args_list($args) {
+    function args_list(array $args) {
         $this->add_var('dbh');
         foreach ($args as $arg) {
             $this->sep();
@@ -676,20 +674,20 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function arg($arg) {
+    function arg(Modyllic_Schema_Arg $arg) {
         if ( $arg->dir == "INOUT" or $arg->dir == "OUT" ) {
             $this->ref();
         }
         $this->add_var( $arg->name );
         return $this;
     }
-    function args_map($args) {
+    function args_map(array $args) {
         $this->add_var( 'dbh' );
         $this->sep();
         $this->add_var( 'args' );
         return $this;
     }
-    function args_map_docs($args) {
+    function args_map_docs(array $args) {
         $this->phpdoc( '@param array $args Valid keys are:' );
         $max_len = 0;
         foreach ($args as $arg) {
@@ -700,20 +698,20 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function args_init($routine) {
+    function args_init(Modyllic_Schema_Routine $routine) {
         if ( $routine->args_type == "MAP" ) {
             $this->args_map_init($routine);
         }
         return $this;
     }
-    function args_validate($routine) {
+    function args_validate(Modyllic_Schema_Routine $routine) {
         if ( $routine->args_type == "MAP" ) {
             $this->args_map_validate($routine);
         }
         $this->args_generic_validate($routine);
         return $this;
     }
-    function args_generic_validate($routine) {
+    function args_generic_validate(Modyllic_Schema_Routine $routine) {
         foreach ($routine->args as $arg) {
             $this->arg_validate($arg);
         }
@@ -829,94 +827,94 @@ class Modyllic_Generator_PHP {
              ->end_assert();
         return $this;
     }
-    function arg_validate_numeric($arg) {
+    function arg_validate_numeric(Modyllic_Schema_Arg $arg) {
         $this->validate_numeric($arg->name);
         if ( $arg->type->unsigned ) {
             $this->validate_unsigned($arg->name);
         }
-        if ( $arg->type instanceOf Modyllic_Integer ) {
+        if ( $arg->type instanceOf Modyllic_Type_Integer ) {
             $this->validate_integer($arg->name);
         }
         return $this;
     }
-    function arg_validate_nonnumeric($arg) {
+    function arg_validate_nonnumeric(Modyllic_Schema_Arg $arg) {
         $this->validate_nonnumeric( $arg->name );
         return $this;
     }
-    function arg_validate_string($arg) {
+    function arg_validate_string(Modyllic_Schema_Arg $arg) {
         if ( isset($arg->type->length) ) {
             $this->validate_string_length($arg->name, $arg->type->length);
         }
         return $this;
     }
-    function arg_validate_date($arg) {
+    function arg_validate_date(Modyllic_Schema_Arg $arg) {
         $this->validate_date($arg->name);
         return $this;
     }
-    function arg_validate_datetime($arg) {
+    function arg_validate_datetime(Modyllic_Schema_Arg $arg) {
         $this->validate_datetime($arg->name);
         return $this;
     }
-    function arg_validate_time($arg) {
+    function arg_validate_time(Modyllic_Schema_Arg $arg) {
         $this->validate_time($arg->name);
         return $this;
     }
-    function arg_validate_timestamp($arg) {
+    function arg_validate_timestamp(Modyllic_Schema_Arg $arg) {
         $this->validate_timestamp($arg->name);
         return $this;
     }
-    function arg_validate_year($arg) {
+    function arg_validate_year(Modyllic_Schema_Arg $arg) {
         $this->validate_year($arg->name);
         return $this;
     }
-    function arg_validate_enum($arg) {
+    function arg_validate_enum(Modyllic_Schema_Arg $arg) {
         $this->validate_enum($arg->name, $arg->type->values);
         return $this;
     }
-    function arg_validate_set($arg) {
+    function arg_validate_set(Modyllic_Schema_Arg $arg) {
         $this->validate_set($arg->name, $arg->type->values);
         return $this;
     }
-    function arg_validate($arg) {
-        if ( $arg->type instanceOf Modyllic_Numeric ) {
+    function arg_validate(Modyllic_Schema_Arg $arg) {
+        if ( $arg->type instanceOf Modyllic_Type_Numeric ) {
             $this->arg_validate_numeric($arg);
         }
         else {
             $this->arg_validate_nonnumeric($arg);
         }
-        if ( $arg->type instanceOf Modyllic_String ) {
+        if ( $arg->type instanceOf Modyllic_Type_String ) {
             $this->arg_validate_string( $arg );
         }
-        if ( $arg->type instanceOf Modyllic_Date ) {
+        if ( $arg->type instanceOf Modyllic_Type_Date ) {
             $this->arg_validate_date( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Datetime ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Datetime ) {
             $this->arg_validate_datetime( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Time ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Time ) {
             $this->arg_validate_time( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Timestamp ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Timestamp ) {
             $this->arg_validate_timestamp( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Year ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Year ) {
             $this->arg_validate_year( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Enum ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Enum ) {
             $this->arg_validate_enum( $arg );
         }
-        else if ( $arg->type instanceOf Modyllic_Set ) {
+        else if ( $arg->type instanceOf Modyllic_Type_Set ) {
             $this->arg_validate_set( $arg );
         }
         return $this;
     }
-    function args_map_init($routine) {
+    function args_map_init(Modyllic_Schema_Routine $routine) {
         foreach ($routine->args as $arg) {
             $this->arg_map_assign($arg);
         }
         return $this;
     }
-    function arg_map_assign($arg) {
+    function arg_map_assign(Modyllic_Schema_Arg $arg) {
         $name = $this->_arg_name($arg);
         $args_name = '$args[\''.$name.'\']';
         if ( $arg->dir == "INOUT" or $arg->dir=="OUT" ) {
@@ -936,14 +934,14 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function _arg_name($arg) {
+    function _arg_name(Modyllic_Schema_Arg $arg) {
         $name = $arg->name;
         if ( substr($name,0,2) == "p_" ) {
             $name = substr($name,2);
         }
         return $name;
     }
-    function args_map_validate($routine) {
+    function args_map_validate(Modyllic_Schema_Routine $routine) {
         $this->begin_assert_block()
                ->assign( 'is_ok', 'true' )
                ->begin_foreach( 'args', 'name', 'value' )
@@ -961,7 +959,7 @@ class Modyllic_Generator_PHP {
              ->end_assert_block();
         return $this;
     }
-    function arg_list_array($routine) {
+    function arg_list_array(Modyllic_Schema_Routine $routine) {
         $this->begin_array();
         $argc = 0;
         foreach ($routine->args as $arg) {
@@ -973,7 +971,7 @@ class Modyllic_Generator_PHP {
         $this->end_array();
         return $this;
     }
-    function returns_docs($routine) {
+    function returns_docs(Modyllic_Schema_Routine $routine) {
         if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_returns_docs($routine->returns);
         }
@@ -982,11 +980,11 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function func_returns_docs($returns) {
-            $this->phpdoc( "@returns ".$returns->to_sql() );
+    function func_returns_docs(Modyllic_Type $returns) {
+        $this->phpdoc( "@returns ".$returns->to_sql());
         return $this;
     }
-    function proc_returns_docs($returns) {
+    function proc_returns_docs(array $returns) {
         switch ($returns['type']) {
             case "ROW":
                 $this->phpdoc( "@returns row" );
@@ -1015,7 +1013,7 @@ class Modyllic_Generator_PHP {
         return $this;
     }
 
-    function call_sql($routine) {
+    function call_sql(Modyllic_Schema_Routine $routine) {
         if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_call_sql($routine);
         }
@@ -1028,7 +1026,7 @@ class Modyllic_Generator_PHP {
         return $this;
     }
 
-    function func_call_sql($routine) {
+    function func_call_sql(Modyllic_Schema_Routine $routine) {
         $this->begin_sql_cmd( "SELECT" )
                ->begin_sql_func( $routine->name )
                  ->args_sql($routine)
@@ -1037,7 +1035,7 @@ class Modyllic_Generator_PHP {
         return $this;
     }
 
-    function proc_call_sql($routine) {
+    function proc_call_sql(Modyllic_Schema_Routine $routine) {
         $this->begin_sql_cmd( "CALL" )
                ->begin_sql_func( $routine->name )
                  ->args_sql($routine)
@@ -1046,7 +1044,7 @@ class Modyllic_Generator_PHP {
         return $this;
     }
 
-    function args_sql($routine) {
+    function args_sql(Modyllic_Schema_Routine $routine) {
         $argc = 0;
         foreach ($routine->args as $arg) {
             if ( $argc ++ ) {
@@ -1057,16 +1055,16 @@ class Modyllic_Generator_PHP {
         return $this;
     }
 
-    function arg_sql($arg) {
+    function arg_sql(Modyllic_Schema_Arg $arg) {
         $this->add(':'.$arg->name);
         return $this;
     }
 
 
-    function bind_params($routine) {
+    function bind_params(Modyllic_Schema_Routine $routine) {
         foreach ($routine->args as $arg) {
             $pdo_type = 'PDO::PARAM_STR';
-            if ( $arg->type instanceOf Modyllic_Integer ) {
+            if ( $arg->type instanceOf Modyllic_Type_Integer ) {
                 $pdo_type = 'PDO::PARAM_INT';
                 if ( $arg->name == "BOOL" or $arg->name == "BOOLEAN" ) {
                     $php_type = "boolean";
@@ -1075,12 +1073,12 @@ class Modyllic_Generator_PHP {
                     $php_type = "integer";
                 }
             }
-            else if ($arg->type instanceOf Modyllic_Float) {
+            else if ($arg->type instanceOf Modyllic_Type_Float) {
                 $php_type = "float";
             }
-            else if ($arg->type instanceOf Modyllic_VarBinary or
-                     $arg->type instanceOf Modyllic_Binary or
-                     $arg->type instanceOf Modyllic_Blob) {
+            else if ($arg->type instanceOf Modyllic_Type_VarBinary or
+                     $arg->type instanceOf Modyllic_Type_Binary or
+                     $arg->type instanceOf Modyllic_Type_Blob) {
                 $php_type = "binary";
             }
             else {
@@ -1107,7 +1105,7 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function returns($routine) {
+    function returns(Modyllic_Schema_Routine $routine) {
         $this->begin_try();
         if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_returns($routine);
@@ -1143,7 +1141,7 @@ class Modyllic_Generator_PHP {
              ->end_try();
         return $this;
     }
-    function func_returns($routine) {
+    function func_returns(Modyllic_Schema_Routine $routine) {
         $this->begin_list_assign('result')
                ->begin_method('sth','fetch')
                  ->add_const('PDO::FETCH_NUM')
@@ -1154,7 +1152,7 @@ class Modyllic_Generator_PHP {
         $this->add_return('result');
         return $this;
     }
-    function proc_returns($routine) {
+    function proc_returns(Modyllic_Schema_Routine $routine) {
         $has_out = false;
         foreach ($routine->args as $arg) {
             if ( $arg->dir == 'INOUT' or $arg->dir == 'OUT' ) {
@@ -1196,7 +1194,7 @@ class Modyllic_Generator_PHP {
         }
         return $this;
     }
-    function proc_returns_row($routine) {
+    function proc_returns_row(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('result')
                ->begin_method('sth','fetch')
                  ->add_const('PDO::FETCH_ASSOC')
@@ -1207,7 +1205,7 @@ class Modyllic_Generator_PHP {
         $this->add_return('result');
         return $this;
     }
-    function proc_returns_column($routine) {
+    function proc_returns_column(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('row')
                ->begin_method('sth','fetch')
                  ->add_const('PDO::FETCH_ASSOC')
@@ -1231,7 +1229,7 @@ class Modyllic_Generator_PHP {
              ->end_return();
         return $this;
     }
-    function proc_returns_list($routine) {
+    function proc_returns_list(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('results')
                ->add_array()
              ->end_assign();
@@ -1260,7 +1258,7 @@ class Modyllic_Generator_PHP {
         $this->add_return( 'results' );
         return $this;
     }
-    function proc_returns_table($routine) {
+    function proc_returns_table(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('table')
                ->begin_method('sth','fetchAll')
                  ->add_const('PDO::FETCH_ASSOC')
@@ -1271,7 +1269,7 @@ class Modyllic_Generator_PHP {
         $this->add_return( 'table' );
         return $this;
     }
-    function proc_returns_map($routine) {
+    function proc_returns_map(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('map')
                ->add_array()
              ->end_assign();
@@ -1311,12 +1309,12 @@ class Modyllic_Generator_PHP {
         $this->add_return('map');
         return $this;
     }
-    function proc_returns_sth($routine) {
+    function proc_returns_sth(Modyllic_Schema_Routine $routine) {
         $this->end_txns($routine);
         $this->add_return('sth');
         return $this;
     }
-    function proc_returns_none($routine) {
+    function proc_returns_none(Modyllic_Schema_Routine $routine) {
         $this->method('sth','closeCursor');
         $this->end_txns($routine);
         return $this;

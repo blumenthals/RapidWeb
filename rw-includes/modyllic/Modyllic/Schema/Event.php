@@ -6,8 +6,6 @@
  * @author bturner@online-buddies.com
  */
 
-require_once "Modyllic/Schema/CodeBody.php";
-
 /**
  * A collection of attributes describing an event
  */
@@ -25,7 +23,7 @@ class Modyllic_Schema_Event extends Modyllic_Schema_CodeBody {
         $this->name = $name;
     }
 
-    function equal_to($other) {
+    function equal_to(Modyllic_Schema_CodeBody $other) {
         if ( ! parent::equal_to($other) ) { return false; }
         if ( $this->schedule != $other->schedule ) { return false; }
         if ( $this->preserve != $other->preserve ) { return false; }

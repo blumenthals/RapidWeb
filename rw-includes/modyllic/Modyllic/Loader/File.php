@@ -7,6 +7,9 @@
  */
 
 class Modyllic_Loader_File {
+    // Static class only
+    private function __construct() {}
+
     static function load( $file, $schema ) {
         # A preparsed schemafile will have a .sqlc extension
         $file_bits = explode(".",$file);
@@ -18,7 +21,7 @@ class Modyllic_Loader_File {
         if ( ! $sql ) {
             throw new Modyllic_Loader_Exception("$file: File not found.");
         }
-        else if ( !$sqlc or $sqlc[9] < $sql[9] ) {
+        else if ( !$sqlc or $sqlc[7]==0 or ($sqlc[9] < $sql[9]) ) {
             if ( ($data = @file_get_contents($file)) === false ) {
                 throw new Modyllic_Loader_Exception("Error opening $file");
             }
@@ -30,6 +33,9 @@ class Modyllic_Loader_File {
                 throw new Modyllic_Loader_Exception("Error opening $sqlc_file");
             }
             $subschema = unserialize($data);
+            if ( $subschema === FALSE ) {
+                throw new Modyllic_Loader_Exception("Error unserializing $sqlc_file");
+            }
             $schema->merge( $subschema );
         }
     }
