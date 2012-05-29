@@ -77,10 +77,10 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
         $VARIABLES[trim($k)] = trim($v);
     }
 
-    if ($template == 'BROWSE' and isset($hash['template'])) {
+    if ($template == 'BROWSE' and @$hash['template']) {
         $view = new OldTemplate(new RapidWebPage($hash), $RapidWeb);
         ob_start();
-        $view->render($templates[$template]);
+        $view->render($hash['template']);
         $page = ob_get_contents();
         ob_end_clean();
     } elseif($template == 'EDITPAGE') {

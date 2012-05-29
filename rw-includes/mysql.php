@@ -135,7 +135,7 @@ function InsertPage($dbc, $pagename, $pagehash) {
         $pagehash['refs'], $pagehash['version'],
         $pagehash['title'], $pagehash['meta'],
         $pagehash['keywords'], $pagehash['variables'],
-        $pagehash['noindex'], (isset($pagehash['template']) ? $pagehash['template'] : 'NULL'),
+        $pagehash['noindex'], (isset($pagehash['template']) ? $pagehash['template'] : NULL),
         $pagehash['page_type'],
         $pagehash['gallery'],
         $pagehash['plugins']
