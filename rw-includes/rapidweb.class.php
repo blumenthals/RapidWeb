@@ -62,8 +62,8 @@ class RapidWeb extends EventEmitter {
         $this->pageTypes[$slug] = $handler;
     }
 
-    public function registerEndpoint($name, $handler) {
-        $this->endpoints[$name] = $handler;
+    public function registerResourceHandler($name, $route, $handler) {
+        $this->endpoints[$name] = new ArrayObject(array('route' => $route, 'handler' => $handler), ArrayObject::ARRAY_AS_PROPS | ArrayObject::STD_PROP_LIST);
         return $this->rootURL.$name;
     }
 
@@ -230,11 +230,7 @@ class RapidWeb extends EventEmitter {
 
             $action->execute($request, $response);
 
-            foreach($response->headers as $k => $v) {
-                header("$k: $v");
-            }
-
-            print($response->body);
+            $response->send();
 
         } catch (Exception $e) {
             header('HTTP/1.1 500 Internal Error');
@@ -252,9 +248,19 @@ class RapidWeb extends EventEmitter {
 
     function route() {
         if (strpos($_SERVER['REQUEST_URI'], $this->rootURL) == 0) {
-            $potentialEndpoint = substr($_SERVER['REQUEST_URI'], strlen($this->rootURL));
-            if (isset($this->endpoints[$potentialEndpoint])) {
-                return call_user_func($this->endpoints[$potentialEndpoint]);
+            $potentialResourceHandler = substr($_SERVER['REQUEST_URI'], strlen($this->rootURL));
+            foreach ($this->endpoints as $name => $route) {
+                if (preg_match($route->route, $potentialResourceHandler, $matches)) {
+                    $request = new RapidWeb\Request($_REQUEST, $_SERVER, $_FILES);
+
+                    $options = array();
+                    foreach ($matches as $key => $value) {
+                        $request[$key] = $value;
+                    }
+                    if($request['jsonp']) $options['jsonp'] = $request['jsonp'];
+                    $response = new RapidWeb\Response($options);
+                    return call_user_func($route->handler, $request, $response);
+                }
             }
         }
         return false;

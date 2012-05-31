@@ -47,5 +47,13 @@ namespace RapidWeb {
                 throw new Exception("Can't find script $name");
             }
         }
+
+        public function send() {
+            foreach($this->headers as $k => $v) {
+                header("$k: $v");
+            }
+
+            print($this->body);
+        }
     }
 }

@@ -60,8 +60,13 @@ if (isset($_REQUEST['edit']) && defined('WIKI_ADMIN')) {
 } elseif (isset($_REQUEST['command'])) {
     include "rw-includes/command.php";
     $RapidWeb->dispatch($_REQUEST['command']);
-} elseif ($action = $RapidWeb->route()) {
-    $action->execute(new Rapidweb\Request($_REQUEST, $_SERVER, $_FILES), new Rapidweb\Response());
+} elseif ($res = $RapidWeb->route()) {
+    /// @todo This is horrible. Fix!
+    if ($res instanceof Rapidweb\Action) {
+        $res->execute(new Rapidweb\Request($_REQUEST, $_SERVER, $_FILES), new Rapidweb\Response());
+    } elseif ($res instanceof Rapidweb\Response) {
+        $res->send();
+    }
 } else {
     include "rw-includes/display.php"; // defaults to 'home'
 }
