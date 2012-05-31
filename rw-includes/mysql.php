@@ -1,21 +1,22 @@
 <?php 
 
 ini_set('include_path', ini_get('include_path').":".dirname(__FILE__)."/modyllic");
-require_once "Modyllic/Generator.php";
-require_once "Modyllic/Generator/StrippedMySQL.php"; // @fixme Fix with the regular MySQL generator
-require_once "Modyllic/Loader.php";
-require_once "Modyllic/Diff.php";
-require_once "Modyllic/SQL.php";
+require_once "Modyllic/AutoLoader.php";
 
 function update_modyllic($dbc) {
+    Modyllic_AutoLoader::install();
     global $mysql_user;
     global $mysql_pwd;
-    global $mysql_host;
+    global $mysql_server;
     global $mysql_db;
 
-    $dsn = "mysql:host=$mysql_host;dbname=$mysql_db;username=$mysql_user;password=$mysql_pwd";
+    assert('is_object($dbc)');
 
-    $from = Modyllic_Loader::load(array($dsn));
+    $dsn = "mysql:host=$mysql_server:dbname=$mysql_db:username=$mysql_user:password=$mysql_pwd";
+    list( $driver, $ndsn, $dbname, $user, $pass ) = Modyllic_Loader_DB::parse_dsn($dsn);
+    $gen_class = Modyllic_Generator::dialect_to_class($driver);
+
+    $from = Modyllic_Loader::load( array($dsn) );
 
     $schemas = array(
         dirname(__FILE__).'/schema.sql'
@@ -25,23 +26,26 @@ function update_modyllic($dbc) {
         $schemas[] = $file;
     }
 
-    $to = Modyllic_Loader::load($schemas);
+    $to   = Modyllic_Loader::load($schemas);
 
     $diff = new Modyllic_Diff( $from, $to );
 
     if ( ! $diff->changeset->has_changes() ) {
+        echo "No changes\n";
         return(0);
     }
 
-    $gen = new Modyllic_Generator_StrippedMySQL(); // @fixme Fix with the regular MySQL generator
+    $gen = new $gen_class();
     foreach ( $gen->sql_header() as $sql ) {
+        echo "$sql\n";
         $dbc->exec( $sql );
     }
-
     $gen->alter($diff);
-
+    $cmds = count($gen->sql_commands());
     try {
+        $ii = 0;
         foreach ($gen->sql_commands() as $cmd) {
+        echo "$cmd\n";
             $dbc->exec($cmd);
         }
     }
@@ -49,7 +53,7 @@ function update_modyllic($dbc) {
         print $e->getMessage()."\n";
         print "Full context of command:\n";
         print $cmd."\n";
-        return(1);
+        exit(1);
     }
 
 }
@@ -64,8 +68,6 @@ function OpenDataBase() {
     $dbc = new PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
     $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbc->exec("SET NAMES 'utf8'");
-
-    update_modyllic($dbc);
 
     return $dbc;
 }
