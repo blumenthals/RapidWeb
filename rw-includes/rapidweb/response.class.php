@@ -39,7 +39,7 @@ namespace RapidWeb {
         }
 
         public function addScript($name) {
-            global $TemmplateName;
+            global $TemplateName;
             $templates = array($TemplateName, 'default');
             if($f = rw_find_template($templates, array($name))) {
                 echo "<script src='$f'></script>";
