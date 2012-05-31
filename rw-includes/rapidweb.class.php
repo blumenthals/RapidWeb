@@ -39,7 +39,9 @@ class RapidWeb extends EventEmitter {
         /* Register basic page type plugin */
         $this->registerPlugin('WikiPage');
         foreach (array(
+            'rw-global/underscore',
             'rw-global/backbone',
+            'rw-global/backbone-bindings',
             'rw-global/backbone.modelbinder',
             'rw-global'
             /// @todo: Bundle more.
