@@ -67,6 +67,7 @@ function OpenDataBase() {
 
     $dbc = new PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
     $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $dbc->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $dbc->exec("SET NAMES 'utf8'");
 
     return $dbc;
