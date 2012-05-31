@@ -1,13 +1,6 @@
 Special thanks to [Derick Bailey](http://lostechies.com/derickbailey) for creating predecessor to this plugin.
 I've been able to reuse unit tests he created for his [Backbone.ModelBinding](https://github.com/derickbailey/backbone.modelbinding) plugin.
 
-### Availability
-You can download the zip/tarball as normal and include it with your other JS assets, but you can now alternatively link to it on [CDNJS](http://www.cdnjs.com/), the free to use, community maintained CDN.
-
-To do this, just drop a reference to the minified version of the plugin into your document's `<head>` as follows, replacing the version number with whatever the latest one is:
-````
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.modelbinder/0.1.3/Backbone.ModelBinder-min.js"></script>
-````
 
 ### Rationale
 Backbone is a great platform for writing client side applications but I've found that as views grow in complexity, synchronizing my models and views can be a pain.
@@ -15,7 +8,9 @@ I've spent the past few months trying to use existing view-model binding librari
 Unfortunately in the majority of my backbone application I wasn't able to leverage the existing view-model binding libraries due to various limitations.
 
 I created a new `Backbone.ModelBinder` class that I have leveraged in the majority of a large client side application.
-The ModelBinder class helped me remove a lot of cluttered boilerplate code that existed to synchronize my models and views.  Hopefully you'll find it useful too.
+The ModelBinder class helped me remove a lot of cluttered boilerplate code that existed to synchronize my models and views.
+As my application became more asynchronous, the ModelBinder saves me from a lot of pain by automatically displaying model attributes in the view as they are asynchronously loaded.
+Hopefully you'll find the ModelBinder useful too.
 
 The `Backbone.ModelBinder` class:
 
@@ -43,13 +38,13 @@ SomeView = Backbone.View.extend({
     },
 
     render: function() {
-        $(this.el).html(this.template(this.model.toJSON()));
+        this.$el.html(this.template(this.model.toJSON()));
         return this;
     }
 });
 ````
 
-While the style above technically works just fine it can be more efficient - especially for larger client applications that are not frequently refreshed.
+While the style above technically works just fine it can be more efficient by using the ModelBinder - especially for larger client applications that are not frequently refreshed.
 
 If render is called multiple times, the previously created html elements are just thrown away.
 Converting the model to json is also an unnecessary conversion.
@@ -64,6 +59,17 @@ The ModelBinder eliminates both of these inefficiencies.
 
 <br>
 I've posted some [examples](https://github.com/theironcook/Backbone.ModelBinder/wiki/Examples) of how to use the ModelBinder but I'd recommend reading the docs first.
+The examples don't show best practices but just show how you can make things work with the ModelBinder.
+
+<br>
+### Availability
+You can download the zip/tarball as normal and include it with your other JS assets, but you can now alternatively link to it on [CDNJS](http://www.cdnjs.com/), the free to use, community maintained CDN.
+
+To do this, just drop a reference to the minified version of the plugin into your document's `<head>` as follows, replacing the version number with whatever the latest one is:
+````
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.modelbinder/0.1.3/Backbone.ModelBinder-min.js"></script>
+````
+
 
 <br>
 ##Defining Binding Scope with jQuery##
@@ -648,10 +654,13 @@ The ModelBinder doesn't directly support '.' to reference nested Models when bin
 If you have a Backbone.Model implementation that is able to support the '.' syntax for nested models you'll be able to use the ModelBinder.
 
 I've done a bit of testing with the [backbone-deep-model](https://github.com/powmedia/backbone-deep-model) and it seems to work well with the ModelBinder.
-
 [Here](https://github.com/theironcook/Backbone.ModelBinder/blob/master/sandbox/Example_NestedAttributes.html) is a simple example showing how to use backbone-deep-model with the ModelBinder.
 
 The nested models are just plain javascript objects with the deep-model plugin.  If your nested objects are Backbone.Models you'll need something similar to the deep-model plugin.
+
+<br>
+The [backbone-nested](https://github.com/afeld/backbone-nested) project also seems to work with the ModelBinder.
+
 
 ***
 
@@ -659,6 +668,18 @@ The nested models are just plain javascript objects with the deep-model plugin. 
 ## AMD / Require.js support
 
 AMD / Require.js support was added in version 0.1.4
+
+
+***
+
+<br>
+### Binding to Collections
+I've also created a collection binder that automatically creates/removes views when models are added/removed to a collection.
+It can be used with the ModelBinder.
+
+You can read about it [here](https://github.com/theironcook/Backbone.ModelBinder/wiki/A-new-Class-to-Bind-Backbone-Collections-to-Views:-Javascript-Weekly-May-18th)
+
+<br>
 
 
 
