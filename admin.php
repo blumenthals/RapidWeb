@@ -11,10 +11,16 @@ require('rw-admin/require-authentication.php');
 $now = new DateTime("now", new DateTimeZone("GMT"));
 header('Expires: '.$now->format(DateTime::RFC2822));
 
+/// @todo this is super horrible.
 if(preg_match('!^text/json(; .*)?$!', $_SERVER['CONTENT_TYPE'])) {
-    $request = json_decode(file_get_contents('php://input'));
-    $RapidWeb->dispatchCommand($request);
-    exit();
+    try {
+        $request = json_decode(file_get_contents('php://input'));
+        $RapidWeb->dispatchCommand($request);
+        exit();
+    } catch (Exception $e) {
+        header("HTTP/1.1 500 Internal Server Error");
+        throw $e;
+    }
 }
 
 if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
