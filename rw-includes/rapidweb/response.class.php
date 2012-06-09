@@ -55,5 +55,10 @@ namespace RapidWeb {
 
             print($this->body);
         }
+
+        public function redirect($url) {
+            header('HTTP/1.1 302 Redirect');
+            $this->setHeader('Location', $url);
+        }
     }
 }
