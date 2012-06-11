@@ -1,5 +1,5 @@
 /*!
- * Bootstrap Responsive v2.0.3
+ * Bootstrap Responsive v2.0.4
  *
  * Copyright 2012 Twitter, Inc
  * Licensed under the Apache License v2.0
@@ -173,10 +173,6 @@
     float: none;
     width: auto;
     margin-left: 0;
-  }
-  .row-fluid .input-prepend [class*="span"],
-  .row-fluid .input-append [class*="span"] {
-    display: inline-block;
   }
   .input-large,
   .input-xlarge,
