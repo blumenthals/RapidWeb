@@ -66,7 +66,7 @@
 
   // A module that can be mixed in to *any object* in order to provide it with
   // custom events. You may bind with `on` or remove with `off` callback functions
-  // to an event; trigger`-ing an event fires all callbacks in succession.
+  // to an event; `trigger`-ing an event fires all callbacks in succession.
   //
   //     var object = {};
   //     _.extend(object, Backbone.Events);
@@ -327,7 +327,7 @@
       var success = options.success;
       options.success = function(resp, status, xhr) {
         if (!model.set(model.parse(resp, xhr), options)) return false;
-        if (success) success(model, resp);
+        if (success) success(model, resp, options);
       };
       options.error = Backbone.wrapError(options.error, model, options);
       return (this.sync || Backbone.sync).call(this, 'read', this, options);
@@ -373,7 +373,7 @@
         }
         if (!model.set(serverAttrs, options)) return false;
         if (success) {
-          success(model, resp);
+          success(model, resp, options);
         } else {
           model.trigger('sync', model, resp, options);
         }
@@ -407,7 +407,7 @@
       options.success = function(resp) {
         if (options.wait) triggerDestroy();
         if (success) {
-          success(model, resp);
+          success(model, resp, options);
         } else {
           model.trigger('sync', model, resp, options);
         }
@@ -613,12 +613,6 @@
       index = options.at != null ? options.at : this.models.length;
       splice.apply(this.models, [index, 0].concat(models));
       if (this.comparator && options.at == null) this.sort({silent: true});
-      if (options.silent) return this;
-      for (i = 0, length = this.models.length; i < length; i++) {
-        if (!cids[(model = this.models[i]).cid]) continue;
-        options.index = i;
-        model.trigger('add', model, this, options);
-      }
 
       // Merge in duplicate models.
       if (options.merge) {
@@ -627,6 +621,13 @@
             model.set(dups[i], options);
           }
         }
+      }
+
+      if (options.silent) return this;
+      for (i = 0, length = this.models.length; i < length; i++) {
+        if (!cids[(model = this.models[i]).cid]) continue;
+        options.index = i;
+        model.trigger('add', model, this, options);
       }
 
       return this;
@@ -761,7 +762,7 @@
       var success = options.success;
       options.success = function(resp, status, xhr) {
         collection[options.add ? 'add' : 'reset'](collection.parse(resp, xhr), options);
-        if (success) success(collection, resp);
+        if (success) success(collection, resp, options);
       };
       options.error = Backbone.wrapError(options.error, collection, options);
       return (this.sync || Backbone.sync).call(this, 'read', this, options);
@@ -780,7 +781,7 @@
       options.success = function(nextModel, resp, xhr) {
         if (options.wait) coll.add(nextModel, options);
         if (success) {
-          success(nextModel, resp);
+          success(nextModel, resp, options);
         } else {
           nextModel.trigger('sync', model, resp, options);
         }
@@ -1180,6 +1181,13 @@
     // to populate its element (`this.el`), with the appropriate HTML. The
     // convention is for **render** to always return `this`.
     render: function() {
+      return this;
+    },
+
+    // **destroy** should clean up any references created by this view,
+    // preventing memory leaks.  The convention is for **destroy** to always
+    // return `this`.
+    destroy: function() {
       return this;
     },
 
