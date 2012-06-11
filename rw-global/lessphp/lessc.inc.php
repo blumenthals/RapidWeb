@@ -1,7 +1,7 @@
 <?php
 
 /**
- * lessphp v0.3.4-2
+ * lessphp v0.3.5
  * http://leafo.net/lessphp
  *
  * LESS css compiler, adapted from http://lesscss.org
@@ -14,26 +14,22 @@
 /**
  * The less compiler and parser.
  *
- * Converting LESS to CSS is a two stage process. First the incoming document
- * must be parsed. Parsing creates a tree in memory that represents the
- * structure of the document. Then, the tree of the document is recursively
- * compiled into the CSS text. The compile step has an implicit step called
- * reduction, where values are brought to their lowest form before being
- * turned to text, eg. mathematical equations are solved, and variables are
- * dereferenced.
+ * Converting LESS to CSS is a two stage process. The incoming file is parsed
+ * by `lessc_parser` into a tree, then compiled to CSS text by `lessc`. The
+ * compile step has an implicit step called reduction, where values are brought
+ * to their lowest form before being turned to text, eg. mathematical equations
+ * are solved, and variables are dereferenced.
  *
- * The parsing stage produces the final structure of the document, for this
- * reason mixins are mixed in and attribute accessors are referenced during
- * the parse step. A reduction is done on the mixed in block as it is mixed in.
+ * The `lessc` class creates an intstance of the parser, feeds it LESS code, then
+ * compiles the resulting tree to CSS
  *
- *  See the following:
- *    - entry point for parsing and compiling: lessc::parse()
- *    - parsing: lessc::parseChunk()
- *    - compiling: lessc::compileBlock()
+ * The `lessc_parser` class is only concerned with parsing its input.
  *
+ * The `lessc_formatter` classes are used to format the output of the CSS,
+ * controlling things like whitespace and line-breaks.
  */
 class lessc {
-	static public $VERSION = "v0.3.4-2";
+	static public $VERSION = "v0.3.5";
 	static protected $TRUE = array("keyword", "true");
 	static protected $FALSE = array("keyword", "false");
 
@@ -76,8 +72,7 @@ class lessc {
 	}
 
 	function fileExists($name) {
-		// sym link workaround
-		return file_exists($name) || file_exists(realpath(preg_replace('/\w+\/\.\.\//', '', $name)));
+		return is_file($name);
 	}
 
 	static function compressList($items, $delim) {
@@ -253,24 +248,35 @@ class lessc {
 		return $out;
 	}
 
+	function expandParentSelectors(&$tag, $replace) {
+		$parts = explode("$&$", $tag);
+		$count = 0;
+		foreach ($parts as &$part) {
+			$part = str_replace($this->parentSelector, $replace, $part, $c);
+			$count += $c;
+		}
+		$tag = implode($this->parentSelector, $parts);
+		return $count;
+	}
+
 	// find the fully qualified tags for a block and its parent's tags
 	function multiplyTags($parents, $current) {
-		if ($parents == null) return $current;
+		if ($parents == null) {
+			if (is_array($current)) {
+				// get rid of parent selectors and escapes in top level tag
+				foreach ($current as &$tag) {
+					$this->expandParentSelectors($tag, "");
+				}
+			}
+			return $current;
+		}
 
 		$tags = array();
 		foreach ($parents as $ptag) {
 			foreach ($current as $tag) {
-				// inject parent in place of parent selector, ignoring escaped values
-				$count = 0;
-				$parts = explode("&&", $tag);
+				$count = $this->expandParentSelectors($tag, $ptag);
 
-				foreach ($parts as $i => $chunk) {
-					$parts[$i] = str_replace($this->parentSelector, $ptag, $chunk, $c);
-					$count += $c;
-				}
-
-				$tag = implode("&", $parts);
-
+				// don't prepend the parent tag if & was used
 				if ($count > 0) {
 					$tags[] = trim($tag);
 				} else {
@@ -458,7 +464,7 @@ class lessc {
 			$_blocks[] = $this->compileBlock($child, $tags);
 			break;
 		case 'mixin':
-			list(, $path, $args) = $prop;
+			list(, $path, $args, $suffix) = $prop;
 
 			$args = array_map(array($this, "reduce"), (array)$args);
 			$mixins = $this->findBlocks($block, $path, $args);
@@ -485,6 +491,13 @@ class lessc {
 				if ($mixin != $block) $mixin->parent = $block;
 
 				foreach ($this->sortProps($mixin->props) as $sub_prop) {
+					if($suffix !== null) {
+						$sub_prop[2] = array(
+							'list', ' ',
+							array($sub_prop[2], array('keyword', $suffix))
+						);
+					}
+
 					$this->compileProp($sub_prop, $mixin, $tags, $_lines, $_blocks);
 				}
 
@@ -519,7 +532,8 @@ class lessc {
 	 *
 	 *     array(type, contents [, additional_contents]*)
 	 *
-	 * Will not work on non reduced values (expressions, variables, etc)
+	 * The input is expected to be reduced. This function will not work on
+	 * things like expressions and variables.
 	 */
 	function compileValue($value) {
 		switch ($value[0]) {
@@ -566,7 +580,16 @@ class lessc {
 			if (count($value) == 5 && $value[4] != 1) { // rgba
 				return 'rgba('.$r.','.$g.','.$b.','.$value[4].')';
 			}
-			return sprintf("#%02x%02x%02x", $r, $g, $b);
+
+			$h = sprintf("#%02x%02x%02x", $r, $g, $b);
+
+			// Converting hex color to short notation (e.g. #003399 to #039) 
+			if ($h[1] === $h[2] && $h[3] === $h[4] && $h[5] === $h[6]) {
+				$h = '#' . $h[1] . $h[3] . $h[5];
+			}
+
+			return $h;
+
 		case 'function':
 			// [1] - function name
 			// [2] - some array value representing arguments, either ['string', value] or ['list', ',', values[]]
@@ -598,7 +621,7 @@ class lessc {
 	}
 
 	function lib_isnumber($value) {
-		return $this->toBool(is_numeric($value[1]));
+		return $this->toBool(is_numeric($value[1]) && $value[0] != "color");
 	}
 
 	function lib_isstring($value) {
@@ -1655,14 +1678,6 @@ class lessc_parser {
 	);
 
 	/**
-	 * if we are in an expression then we don't need to worry about parsing
-	 * font shorthand
-	 * $inExp becomes true after the first value in an expression, or if we
-	 * enter parens
-	 */
-	protected $inExp = false;
-
-	/**
 	 * if we are in parens we can be more liberal with whitespace around
 	 * operators because it must evaluate to a single value and thus is less
 	 * ambiguous.
@@ -1716,8 +1731,9 @@ class lessc_parser {
 	}
 
 	/**
-	 * Parse a single chunk off the head of the buffer and place it.
-	 * @return false when the buffer is empty, or when there is an error.
+	 * Parse a single chunk off the head of the buffer and append it to the
+	 * current parse environment.
+	 * Returns false when the buffer is empty, or when there is an error.
 	 *
 	 * This function is called repeatedly until the entire document is
 	 * parsed.
@@ -1808,11 +1824,23 @@ class lessc_parser {
 			} else {
 				$this->seek($s);
 			}
+
+			if ($this->literal("@page") &&
+				($this->match('(:(left|right))', $m) || true) &&
+				$this->literal("{"))
+			{
+				$name = "@page";
+				if ($m) $name = $name . " " . $m[1];
+				$this->pushSpecialBlock($name);
+				return true;
+			} else {
+				$this->seek($s);
+			}
 		}
 
 		if (isset($this->env->keyframes)) {
-			if ($this->match("(to|from|[0-9]+%)", $m) && $this->literal('{')) {
-				$this->pushSpecialBlock($m[1]);
+			if ($this->keyframeTags($ktags) && $this->literal('{')) {
+				$this->pushSpecialBlock($ktags);
 				return true;
 			} else {
 				$this->seek($s);
@@ -1904,10 +1932,11 @@ class lessc_parser {
 
 		// mixin
 		if ($this->mixinTags($tags) &&
-			($this->argumentValues($argv) || true) && $this->end())
+			($this->argumentValues($argv) || true) &&
+			($this->keyword($suffix) || true) && $this->end())
 		{
 			$tags = $this->fixTags($tags);
-			$this->append(array('mixin', $tags, $argv), $s);
+			$this->append(array('mixin', $tags, $argv, $suffix), $s);
 			return true;
 		} else {
 			$this->seek($s);
@@ -1926,6 +1955,22 @@ class lessc_parser {
 				$tag[0] = $this->lessc->mPrefix;
 		}
 		return $tags;
+	}
+
+	protected function keyframeTags(&$tags) {
+		$s = $this->seek();
+		$tags = array();
+		while($this->match("(to|from|[0-9]+%)", $m)) {
+			$tags[] = $m[1];
+			if (!$this->literal(",")) break;
+		}
+
+		if (count($tags) == 0) {
+			$this->seek($s);
+			return false;
+		}
+
+		return true;
 	}
 
 	// a list of expressions
@@ -1948,18 +1993,31 @@ class lessc_parser {
 	 */
 	protected function expression(&$out) {
 		$s = $this->seek();
-		if ($this->literal('(') && ($this->inExp = $this->inParens = true) && $this->expression($exp) && $this->literal(')')) {
+		if ($this->literal('(') && ($this->inParens = true) && $this->expression($exp) && $this->literal(')')) {
 			$lhs = $exp;
 		} elseif ($this->seek($s) && $this->value($val)) {
 			$lhs = $val;
 		} else {
-			$this->inParens = $this->inExp = false;
+			$this->inParens = false;
 			$this->seek($s);
 			return false;
 		}
 
 		$out = $this->expHelper($lhs, 0);
-		$this->inParens = $this->inExp = false;
+
+		// look for / shorthand
+		if (!empty($this->env->supressedDivision)) {
+			unset($this->env->supressedDivision);
+			$s = $this->seek();
+			if ($this->literal("/") && $this->value($rhs)) {
+				$out = array("list", "",
+					array($out, array("keyword", "/"), $rhs));
+			} else {
+				$this->seek($s);
+			}
+		}
+
+		$this->inParens = false;
 		return true;
 	}
 
@@ -1980,7 +2038,7 @@ class lessc_parser {
 
 		// try to find a valid operator
 		while ($this->match(self::$operatorString.($needWhite ? '\s' : ''), $m) && self::$precedence[$m[1]] >= $minP) {
-			if (!$this->inParens && isset($this->env->currentProperty) && $m[1] == "/") {
+			if (!$this->inParens && isset($this->env->currentProperty) && $m[1] == "/" && empty($this->env->supressedDivision)) {
 				foreach (self::$supressDivisionProps as $pattern) {
 					if (preg_match($pattern, $this->env->currentProperty)) {
 						$this->env->supressedDivision = true;
@@ -2118,15 +2176,6 @@ class lessc_parser {
 			return true;
 		} else {
 			$this->seek($s);
-		}
-
-		// the spare / when supressing division
-		if (!empty($this->env->supressedDivision)) {
-			unset($this->env->supressedDivision);
-			if ($this->literal("/")) {
-				$value = array('keyword', '/');
-				return true;
-			}
 		}
 
 		return false;
@@ -2391,8 +2440,8 @@ class lessc_parser {
 			// whitespace?
 			if ($this->match('', $_)) $value .= $_[0];
 
-			// escape parent selector
-			$value = str_replace($this->lessc->parentSelector, "&&", $value);
+			// escape parent selector, (yuck)
+			$value = str_replace($this->lessc->parentSelector, "$&$", $value);
 			return true;
 		}
 

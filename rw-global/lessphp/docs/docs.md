@@ -1,8 +1,8 @@
-    title: v0.3.4 documentation
+    title: v0.3.5 documentation
     link_to_home: true
 --
 
-<h2 skip="true">Documentation v0.3.4</h2>
+<h2 skip="true">Documentation v0.3.5</h2>
 
 <div style="margin-bottom: 1em;">$index</div>
 
@@ -610,6 +610,28 @@ These are `isnumber`, `iscolor`, `iskeyword`, `isstring`, `ispixel`,
     div.a {
       .mix(350px);
     }
+    ```
+
+#### !important
+
+If you want to apply the `!important` suffix to every property when mixing in a
+mixin, just append `!important` to the end of the call to the mixin:
+
+    ```less
+    .make_bright {
+      color: red;
+      font-weight: bold;
+    }
+
+    .color {
+      color: green;
+    }
+
+    body {
+      .make_bright() !important;
+      .color();
+    }
+
     ```
 
 ### Selector Expressions
