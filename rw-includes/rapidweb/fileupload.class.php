@@ -17,6 +17,6 @@ class FileUpload {
     }
 
     public function moveTo($dir) {
-        if(!move_uploaded_file($this->tmp_name, $dir."/".basename($this->name))) throw new Exception("Can't move file to $dir");
+        if(!move_uploaded_file($this->tmp_name, $dir."/".basename($this->name))) throw new \Exception("Can't move file to $dir");
     }
 }
