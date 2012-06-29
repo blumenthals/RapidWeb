@@ -6,6 +6,7 @@ ErrorDocument 500 /index.php?500-ServerError
 Options +FollowSymlinks
 
 PHP_Value memory_limit 256M
+PHP_Value short_open_tag On
 
 RewriteEngine On
 
