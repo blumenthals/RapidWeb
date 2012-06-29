@@ -11,6 +11,11 @@ require_once "rw-includes/config.php";
 require_once "rw-includes/stdlib.php";
 require_once "rw-includes/templating.php";
 
+/// @todo This is even more horrible than super duper horrible
+if (isset($_COOKIE['loggedIn']) and json_decode($_COOKIE['loggedIn'])) {
+    require_once 'rw-admin/require-authentication.php';
+}
+
 if(get_magic_quotes_gpc()) {
     function strip_r(&$req) {
         foreach($req as $k => $v) {

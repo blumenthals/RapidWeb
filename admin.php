@@ -6,7 +6,8 @@ require_once("rw-includes/config.php");
 require_once("rw-includes/stdlib.php");
 require_once("rw-includes/templating.php");
 
-require('rw-admin/require-authentication.php');
+//// @todo this is super duper horrible
+require_once 'rw-admin/require-authentication.php';
 
 $now = new DateTime("now", new DateTimeZone("GMT"));
 header('Expires: '.$now->format(DateTime::RFC2822));
