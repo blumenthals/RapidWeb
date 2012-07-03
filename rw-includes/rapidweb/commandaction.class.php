@@ -15,7 +15,7 @@ namespace RapidWeb {
             if (is_callable(array($this, $this->name))) {
                 call_user_func(array($this, $this->name), $request, $response);
             } elseif(function_exists($func)) {
-                call_user_func($func, $action->request, $action->response);
+                call_user_func($func, $request, $response);
             } else {
                 throw new \Exception("Can't find handler for {$this->name} via {$_SERVER['REQUEST_METHOD']}");
             }

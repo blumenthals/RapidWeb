@@ -50,7 +50,83 @@ class RapidWeb extends EventEmitter {
         }
 
         $this->dbc = $dbc; /// @todo: move this into this class entirely, and perform the connection here
+        $this->registerResourceHandler('gallery-file-upload', '!gallery-file-upload!', array($this, 'handleGalleryUpload'));
 
+    }
+
+    public function handleGalleryUpload(\RapidWeb\Request $request, \RapidWeb\Response $response) {
+        $file = $request['img'];
+        $dir = realpath(dirname(__FILE__).'/../images/upload/').'/'.$request['pagename'];
+        $vdir = $request->getRoot()."images/upload/".$request['pagename'];
+
+        if($file->size == 0) {
+            $response->renderJSON(array('error' => 'no file uploaded'));
+        } else {
+            if(file_exists($dir) and !is_dir($dir)) throw new Exception("$dir already exists and isn't a directory");
+
+            if(!file_exists($dir)) {
+                if(!@mkdir($dir)) throw new Exception("Can't make directory $dir");
+            }
+
+            $file->moveTo($dir);
+
+            ini_set('memory_limit', '128M');
+
+            /*
+            $data = file_get_contents($dir.'/'.$file->name);
+            $img = imagecreatefromstring($data);
+            */
+            $imagetype = exif_imagetype("$dir/{$file->name}");
+            if($imagetype == IMAGETYPE_GIF) {
+                $img = imagecreatefromgif($dir.'/'.$file->name);
+            } elseif($imagetype == IMAGETYPE_JPEG) {
+                $img = imagecreatefromjpeg($dir.'/'.$file->name);
+            } elseif($imagetype == IMAGETYPE_PNG) {
+                $img = imagecreatefrompng($dir.'/'.$file->name);
+            } else {
+                print(json_encode(array('$error' => "Unknown file type")));
+                exit();
+            }
+
+            $w = imagesx($img);
+            $h = imagesy($img);
+            $s = min($w, $h);
+            $imgsquare = imagecreatetruecolor(150, 150);
+            imagecopyresampled($imgsquare, $img, 0, 0, ($w - $s) / 2, ($h - $s) / 2, 150, 150, $s, $s);
+            imagejpeg($imgsquare, $dir.'/'.$request['img']->name.".150x150.jpg");
+            unset($imgsquare);
+
+            $imagefile = $request['img']->name;
+            if($w > 960 or $h > 960) {
+                if($w > $h) {
+                    $neww = 960;
+                    $newh = 960 * ($h / $w);
+                } else {
+                    $neww = 960 * ($w / $h);
+                    $newh = 960;
+                }
+                $newi = imagecreatetruecolor($neww, $newh);
+                imagecopyresampled($newi, $img, 0, 0, 0, 0, $neww, $newh, $w, $h); 
+                if(!preg_match('/[.]jpg$/', $imagefile)) {
+                    $imagefile .= '.jpg';
+                }
+                imagejpeg($newi, "$dir/$imagefile");
+            }
+
+            $response->renderJSON(array(
+                '$insertAll' => array(
+                    'gallery' => array(
+                        array('image' => $this->_spaces("$vdir/$imagefile"), 'thumbnail' => $this->_spaces($vdir.'/'.$request['img']->name.".150x150.jpg"))
+                    )
+                )
+            ));
+
+            return $response;
+        }
+    }
+
+    private function _spaces($s) {
+        return str_replace(' ', '%20', $s);
     }
 
     public function initialize() {
@@ -63,8 +139,9 @@ class RapidWeb extends EventEmitter {
     }
 
     public function registerResourceHandler($name, $route, $handler) {
-        $this->endpoints[$name] = new ArrayObject(array('route' => $route, 'handler' => $handler), ArrayObject::ARRAY_AS_PROPS | ArrayObject::STD_PROP_LIST);
-        return $this->rootURL.$name;
+        $routeObject = new ArrayObject(array('route' => $route, 'handler' => $handler, 'url' => $this->rootURL.$name), ArrayObject::ARRAY_AS_PROPS | ArrayObject::STD_PROP_LIST);
+        $this->endpoints[$name] = $routeObject;
+        return $routeObject->url;
     }
 
     public function add_plugins_directory($directory) {
@@ -264,6 +341,10 @@ class RapidWeb extends EventEmitter {
             }
         }
         return false;
+    }
+
+    public function getRouteNamed($name) {
+        return $this->endpoints[$name];
     }
 
     protected $loadedScripts = array();
