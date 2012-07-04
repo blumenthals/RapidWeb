@@ -4,14 +4,22 @@ header("Content-Type: text/plain");
 
 echo "Compiling LESS files...";
 flush();
-system("env PATH=\$PATH:/usr/local/bin make -C ".__DIR__."/../rw-global 2>&1");
-/** FIXME
+
 require_once __DIR__."/../rw-global/lessphp/lessc.inc.php";
 
-$lessc = new lessc(__DIR__."/../rw-global/less/rapidweb.less");
-$out = $lessc->parse();
-file_put_contents(__DIR__."/../rw-global/css/rapidweb.css", $out);
- */
+$destmtime = filemtime(__DIR__."/../rw-global/css/rapidweb.css");
+
+if (filemtime(__DIR__."/../rw-global/less/rapidweb.less") > $destmtime
+    or filemtime(__DIR__."/../rw-global/less/plugins.less") > $destmtime
+    or filemtime(__DIR__."/../rw-global/less/file-upload.less") > $destmtime) {
+
+    echo "Compiling...";
+    flush();
+    $lessc = new lessc(__DIR__."/../rw-global/less/rapidweb.less");
+    $out = $lessc->parse();
+
+    file_put_contents(__DIR__."/../rw-global/css/rapidweb.css", $out);
+}
 
 echo "Done\n";
 flush();
