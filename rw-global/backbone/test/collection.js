@@ -634,4 +634,36 @@ $(document).ready(function() {
     col.fetch(opts);
     col.create(m, opts);
   });
+
+  test("#1412 - Trigger 'sync' event.", 2, function() {
+    var collection = new Backbone.Collection([], {
+      model: Backbone.Model.extend({
+        sync: function(method, model, options) {
+          options.success();
+        }
+      })
+    });
+    collection.sync = function(method, model, options) { options.success(); };
+    collection.on('sync', function() { ok(true); });
+    collection.fetch();
+    collection.create({id: 1});
+  });
+
+  test("#1447 - create with wait adds model.", function() {
+    var collection = new Backbone.Collection;
+    var model = new Backbone.Model;
+    model.sync = function(method, model, options){ options.success(); };
+    collection.on('add', function(){ ok(true); });
+    collection.create(model, {wait: true});
+  });
+
+  test("#1448 - add sorts collection after merge.", function() {
+    var collection = new Backbone.Collection([
+      {id: 1, x: 1},
+      {id: 2, x: 2}
+    ]);
+    collection.comparator = function(model){ return model.get('x'); };
+    collection.add({id: 1, x: 3}, {merge: true});
+    deepEqual(collection.pluck('id'), [2, 1]);
+  });
 });

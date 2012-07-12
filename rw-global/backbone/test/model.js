@@ -157,18 +157,33 @@ $(document).ready(function() {
   });
 
   test("Model: has", 10, function() {
-    var a = new Backbone.Model();
-    equal(a.has("name"), false);
-    _([true, "Truth!", 1, false, '', 0]).each(function(value) {
-      a.set({'name': value});
-      equal(a.has("name"), true);
+    var model = new Backbone.Model();
+
+    strictEqual(model.has('name'), false);
+
+    model.set({
+      '0': 0,
+      '1': 1,
+      'true': true,
+      'false': false,
+      'empty': '',
+      'name': 'name',
+      'null': null,
+      'undefined': undefined
     });
-    a.unset('name');
-    equal(a.has('name'), false);
-    _([null, undefined]).each(function(value) {
-      a.set({'name': value});
-      equal(a.has("name"), false);
-    });
+
+    strictEqual(model.has('0'), true);
+    strictEqual(model.has('1'), true);
+    strictEqual(model.has('true'), true);
+    strictEqual(model.has('false'), true);
+    strictEqual(model.has('empty'), true);
+    strictEqual(model.has('name'), true);
+
+    model.unset('name');
+
+    strictEqual(model.has('name'), false);
+    strictEqual(model.has('null'), false);
+    strictEqual(model.has('undefined'), false);
   });
 
   test("Model: set and unset", 8, function() {
@@ -617,16 +632,14 @@ $(document).ready(function() {
     equal(model.get('x'), void 0);
   });
 
-  test("`save` with `wait` results in correct attributes if success is called during sync", 2, function() {
-    var changed = 0;
+  test("#1030 - `save` with `wait` results in correct attributes if success is called during sync", 2, function() {
     var model = new Backbone.Model({x: 1, y: 2});
     model.sync = function(method, model, options) {
       options.success();
     };
-    model.on("change:x", function() { changed++; });
+    model.on("change:x", function() { ok(true); });
     model.save({x: 3}, {wait: true});
     equal(model.get('x'), 3);
-    equal(changed, 1);
   });
 
   test("save with wait validates attributes", 1, function() {
@@ -814,6 +827,29 @@ $(document).ready(function() {
     model.save({id: 1}, opts);
     model.fetch(opts);
     model.destroy(opts);
+  });
+
+  test("#1412 - Trigger 'sync' event.", 3, function() {
+    var model = new Backbone.Model({id: 1});
+    model.sync = function(method, model, options) { options.success(); };
+    model.on('sync', function() { ok(true); });
+    model.fetch();
+    model.save();
+    model.destroy();
+  });
+
+  test("#1365 - Destroy: New models execute success callback.", 2, function() {
+    new Backbone.Model()
+    .on('sync', function() { ok(false); })
+    .on('destroy', function(){ ok(true); })
+    .destroy({ success: function(){ ok(true); }});
+  });
+
+  test("#1433 - Save: An invalid model cannot be persisted.", 1, function() {
+    var model = new Backbone.Model;
+    model.validate = function(){ return 'invalid'; };
+    model.sync = function(){ ok(false); };
+    strictEqual(model.save(), false);
   });
 
 });
