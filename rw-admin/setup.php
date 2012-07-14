@@ -14,6 +14,7 @@ $othermtime = max(array_map(function($e) { return filemtime($e); }, glob(__DIR__
 if (filemtime(__DIR__."/../rw-global/less/rapidweb.less") > $destmtime
     or filemtime(__DIR__."/../rw-global/less/plugins.less") > $destmtime
     or filemtime(__DIR__."/../rw-global/less/file-upload.less") > $destmtime
+    or filemtime(__DIR__."/../rw-global/less/editor.less") > $destmtime
     or $othermtime > $destmtime) {
 
     echo "Compiling...";
