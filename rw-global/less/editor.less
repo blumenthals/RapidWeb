@@ -3,7 +3,41 @@
         float: left;
         padding-left: 15px;
     }
-    & > * {
-        margin: 1em;
+    .action-button-holder {
+        border: solid 1px #BEBEBE;
+        background-color: #DDD;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        margin-top: 3em;
+        height: 80px;
+        float: left;
+        button {
+            -moz-box-shadow: inset 0px 1px 1px 0px #a4e271;
+            -webkit-box-shadow: inset 0px 1px 1px 0px #A4E271;
+            box-shadow: inset 0px 1px 1px 0px #A4E271;
+            background-color: #89C403;
+            filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#89c403, endColorstr=#77a809);
+            background-image: -moz-linear-gradient(center top, #89C403, #77A809);
+            background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#89C403), to(#77A809));
+            text-decoration: none;
+            text-shadow: 1px 1px 0px #528009;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            border: 1px solid #74B807;
+            display: inline-block;
+            font-family: arial;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 9px 21px;
+            content: "Upload a file";
+            position: relative;
+            color: white;
+            text-align: center;
+        }
+        & > * {
+            margin: 1em;
+        }
     }
 }
