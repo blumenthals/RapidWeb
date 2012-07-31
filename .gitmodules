@@ -7,6 +7,3 @@
 [submodule "rw-global/knockout"]
 	path = rw-global/knockout
 	url = git://github.com/aredridel/knockout.git
-[submodule "rw-global/json2"]
-	path = rw-global/json2
-	url = git://github.com/douglascrockford/JSON-js.git
