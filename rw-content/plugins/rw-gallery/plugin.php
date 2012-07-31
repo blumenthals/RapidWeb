@@ -18,7 +18,7 @@ class RWGallery extends RWPlugin {
     }
 
     public function do_head($page) {
-        $this->loadJavascript('colorbox/colorbox/jquery.colorbox-min.js');
+        $this->loadJavascript('colorbox/colorbox/jquery.colorbox.js');
         echo "<link rel='stylesheet' href='" . $this->baseURL . '/colorbox.css' . "'>";
         echo "<script async>
             jQuery(function($) {
