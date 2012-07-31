@@ -1,6 +1,3 @@
 [submodule "rw-content/plugins/rw-gallery/colorbox"]
 	path = rw-content/plugins/rw-gallery/colorbox
 	url = git://github.com/jackmoore/colorbox.git
-[submodule "rw-global/jsviews"]
-	path = rw-global/jsviews
-	url = git://github.com/BorisMoore/jsviews.git
