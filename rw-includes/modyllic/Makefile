@@ -35,7 +35,13 @@ test:
 
 test-cover:
 	rm -rf tmp/test coverage
-	TEST_COVERAGE=1 $(PROVE) test
+	TEST_COVERAGE=1 $(PROVE) -v test
+	phpcov --merge --html coverage tmp/test/coverage
+	rm -rf tmp/test
+
+unit-test-cover:
+	rm -rf tmp/test coverage
+	TEST_COVERAGE=1 $(PROVE) -v test/unit
 	phpcov --merge --html coverage tmp/test/coverage
 	rm -rf tmp/test
 

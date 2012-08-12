@@ -515,7 +515,12 @@ class Modyllic_Generator_PHP {
             $this->routine_sep();
         }
         $this->end_class( $class );
-        return $this->php;
+        return $this->get_and_flush_php();
+    }
+    function get_and_flush_php() {
+        $php = $this->php;
+        $this->php = "";
+        return $php;
     }
     function preamble( $class ) {
         $this->cmd('<?php');
@@ -743,6 +748,18 @@ class Modyllic_Generator_PHP {
              ->end_assert();
         return $this;
     }
+    function validate_boolean($name) {
+        $this->begin_assert()
+               ->func_var('is_null',$name)
+               ->op('or')
+               ->func_var( 'is_bool', $name )
+               ->op('or')
+               ->op_var( $name, "===", 1 )
+               ->op('or')
+               ->op_var( $name, "===", 0 )
+             ->end_assert();
+        return $this;
+    }
     function validate_nonnumeric($name) {
         $this->begin_assert()
                ->func_var('is_null',$name)
@@ -828,12 +845,17 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function arg_validate_numeric(Modyllic_Schema_Arg $arg) {
-        $this->validate_numeric($arg->name);
-        if ( $arg->type->unsigned ) {
-            $this->validate_unsigned($arg->name);
+        if ( $arg->type instanceOf Modyllic_Type_Boolean ) {
+            $this->validate_boolean($arg->name);
         }
-        if ( $arg->type instanceOf Modyllic_Type_Integer ) {
-            $this->validate_integer($arg->name);
+        else {
+            $this->validate_numeric($arg->name);
+            if ( $arg->type->unsigned ) {
+                $this->validate_unsigned($arg->name);
+            }
+            else if ( $arg->type instanceOf Modyllic_Type_Integer ) {
+                $this->validate_integer($arg->name);
+            }
         }
         return $this;
     }
@@ -1106,7 +1128,6 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function returns(Modyllic_Schema_Routine $routine) {
-        $this->begin_try();
         if ( $routine instanceOf Modyllic_Schema_Func ) {
             $this->func_returns($routine);
         }
@@ -1116,29 +1137,6 @@ class Modyllic_Generator_PHP {
         else {
             throw new Exception("Unknown type of stored routine: ".get_class($routine));
         }
-        $this->and_catch('PDOException')
-               ->begin_if_expr()
-                 ->begin_cmd('strpos(')
-                   ->method('e','getMessage')
-                   ->sep()
-                   ->add_str('SQLSTATE[HY000]: General error')
-                 ->end_cmd(')')
-                 ->op('!==')
-                 ->add('false')
-               ->end_if_expr()
-                 ->begin_throw()
-                   ->begin_new('PDOException')
-                     ->add_str('General error while fetching return value of '.$routine->name.
-                         '; this usually means that you declared this routine as having a return value '.
-                         'but it does not actually select any data before completing.')
-                   ->end_new()
-                 ->end_throw()
-               ->begin_else()
-                 ->begin_throw()
-                   ->add_var('e')
-                 ->end_throw()
-               ->end_if()
-             ->end_try();
         return $this;
     }
     function func_returns(Modyllic_Schema_Routine $routine) {
@@ -1153,6 +1151,10 @@ class Modyllic_Generator_PHP {
         return $this;
     }
     function proc_returns(Modyllic_Schema_Routine $routine) {
+        $does_fetch = ! in_array( $routine->returns['type'], array( 'NONE', 'STH' ) );
+        if ( $does_fetch ) {
+            $this->begin_try();
+        }
         $has_out = false;
         foreach ($routine->args as $arg) {
             if ( $arg->dir == 'INOUT' or $arg->dir == 'OUT' ) {
@@ -1191,6 +1193,31 @@ class Modyllic_Generator_PHP {
                 break;
             default:
                 throw new Exception("Unknown proc return type: ".$routine->returns['type']);
+        }
+        if ( $does_fetch ) {
+            $this->and_catch('PDOException')
+                   ->begin_if_expr()
+                     ->begin_cmd('strpos(')
+                       ->method('e','getMessage')
+                       ->sep()
+                       ->add_str('SQLSTATE[HY000]: General error')
+                     ->end_cmd(')')
+                     ->op('!==')
+                     ->add('false')
+                   ->end_if_expr()
+                     ->begin_throw()
+                       ->begin_new('PDOException')
+                         ->add_str('General error while fetching return value of '.$routine->name.
+                             '; this usually means that you declared this routine as having a return value '.
+                             'but it does not actually select any data before completing.')
+                       ->end_new()
+                     ->end_throw()
+                   ->begin_else()
+                     ->begin_throw()
+                       ->add_var('e')
+                     ->end_throw()
+                   ->end_if()
+                 ->end_try();
         }
         return $this;
     }

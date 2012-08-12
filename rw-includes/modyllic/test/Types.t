@@ -7,7 +7,7 @@
  * @author bturner@online-buddies.com
  */
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "test_environment.php";
+require_once dirname(__FILE__)."/test_environment.php";
 
 $sql_types = array(
     "BIT"              => "Modyllic_Type_Bit",
@@ -19,7 +19,7 @@ $sql_types = array(
     "INT"              => "Modyllic_Type_Integer",
     "INTEGER"          => "Modyllic_Type_Integer",
     "BIGINT"           => "Modyllic_Type_BigInt",
-    "SERIAL"           => "Modyllic_Type_BigInt",
+    "SERIAL"           => "Modyllic_Type_Serial",
     "FLOAT"            => "Modyllic_Type_Float",
     "REAL"             => "Modyllic_Type_DoubleFloat",
     "DOUBLE"           => "Modyllic_Type_DoubleFloat",

@@ -7,7 +7,7 @@
  * @author bturner@online-buddies.com
  */
 
-require_once implode( DIRECTORY_SEPARATOR, array(dirname(__FILE__), "..", "test_environment.php") );
+require_once dirname(__FILE__)."/../test_environment.php";
 
 $delim = "DELIMITER ;;\n";
 $create_sql = array();
@@ -27,7 +27,7 @@ FOR EACH ROW INSERT INTO foo (id) VALUES (27)
 EOSQL;
 $drop_sql[] = "DROP TRIGGER IF EXISTS trig2";
 
-plan( 7 + count($create_sql) );
+plan( 5 + count($create_sql) + count($drop_sql) );
 
 $parser = new Modyllic_Parser();
 

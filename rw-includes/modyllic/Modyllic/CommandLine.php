@@ -6,6 +6,10 @@
  * @author bturner@online-buddies.com
  */
 
+require_once "Modyllic/AutoLoader.php";
+Modyllic_AutoLoader::install();
+Modyllic_ErrorHandler::install();
+
 // Register our Dialect commandline argument type
 Console_CommandLine::registerAction('Dialect', 'Modyllic_Console_CommandLine_ActionDialect');
 
@@ -86,7 +90,6 @@ class Modyllic_CommandLine {
         catch (Exception $e) {
             $parser->displayError($e->getMessage());
         }
-        
 
         Modyllic_Status::$verbose = $args->options['verbose'];
         Modyllic_Status::$progress = $args->options['progress'];
