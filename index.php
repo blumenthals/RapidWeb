@@ -12,7 +12,8 @@ require_once "rw-includes/stdlib.php";
 require_once "rw-includes/templating.php";
 
 /// @todo This is even more horrible than super duper horrible
-if (isset($_COOKIE['loggedIn']) and json_decode($_COOKIE['loggedIn'])) {
+if ((isset($_COOKIE['loggedIn']) and json_decode($_COOKIE['loggedIn']))
+    or (isset($_SERVER['PHP_AUTH_USER']) and isset($_SERVER['PHP_AUTH_PW']))) {
     require_once 'rw-admin/require-authentication.php';
 }
 

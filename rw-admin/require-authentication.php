@@ -11,23 +11,3 @@ if (!$_SERVER['PHP_AUTH_USER'] or !isset($USERS[$_SERVER['PHP_AUTH_USER']]) or !
 } else {
     setCookie('loggedIn', json_encode(true));
 }
-
-function checkAuth($user, $pass) {
-    // Yep! Three variables named something like user.
-    global $USERS;
-    global $USER;
-    $arr = $USERS[$_SERVER['PHP_AUTH_USER']];
-
-    // Handle old rapidweb users that were just $user => $pass
-    if (!is_array($arr)) {
-        $arr = array('password' => $arr);
-    }
-
-    /// @todo move this into \Rapidweb\User
-    $USER = \Rapidweb\User::fromArray($user, $arr);
-    if ($USER->password == $pass) return true;
-    if (crypt($pass, $USER->crypt) == $USER->crypt) return true;
-
-    $USER = null;
-    return false;
-}
