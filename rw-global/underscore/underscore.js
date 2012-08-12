@@ -267,7 +267,7 @@
 
   // Sort the object's values by a criterion produced by an iterator.
   _.sortBy = function(obj, val, context) {
-    var iterator = _.isFunction(val) ? val : function(obj) { return obj[val]; };
+    var iterator = lookupIterator(obj, val);
     return _.pluck(_.map(obj, function(value, index, list) {
       return {
         value : value,
@@ -281,16 +281,38 @@
     }), 'value');
   };
 
+  // An internal function to generate lookup iterators.
+  var lookupIterator = function(obj, val) {
+    return _.isFunction(val) ? val : function(obj) { return obj[val]; };
+  };
+
+  // An internal function used for aggregate "group by" operations.
+  var group = function(obj, val, behavior) {
+    var result = {};
+    var iterator = lookupIterator(obj, val);
+    each(obj, function(value, index) {
+      var key = iterator(value, index);
+      behavior(result, key, value);
+    });
+    return result;
+  };
+
   // Groups the object's values by a criterion. Pass either a string attribute
   // to group by, or a function that returns the criterion.
   _.groupBy = function(obj, val) {
-    var result = {};
-    var iterator = _.isFunction(val) ? val : function(obj) { return obj[val]; };
-    each(obj, function(value, index) {
-      var key = iterator(value, index);
+    return group(obj, val, function(result, key, value) {
       (result[key] || (result[key] = [])).push(value);
     });
-    return result;
+  };
+
+  // Counts instances of an object that group by a certain criterion. Pass
+  // either a string attribute to count by, or a function that returns the
+  // criterion.
+  _.countBy = function(obj, val) {
+    return group(obj, val, function(result, key, value) {
+      result[key] || (result[key] = 0);
+      result[key]++;
+    });
   };
 
   // Use a comparator function to figure out the smallest index at which
@@ -709,7 +731,7 @@
   };
 
   // Internal recursive comparison function for `isEqual`.
-  function eq(a, b, stack) {
+  var eq = function(a, b, stack) {
     // Identical objects are equal. `0 === -0`, but they aren't identical.
     // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
     if (a === b) return a !== 0 || 1 / a == 1 / b;
@@ -794,7 +816,7 @@
     // Remove the first object from the stack of traversed objects.
     stack.pop();
     return result;
-  }
+  };
 
   // Perform a deep comparison to check if two objects are equal.
   _.isEqual = function(a, b) {
@@ -826,32 +848,20 @@
     return obj === Object(obj);
   };
 
-  // Is a given variable an arguments object?
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+    _['is' + name] = function(obj) {
+      return toString.call(obj) == '[object ' + name + ']';
+    };
+  });
+
   // Define a fallback version of the method in browsers (ahem, IE), where
   // there isn't any inspectable "Arguments" type.
-  _.isArguments = function(obj) {
-    return toString.call(obj) == '[object Arguments]';
-  };
   if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
       return !!(obj && _.has(obj, 'callee'));
     };
   }
-
-  // Is a given value a function?
-  _.isFunction = function(obj) {
-    return toString.call(obj) == '[object Function]';
-  };
-
-  // Is a given value a string?
-  _.isString = function(obj) {
-    return toString.call(obj) == '[object String]';
-  };
-
-  // Is a given value a number?
-  _.isNumber = function(obj) {
-    return toString.call(obj) == '[object Number]';
-  };
 
   // Is a given object a finite number?
   _.isFinite = function(obj) {
@@ -867,16 +877,6 @@
   // Is a given value a boolean?
   _.isBoolean = function(obj) {
     return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
-  };
-
-  // Is a given value a date?
-  _.isDate = function(obj) {
-    return toString.call(obj) == '[object Date]';
-  };
-
-  // Is the given value a regular expression?
-  _.isRegExp = function(obj) {
-    return toString.call(obj) == '[object RegExp]';
   };
 
   // Is a given value equal to null?
