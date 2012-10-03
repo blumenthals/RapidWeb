@@ -179,7 +179,11 @@ class RapidWeb extends EventEmitter {
     }
 
     public function registerPlugin($pluginClass) {
-        $this->plugins[] = new $pluginClass($this);
+        $this->plugins[$pluginClass] = new $pluginClass($this);
+    }
+
+    public function getPlugin($pluginClass) {
+        return $this->plugins[$pluginClass];
     }
 
     public function registerBundle(RWBundle $bundle) {
