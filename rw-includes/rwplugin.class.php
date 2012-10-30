@@ -34,4 +34,10 @@ abstract class RWPlugin extends RWBundle {
     public function loadJavascript($script) {
         $this->rapidweb->loadJavascript($this->assetURL($script));
     }
+
+    public function content_for_page($pagename) {
+        global $dbc;
+        $page = new RapidWebPage(RetrievePage($dbc, $pagename));
+        return $this->the_content($page);
+    }
 }

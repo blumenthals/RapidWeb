@@ -91,10 +91,12 @@ class RapidWeb extends EventEmitter {
             $w = imagesx($img);
             $h = imagesy($img);
             $s = min($w, $h);
-            $imgsquare = imagecreatetruecolor(150, 150);
-            imagecopyresampled($imgsquare, $img, 0, 0, ($w - $s) / 2, ($h - $s) / 2, 150, 150, $s, $s);
-            imagejpeg($imgsquare, $dir.'/'.$request['img']->name.".150x150.jpg");
-            unset($imgsquare);
+            foreach(array(175, 150, 75) as $size) {
+                $imgsquare = imagecreatetruecolor($size, $size);
+                imagecopyresampled($imgsquare, $img, 0, 0, ($w - $s) / 2, ($h - $s) / 2, $size, $size, $s, $s);
+                imagejpeg($imgsquare, $dir.'/'.$request['img']->name.".{$size}x${size}.jpg");
+                unset($imgsquare);
+            }
 
             $imagefile = $request['img']->name;
             if($w > 960 or $h > 960) {
@@ -177,7 +179,11 @@ class RapidWeb extends EventEmitter {
     }
 
     public function registerPlugin($pluginClass) {
-        $this->plugins[] = new $pluginClass($this);
+        $this->plugins[$pluginClass] = new $pluginClass($this);
+    }
+
+    public function getPlugin($pluginClass) {
+        return $this->plugins[$pluginClass];
     }
 
     public function registerBundle(RWBundle $bundle) {
