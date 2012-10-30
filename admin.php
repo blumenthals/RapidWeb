@@ -69,6 +69,10 @@ if(isset($_REQUEST['lock']) || isset($_REQUEST['unlock'])) {
         htmlspecialchars($removeok));
     GeneratePage('MESSAGE', $html, gettext ("Remove page"), 0);
     ExitWiki('');
+} elseif (isset($_REQUEST['logout'])) {
+    header('HTTP/1.1 403 Forbidden');
+    header('WWW-Authenticate: basic realm="RapidWeb Admin"');
+    ExitWiki('');
 }
 
 include('index.php');
