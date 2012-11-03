@@ -1,6 +1,6 @@
 <?php
 
-header("Content-Type: text/plain");
+header("Content-Type: text/html");
 
 echo "Compiling LESS files...";
 flush();
@@ -9,7 +9,11 @@ require_once __DIR__."/../rw-global/lessphp/lessc.inc.php";
 
 $destmtime = (int)@filemtime(__DIR__."/../rw-global/css/rapidweb.css");
 
-$othermtime = max(array_map(function($e) { return filemtime($e); }, (array)glob(__DIR__."/../rw-content/plugins/*/plugin.less")));
+if ($pluginFiles = (array)glob(__DIR__."/../rw-content/plugins/*/plugin.less")) {
+    $othermtime = max(array_map(function($e) { return filemtime($e); }, $pluginFiles));
+} else {
+    $othermtime = 0;
+}
 
 if (filemtime(__DIR__."/../rw-global/less/rapidweb.less") > $destmtime
     or filemtime(__DIR__."/../rw-global/less/plugins.less") > $destmtime
@@ -25,7 +29,7 @@ if (filemtime(__DIR__."/../rw-global/less/rapidweb.less") > $destmtime
     file_put_contents(__DIR__."/../rw-global/css/rapidweb.css", $out);
 }
 
-echo "Done\n";
+echo "Done<br>";
 flush();
 echo "Updating schema...";
 
@@ -36,5 +40,5 @@ require_once __DIR__."/../rw-includes/mysql.php";
 
 update_modyllic(OpenDatabase());
 
-echo "Done\n";
+echo "Done<br>";
 flush();
