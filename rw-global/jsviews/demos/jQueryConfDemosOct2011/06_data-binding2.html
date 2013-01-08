@@ -21,7 +21,7 @@
 <!--====== Template ======-->
 <script id="personTmpl" type="text/x-jsrender">
 	<tr>
-		<td data-link="firstName" />
+		<td data-link="firstName"></td>
 		<td>
 			<input data-link="firstName" />
 		</td>
@@ -41,13 +41,12 @@ var people = [
 ];
 
 // Compile template
-
 $.templates( "personTmpl", "#personTmpl" );
 
 // Render and link (compact syntax): data-link people to the
 // details container, using the personTmpl template
 
-$.link.personTmpl( people, "#details" );
+$.link.personTmpl( "#details", people );
 </script>
 
 <!--================ End of Demo Section ================-->
@@ -56,7 +55,7 @@ $.link.personTmpl( people, "#details" );
 <pre class="brush: xml;">
 <!-- Template, with declarative data binding expressions -->
 ...
-    &lt;td data-link="firstName" />
+    &lt;td data-link="firstName">&lt;/td>
     &lt;td>
         &lt;input data-link="firstName" />
     &lt;/td>
@@ -72,7 +71,7 @@ $.templates( "personTmpl", "#personTmpl" );
 // Render and link (compact syntax): data-link people to the
 // details container, using the personTmpl template
 
-$.link.personTmpl( people, "#details" );
+$.link.personTmpl( "#details", people );
 </pre>
 </body>
 </html>

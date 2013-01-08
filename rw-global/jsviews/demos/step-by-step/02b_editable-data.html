@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link href="../resources/demos.css" rel="stylesheet" type="text/css" />
-	<link href="../resources/masterdetail.css" rel="stylesheet" type="text/css" />
 	<script src="http://code.jquery.com/jquery.js" type="text/javascript"></script>
 	<script src="../../jsrender.js" type="text/javascript"></script>
 	<script src="../../jquery.observable.js" type="text/javascript"></script>
 	<script src="../../jquery.views.js" type="text/javascript"></script>
+	<link href="../resources/demos.css" rel="stylesheet" type="text/css" />
+	<link href="../resources/masterdetail.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-<div class="nav"><a href="10_if-else-tag.html">Prev</a> <a href="index.html">Index</a> <a href="12_helper-functions.html">Next</a></div>
+<div class="nav"><a href="../demos.html">JsViews Demos</a></div>
 
-<h3>JsViews: Fully editable data: JsViews</h3>
+<h3>Fully editable data: Change events with templates and data-bound template tags</h3>
+
+<br />
+<div class="subhead">Example of data-bound tags:</div>
+<pre>
+...
+&lt;td>
+    {^{:#index + 1}}: {^{>title}}
+&lt;/td>
+...
+</pre>
 
 <div class="buttons">
 	<button onclick="showData()">show data</button>
@@ -30,12 +40,11 @@
 <script id="movieTemplate" type="text/x-jsrender">
 	<tr class="hover" data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
 		<td>
-			<span data-link="#index+1"></span>:
-			<span data-link="title"></span>
+			{^{:#index + 1}}: {^{>title}}
 		</td>
 		<td>
 			{{for languages}}
-				<div data-link="name"></div>
+				<div>{^{>name}}</div>
 			{{/for}}
 		</td>
 		<td>
@@ -65,17 +74,17 @@
 
 		movies = [
 			{
-				title: "Meet Joe Black",
+				title:"Meet Joe Black",
 				languages: [
 					{ name: "English" },
 					{ name: "French" }
 				]
 			},
 			{
-				title: "Eyes Wide Shut",
+				title:"Eyes Wide Shut",
 				languages: [
-					{ name: "French" },
 					{ name: "German" },
+					{ name: "French" },
 					{ name: "Spanish" }
 				]
 			}
@@ -85,17 +94,6 @@
 		movieTmpl: "#movieTemplate",
 		detailTmpl: "#detailViewTemplate"
 	});
-
-	$( "#movieList" )
-		.on( "click", "tr", function() {
-			select( $.view( this ));
-		})
-
-		.on( "click", ".close", function() {
-			select();
-			$.observable( movies ).remove( $.view( this ).index, 1 );
-			return false;
-		});
 
 	$( "#movieDetail" )
 		.on( "click", "#addLanguageBtn", function() {
@@ -114,7 +112,7 @@
 
 	$( "#addMovieBtn" ).on( "click", function() {
 		$.observable( movies ).insert( movies.length, {
-			title: "NewTitle" + counter,
+			title: "NewTitle" + counter ,
 			languages: [
 				{ name: "NewLanguage" + counter++ }
 			]}
@@ -135,14 +133,22 @@
 
 	$.views.helpers({
 		bgColor: function ( index, selectedItem ) {
-			// index could also be obtained from the view, which is the 'this' context for this function
-			// var index = this.index
+			// index could also be obtained from the view, which is available from the 'this' context for this function
+			// var index = this.view.index()
 			return (selectedItem && selectedItem.index === index) ? "yellow" : ( index%2 ? "#fdfdfe" : "#efeff2" );
 		},
 		app: app
 	});
 
-	$.link.movieTmpl( "#movieList", movies );
+	$.link.movieTmpl( "#movieList", movies )
+		.on( "click", "tr", function() {
+			select( $.view( this ));
+		})
+		.on( "click", ".close", function() {
+			select();
+			$.observable( movies ).remove( $.view( this ).index, 1 );
+			return false;
+		});
 
 	function select( view ) {
 		if ( app.selectedItem !== view ) {

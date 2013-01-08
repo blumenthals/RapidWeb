@@ -20,7 +20,7 @@
 <script id="personTmpl" type="text/x-jsrender">
 	<tr>
 		<td>{{>firstName}}</td>
-		<td><input value="{{>firstName}}" /></td>
+		<td><input value="{{:firstName}}" /></td>
 	</tr>
 </script>
 
@@ -36,8 +36,11 @@ var people = [
 	}
 ];
 
+// Compile template
+$.templates( "personTmpl", "#personTmpl" );
+
 $( "#details" ).html(
-	$( "#personTmpl" ).render( people )
+	$.render.personTmpl( people )
 );
 
 </script>

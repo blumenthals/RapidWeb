@@ -11,7 +11,18 @@
 <body>
 <div class="nav"><a href="../demos.html">JsViews Demos</a></div>
 
-<h3>Fully editable data: Change events with integrated Data-Link and Templates</h3>
+<h3>Fully editable data: Change events with templates and data-Linked elements</h3>
+
+<br />
+<div class="subhead">Example of data-linking:</div>
+<pre>
+...
+&lt;td>
+    &lt;span data-link="#index + 1">&lt;/span>:
+    &lt;span data-link="title">&lt;/span>
+&lt;/td>
+...
+</pre>
 
 <div class="buttons">
 	<button onclick="showData()">show data</button>
@@ -30,7 +41,7 @@
 <script id="movieTemplate" type="text/x-jsrender">
 	<tr class="hover" data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
 		<td>
-			<span data-link="#index+1"></span>:
+			<span data-link="#index + 1"></span>:
 			<span data-link="title"></span>
 		</td>
 		<td>
@@ -65,17 +76,17 @@
 
 		movies = [
 			{
-				title: "Meet Joe Black",
+				title:"Meet Joe Black",
 				languages: [
 					{ name: "English" },
 					{ name: "French" }
 				]
 			},
 			{
-				title: "Eyes Wide Shut",
+				title:"Eyes Wide Shut",
 				languages: [
-					{ name: "French" },
 					{ name: "German" },
+					{ name: "French" },
 					{ name: "Spanish" }
 				]
 			}
@@ -113,27 +124,25 @@
 		select( $.view( "#movieList tr:last" ));
 	});
 
-	$( app ).on( "propertyChange", function( event, args ) {
-		if ( args.path === "selectedItem" ) {
-			var selectedView = args.value;
-			if ( selectedView ) {
-				$.link.detailTmpl( selectedView.data, "#movieDetail" );
-			} else {
-				$( "#movieDetail" ).empty();
-			}
+	$.observable.observe( app, "selectedItem",  function( event, args ) {
+		var selectedView = args.value;
+		if ( selectedView ) {
+			$.link.detailTmpl( "#movieDetail", selectedView.data );
+		} else {
+			$( "#movieDetail" ).empty();
 		}
 	});
 
 	$.views.helpers({
 		bgColor: function ( index, selectedItem ) {
-			// index could also be obtained from the view, which is the 'this' context for this function
+			// index could also be obtained from the view, which is available as the 'this' context for this function
 			// var index = this.index
 			return (selectedItem && selectedItem.index === index) ? "yellow" : ( index%2 ? "#fdfdfe" : "#efeff2" );
 		},
 		app: app
 	});
 
-	$.link.movieTmpl( movies, "#movieList" )
+	$.link.movieTmpl( "#movieList", movies )
 		.on( "click", "tr", function() {
 			select( $.view( this ));
 		})
