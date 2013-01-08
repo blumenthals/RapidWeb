@@ -1,7 +1,7 @@
 SET NAMES 'utf8';
 DELIMITER ;;
 
-CREATE TABLE archive (
+CREATE TABLE `archive` (
     pagename VARCHAR(100) NOT NULL DEFAULT '',
     version INT NOT NULL DEFAULT 1,
     flags INT NOT NULL DEFAULT 0,
