@@ -39,7 +39,8 @@ class Modyllic_Loader_DB_MySQL {
         $dbh->exec("USE information_schema");
         $dbschema = self::selectrow( $dbh, "SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM SCHEMATA WHERE SCHEMA_NAME=?", array($dbname) );
         if ( ! $dbschema ) {
-            throw new Exception("Database $dbname does not exist");
+            Modyllic_Status::warn("Database $dbname does not exist\n");
+            return;
         }
 
         $parser = new Modyllic_Parser();
@@ -89,15 +90,27 @@ class Modyllic_Loader_DB_MySQL {
         }
         ksort($schema->routines);
 
-        if (isset($schema->tables['SQLMETA'])) {
-            $table = $schema->tables['SQLMETA'];
+        if (isset($schema->tables['MODYLLIC'])) {
+            $table = new Modyllic_Schema_MetaTable();
+            $table->copy_from($schema->tables['MODYLLIC']);
+            $meta_sth = self::query( $dbh, "SELECT kind,which,value FROM ".Modyllic_SQL::quote_ident($dbname).".MODYLLIC");
+            while ( $meta = $meta_sth->fetch(PDO::FETCH_ASSOC) ) {
+                $table->add_row( $meta );
+            }
+            $schema->tables['MODYLLIC'] = $table;
+        }
+        /// @todo Remove this-- Only keep this around till 0.2.10 or 0.2.11 or so
+        else if (isset($schema->tables['SQLMETA'])) {
+            $table = new Modyllic_Schema_MetaTable();
+            $table->copy_from($schema->tables['SQLMETA']);
             $meta_sth = self::query( $dbh, "SELECT kind,which,value FROM ".Modyllic_SQL::quote_ident($dbname).".SQLMETA");
             while ( $meta = $meta_sth->fetch(PDO::FETCH_ASSOC) ) {
                 $table->add_row( $meta );
             }
+            $schema->tables['SQLMETA'] = $table;
         }
 
-        $schema->load_sqlmeta();
+        $schema->load_meta();
 
         // Look for data to load...
         foreach ($schema->tables as $name=>$table) {

@@ -6,8 +6,4 @@
  * @author bturner@online-buddies.com
  */
 
-class Modyllic_Type_SmallInt extends Modyllic_Type_Integer {
-    public $bytes_of_storage = 2;
-    public $default_length = 6;
-}
-
+class Modyllic_Type_Geometry extends Modyllic_Type_String { }

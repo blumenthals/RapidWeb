@@ -9,7 +9,7 @@ if ( $argc < 3 or $argc > 5 ) {
 
 // Load a list of all of our tagged releases thus far
 $prev_versions = array();
-foreach (explode("\n",trim(`git for-each-ref --sort='-refname' --format='%(refname:short) %(authordate:short)' refs/tags/v*.*.*`)) as $tag) {
+foreach (explode("\n",trim(`git for-each-ref --sort='-refname' --sort='-authordate' --format='%(refname:short) %(authordate:short)' refs/tags/v*.*.*`)) as $tag) {
     list($tag_name,$tag_date) = explode(" ",$tag);
     $tag_version = substr($tag_name,1);
     list($tag_major, $tag_minor, $tag_rel) = explode(".",$tag_version);
@@ -25,8 +25,9 @@ foreach (explode("\n",trim(`git for-each-ref --sort='-refname' --format='%(refna
 
 // PEAR can't live with strict, so make sure it's off.
 // PEAR also uses features deprecated in 5.3-- unfortunately the deprecated flag only exists in 5.3+ and thus this hack
+// Also, under 5.4, there are many strict errors with stock PEAR
 $E_DEPRECATED = defined('E_DEPRECATED') ? E_DEPRECATED : 0;
-ini_set("error_reporting", E_ALL ^ $E_DEPRECATED );
+ini_set("error_reporting", E_ALL ^ ($E_DEPRECATED | E_STRICT) );
 
 require_once "PEAR/PackageFileManager2.php";
 
@@ -77,6 +78,12 @@ $options['ignore'][] = 'Makefile';
 $options['ignore'][] = 'release-version';
 $options['ignore'][] = 'publish-version';
 $options['ignore'][] = 'build-package-xml';
+$options['ignore'][] = 'build-changelog';
+$options['ignore'][] = 'base.xml';
+
+// Don't bundle docs that are in the doc subdir
+$options['ignore'][] = 'CHANGELOG';
+$options['ignore'][] = 'README.md';
 
 // This includes symlinks, which PHP can't package
 $options['ignore'][] = 'test/test_schema/*';

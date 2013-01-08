@@ -426,10 +426,12 @@ class Modyllic_Generator_PHP {
         $this->end_cmd('',';');
         return $this;
     }
-    function add_return($var) {
-        $this->begin_return()
-               ->add_var($var)
-             ->end_return();
+    function add_return($var=null) {
+        $this->begin_return();
+        if ( isset($var) ) {
+            $this->add_var($var);
+        }
+        $this->end_return();
         return $this;
     }
     function add_false() {
@@ -730,14 +732,6 @@ class Modyllic_Generator_PHP {
              ->end_assert();
         return $this;
     }
-    function validate_unsigned($name) {
-        $this->begin_assert()
-               ->func_var('is_null',$name)
-               ->op('or')
-               ->op_var($name,">=",0)
-             ->end_assert();
-        return $this;
-    }
     function validate_integer($name) {
         $this->begin_assert()
                ->func_var('is_null',$name)
@@ -747,6 +741,18 @@ class Modyllic_Generator_PHP {
                ->end_op_var()
              ->end_assert();
         return $this;
+    }
+    function validate_integer_range($name,$type) {
+        list($min,$max) = $type->get_range();
+        $this->begin_assert()
+               ->func_var('is_null',$name)
+               ->op('or')
+               ->begin_group()
+                 ->op_var( $name, '>=', $min )
+                 ->op('and')
+                 ->op_var( $name, '<=', $max )
+               ->end_group()
+             ->end_assert();
     }
     function validate_boolean($name) {
         $this->begin_assert()
@@ -772,7 +778,7 @@ class Modyllic_Generator_PHP {
         $this->begin_assert()
                ->func_var('is_null',$name)
                ->op('or')
-               ->func_var('strlen',$name)
+               ->func_var('mb_strlen',$name)
                ->op('<=')
                ->add( $length )
              ->end_assert();
@@ -790,7 +796,9 @@ class Modyllic_Generator_PHP {
         $this->begin_assert()
                ->func_var('is_null',$name)
                ->op('or')
-               ->op_var($name,'==',0)
+               ->op_var($name,'===',0)
+               ->op('or')
+               ->op_var($name,'===',"'0'")
                ->op('or')
                ->preg_match( '/^(\d{1,4})-(\d\d?)-(\d\d?)(?: (\d\d?)(?::(\d\d?)(?::(\d\d?))?)?)?$/', $name )
              ->end_assert();
@@ -808,7 +816,7 @@ class Modyllic_Generator_PHP {
         $this->begin_assert()
                ->func_var('is_null',$name)
                ->op('or')
-               ->op_var('var','==',0)
+               ->op_var($name,'==',0)
                ->op('or')
                ->preg_match('/^\d{14}$/' , $name)
              ->end_assert();
@@ -818,7 +826,7 @@ class Modyllic_Generator_PHP {
         $this->begin_assert()
                ->func_var('is_null',$name)
                ->op('or')
-               ->op_var('var','==',0)
+               ->op_var($name,'===',0)
                ->op('or')
                ->preg_match('/^\d\d(?:\d\d)?$/' , $name)
              ->end_assert();
@@ -850,11 +858,9 @@ class Modyllic_Generator_PHP {
         }
         else {
             $this->validate_numeric($arg->name);
-            if ( $arg->type->unsigned ) {
-                $this->validate_unsigned($arg->name);
-            }
-            else if ( $arg->type instanceOf Modyllic_Type_Integer ) {
+            if ( $arg->type instanceOf Modyllic_Type_Integer ) {
                 $this->validate_integer($arg->name);
+                $this->validate_integer_range($arg->name,$arg->type);
             }
         }
         return $this;
@@ -1150,6 +1156,12 @@ class Modyllic_Generator_PHP {
         $this->add_return('result');
         return $this;
     }
+
+    function proc_fetch_row_type(Modyllic_Schema_Routine $routine) {
+        $this->add_const('PDO::FETCH_ASSOC');
+        return $this;
+    }
+
     function proc_returns(Modyllic_Schema_Routine $routine) {
         $does_fetch = ! in_array( $routine->returns['type'], array( 'NONE', 'STH' ) );
         if ( $does_fetch ) {
@@ -1166,7 +1178,7 @@ class Modyllic_Generator_PHP {
             $this->begin_method('sth','setFetchMode')
                    ->add_const('PDO::FETCH_BOUND')
                    ->op('|')
-                   ->add_const('PDO::FETCH_BOTH')
+                   ->proc_fetch_row_type($routine)
                  ->end_method();
         }
         switch ($routine->returns['type']) {
@@ -1224,7 +1236,7 @@ class Modyllic_Generator_PHP {
     function proc_returns_row(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('result')
                ->begin_method('sth','fetch')
-                 ->add_const('PDO::FETCH_ASSOC')
+                 ->proc_fetch_row_type($routine)
                ->end_method()
              ->end_assign();
         $this->method('sth','closeCursor');
@@ -1235,15 +1247,15 @@ class Modyllic_Generator_PHP {
     function proc_returns_column(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('row')
                ->begin_method('sth','fetch')
-                 ->add_const('PDO::FETCH_ASSOC')
+                 ->proc_fetch_row_type($routine)
                ->end_method()
              ->end_assign();
         $this->method('sth','closeCursor');
-        $this->begin_cmd( 'if (! isset(' )
+        $this->begin_cmd( 'if ( ' )
                ->add_var('row')
-             ->end_cmd(') ) {')
+             ->end_cmd(' === false ) {')
              ->begin_block()
-               ->cmd('return',';')
+               ->add_return()
              ->end_block('}');
         $this->begin_assert()
                ->begin_cmd( 'isset(' )
@@ -1264,7 +1276,7 @@ class Modyllic_Generator_PHP {
                ->begin_group()
                  ->begin_assign( 'row' )
                    ->begin_method('sth','fetch')
-                     ->add_const('PDO::FETCH_ASSOC')
+                     ->proc_fetch_row_type($routine)
                    ->end_method()
                  ->end_assign()
                ->end_group()
@@ -1288,7 +1300,7 @@ class Modyllic_Generator_PHP {
     function proc_returns_table(Modyllic_Schema_Routine $routine) {
         $this->begin_assign('table')
                ->begin_method('sth','fetchAll')
-                 ->add_const('PDO::FETCH_ASSOC')
+                 ->proc_fetch_row_type($routine)
                 ->end_method()
              ->end_assign();
         $this->method('sth','closeCursor');
@@ -1304,7 +1316,7 @@ class Modyllic_Generator_PHP {
                ->begin_group()
                  ->begin_assign('row')
                    ->begin_method('sth','fetch')
-                     ->add_const('PDO::FETCH_ASSOC')
+                     ->proc_fetch_row_type($routine)
                    ->end_method()
                  ->end_assign()
                ->end_group()

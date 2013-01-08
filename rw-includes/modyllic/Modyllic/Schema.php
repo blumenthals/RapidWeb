@@ -23,6 +23,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
     const DEFAULT_COLLATE = "utf8_general_ci";
     public $collate = self::DEFAULT_COLLATE;
     public $docs = "";
+    public $source = "generated";
 
     function reset() {
         $this->triggers       = array();
@@ -35,6 +36,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
         $this->charset        = self::DEFAULT_CHARSET;
         $this->collate        = self::DEFAULT_COLLATE;
         $this->docs           = "";
+        $this->source         = "generated";
     }
 
     function set_name( $name ) {
@@ -120,12 +122,20 @@ class Modyllic_Schema extends Modyllic_Diffable {
     /**
      * Generates a meta table entry that wasn't in the schema
      */
-    function load_sqlmeta() {
-        # If we already have an SQLMETA table then this is a load directly
+    function load_meta() {
+        $metadata = null;
+        # If we already have an metadata table then this is a load directly
         # from a database (or a dump from a database).  We'll want to
         # convert that back into our usual metadata.
-        if ( isset($this->tables['SQLMETA']) and isset($this->tables['SQLMETA']->data) ) {
-            foreach ($this->tables['SQLMETA']->data as &$row) {
+        if ( isset($this->tables['MODYLLIC']) and isset($this->tables['MODYLLIC']->data) ) {
+            $metadata = $this->tables['MODYLLIC']->data;
+        }
+        # @todo to be removed in 0.2.11+
+        else if ( isset($this->tables['SQLMETA']) and isset($this->tables['SQLMETA']->data) ) {
+            $metadata = $this->tables['SQLMETA']->data;
+        }
+        if ( $metadata ) {
+            foreach ($metadata as &$row) {
                 $kind = $this->unquote_sql_str($row['kind']);
                 $which = $this->unquote_sql_str($row['which']);
                 $meta = json_decode($this->unquote_sql_str($row['value']), true);
@@ -158,8 +168,9 @@ class Modyllic_Schema extends Modyllic_Diffable {
                         if ( isset($this->routines[$routine]) and isset($this->routines[$routine]->args[$arg]) ) {
                             $obj = $this->routines[$routine]->args[$arg];
                         }
+                        break;
                     default:
-                        throw new Exception("Unknown kind of metadata $kind found in SQLMETA");
+                        throw new Exception("Unknown kind of metadata '$kind' found in the metadata table");
                         break;
                 }
                 if ( isset($obj) ) {
@@ -170,7 +181,7 @@ class Modyllic_Schema extends Modyllic_Diffable {
                         # like BOOLEAN and SERIAL.
                         if ( $metakey == "type" ) {
                             $new_type = Modyllic_Type::create($metavalue);
-                            $new_type->clone_from( $obj->type );
+                            $new_type->copy_from( $obj->type );
                             $obj->type = $new_type;
                         }
                         else {
@@ -179,7 +190,6 @@ class Modyllic_Schema extends Modyllic_Diffable {
                     }
                 }
             }
-            unset($this->tables['SQLMETA']);
         }
     }
 

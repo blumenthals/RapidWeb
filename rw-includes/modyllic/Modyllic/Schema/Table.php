@@ -25,22 +25,38 @@ class Modyllic_Schema_Table extends Modyllic_Diffable {
     /**
      * @param string $name
      */
-    function __construct($name) {
-        $this->name = $name;
+    function __construct($name=null) {
+        if (isset($name)) {
+            $this->name = $name;
+        }
     }
 
+    function copy_from($table) {
+        $this->name = $table->name;
+        $this->columns = unserialize(serialize($table->columns));
+        $this->indexes = unserialize(serialize($table->indexes));
+        $this->static = $table->static;
+        $this->data = unserialize(serialize($table->data));
+        $this->last_column = unserialize(serialize($table->last_column));
+        $this->last_index = unserialize(serialize($table->last_index));
+        $this->engine = $table->engine;
+        $this->charset = $table->charset;
+        $this->collate = $table->collate;
+        $this->docs = $table->docs;
+    }
 
     /**
      * @param Modyllic_Schema_Column $column
      */
     function add_column(Modyllic_Schema_Column $column) {
         if ( isset($this->last_column) ) {
-            $column->after = $this->last_column->name;
+            $column->after = $this->last_column;
         }
         $this->last_column = $column;
         $this->columns[$column->name] = $column;
         return $column;
     }
+
     /**
      * @param Modyllic_Schema_Index $index
      */
@@ -54,15 +70,6 @@ class Modyllic_Schema_Table extends Modyllic_Diffable {
         foreach ($index->columns as $cname=>$value) {
             if ( ! isset($this->columns[$cname]) ) {
                 throw new Exception("In table ".$this->name.", index $name, can't index unknown column $cname");
-            }
-        }
-        // If this is a primary key and has only one column then we'll flag that column as a primary key
-        if ($index->primary and count($index->columns) == 1) {
-            $name = current( array_keys($index->columns) );
-            $len = current( array_values($index->columns) );
-            // And if there's no length limiter on the column...
-            if ( $len === false ) {
-                $this->columns[$name]->is_primary = true;
             }
         }
         return $index;
@@ -110,24 +117,47 @@ class Modyllic_Schema_Table extends Modyllic_Diffable {
         $this->static = true;
     }
 
+    function upgrade_row( array $row ) {
+    }
+
     /**
      * Add a row of data to this table
      * @throws Exception when data is not yet initialized.
      */
     function add_row( array $row ) {
-        if ( ! $this->static and $this->name != "SQLMETA" ) {
+        if ( ! $this->static and ! $this instanceOf Modyllic_Schema_MetaTable ) {
             throw new Exception("Cannot add data to ".$this->name.
                 ", not initialized for schema supplied data-- call TRUNCATE first.");
         }
         foreach ($row as $col_name=>&$value) {
             if ( ! isset($this->columns[$col_name]) ) {
-                throw "INSERT references $col_name in ".$this->name." but $col_name doesn't exist";
+                throw new Exception("INSERT references $col_name in ".$this->name." but $col_name doesn't exist");
             }
             $col = $this->columns[$col_name];
             $norm_value = $col->type->normalize($value);
             $row[$col_name] = $norm_value;
         }
-        $this->data[] = $row;
+        $element = null;
+        $pk = $this->primary_key();
+        foreach ($this->data as $index=>$cur) {
+            $match = true;
+            foreach ( $pk as $col=>$col_obj ) {
+                if ( $cur[$col]!=$row[$col] ) {
+                    $match = false;
+                    break;
+                }
+            }
+            if ( $match ) {
+                $element = $index;
+                break;
+            }
+        }
+        if ( isset($element) ) {
+            $this->data[$element] = $row;
+        }
+        else {
+            $this->data[] = $row;
+        }
     }
 
     /**
