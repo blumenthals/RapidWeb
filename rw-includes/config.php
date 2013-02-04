@@ -71,9 +71,6 @@ if (!isset($AdminUrl) || empty($AdminUrl)) {
     $AdminUrl = str_replace('index.php', 'admin.php', $ScriptUrl);
 }
 
-if (defined('WIKI_ADMIN') && !empty($AdminUrl))
-    $ScriptUrl = $AdminUrl;
-
 $LogoImage = "<img src=\"$logo\" border=0 ALT=\"[PhpWiki!]\">";
 $LogoImage = "<a href=\"$ScriptUrl\">$LogoImage</a>";
 
