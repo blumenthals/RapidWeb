@@ -13,11 +13,8 @@ function the_post() {
 }
 
 function is_admin() {
-	if(basename($_SERVER['SCRIPT_FILENAME']) == 'admin.php') {
-		return true;
-	} else {
-		return false;
-	}
+    global $RapidWeb;
+    return $RapidWeb->isAuthenticated();
 }
 
 function the_content() {

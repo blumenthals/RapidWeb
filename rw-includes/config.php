@@ -67,10 +67,6 @@ if (!isset($ScriptUrl) || empty($ScriptUrl)) {
     $ScriptUrl = "$proto://".$_SERVER['SERVER_NAME']."$port".$_SERVER['SCRIPT_NAME'];
 }
 
-if (!isset($AdminUrl) || empty($AdminUrl)) {
-    $AdminUrl = str_replace('index.php', 'admin.php', $ScriptUrl);
-}
-
 $LogoImage = "<img src=\"$logo\" border=0 ALT=\"[PhpWiki!]\">";
 $LogoImage = "<a href=\"$ScriptUrl\">$LogoImage</a>";
 

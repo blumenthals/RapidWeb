@@ -60,7 +60,7 @@ function _dohead(&$page) {
  * @todo Move into rapidweb class or a view
  */
 function GeneratePage($template, $content, $name, $hash, $return = false) {
-    global $ScriptUrl, $AdminUrl, $AllowedProtocols, $templates;
+    global $ScriptUrl, $AllowedProtocols, $templates;
     global $datetimeformat, $dbi, $logo, $FieldSeparator;
     global $RapidWeb;
 
@@ -123,7 +123,7 @@ function GeneratePage($template, $content, $name, $hash, $return = false) {
     _dotoken('METANOINDEX', $hash['noindex'] ? '<meta name="robots" content="noindex">' : '', $page, $FieldSeparator);
 
     _dotoken('SCRIPTURL', $ScriptUrl, $page, $FieldSeparator);
-    _dotoken('ADMINURL', $AdminUrl, $page, $FieldSeparator);
+    _dotoken('ADMINURL', $ScriptUrl, $page, $FieldSeparator);
 
     if (strlen($hash['title']) > 1) {
         _dotoken('PAGE', htmlspecialchars($hash['title']), $page, $FieldSeparator);

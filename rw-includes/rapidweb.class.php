@@ -267,7 +267,7 @@ class RapidWeb extends EventEmitter {
                 array(
                     'page' => array(
                         'public' => $this->rootURL . $page->pagename,
-                        'private' => $this->rootURL . 'admin.php/' . $page->pagename
+                        'private' => $this->rootURL . $page->pagename
                     )
                 )
             ));
@@ -276,7 +276,7 @@ class RapidWeb extends EventEmitter {
                 array(
                     'page' => array(
                         'public' => $this->rootURL . 'index.php?' . $page->pagename,
-                        'private' => $this->rootURL . 'admin.php?' . $page->pagename
+                        'private' => $this->rootURL . 'index.php?' . $page->pagename
                     )
                 )
             ));
