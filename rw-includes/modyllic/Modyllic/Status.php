@@ -12,6 +12,7 @@ class Modyllic_Status {
     static $progress = false;
     static $debug = false;
     static $in_file = "";
+    static $in_progress = false;
 
     static function init() {
         if ( getenv('TERM') and ($cols = exec('tput cols')) !== false ) {
@@ -25,6 +26,7 @@ class Modyllic_Status {
 
     static function debug( $msg ) {
         if ( self::$debug ) {
+            if ( self::$in_progress ) { $msg = "\n$msg"; }
             self::warn($msg);
         }
     }
@@ -35,9 +37,17 @@ class Modyllic_Status {
         }
     }
 
-    static function clear_progress() {
+    static function verbose_status( $msg ) {
         if ( self::$progress ) {
-            self::warn("\r".str_repeat(" ",self::$width-1)."\r");
+            self::$in_progress = true;
+            self::warn( "\r" . $msg . chr(27)."[K" );
+        }
+    }
+
+    static function clear_progress() {
+        if ( self::$progress and self::$in_progress ) {
+            self::warn( "\r" .chr(27)."[K" );
+            self::$in_progress = false;
         }
     }
 
@@ -50,7 +60,7 @@ class Modyllic_Status {
              if ( self::$in_file != "" ) {
                  self::clear_progress();
              }
-             self::verbose("Loading ".self::$source_name."...\n");
+             self::verbose_status("Loading ".self::$source_name."...");
              self::$in_file = self::$source_name;
         }
 
@@ -94,7 +104,7 @@ class Modyllic_Status {
         $fill = str_repeat("*",$fill_count);
         $blank = str_repeat("-",$blank_count);
 
-        self::warn(sprintf("\rLoading %s [%s%s] %2.1f%%", $filename, $fill, $blank, $overall*100 ));
+        self::verbose_status(sprintf("Loading %s [%s%s] %2.1f%%", $filename, $fill, $blank, $overall*100 ));
     }
 }
 

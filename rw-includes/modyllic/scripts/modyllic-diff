@@ -7,10 +7,12 @@
  * @author bturner@online-buddies.com
  */
 
+if ($lib_path = getenv("MODYLLIC_LIB_PATH")) set_include_path($lib_path.":".get_include_path());
+
 require_once "Modyllic/CommandLine.php";
 
 $args = Modyllic_CommandLine::get_args(array(
-    'description' => 'Generate a PHP helper class for the stored procs in the schema',
+    'description' => 'Show the SQL needed to convert one schema into another',
     'options' => array(
         'fromschema' => array(
             'short_name'  => '-f',
@@ -31,7 +33,7 @@ $args = Modyllic_CommandLine::get_args(array(
             ),
         'only' => array(
             'long_name'   => '--only',
-            'description' => 'comma separated list of kinds of schema objects to process: database, sqlmeta, tables, views, routines, events, triggers',
+            'description' => 'comma separated list of kinds of schema objects to process: database, meta, tables, views, routines, events, triggers',
             'action'      => 'StoreString',
             ) ),
     'arguments' => array(
@@ -82,13 +84,20 @@ if ( count($toschema) == 0 ) {
 }
 
 $from = Modyllic_CommandLine::schema($fromschema);
+if ( $from->source != "db" ) {
+    $gen->generate_metatable( $from );
+}
 $to   = Modyllic_CommandLine::schema($toschema);
+if ( $to->source != "db" ) {
+    $gen->generate_metatable( $to );
+}
 
 $diff = new Modyllic_Diff( $from, $to );
+$gen->alter($diff);
 
-if ( ! $diff->changeset->has_changes() ) {
+if ( ! $diff->changeset->has_changes() or ! $gen->sql_commands($diff)) {
     print "-- No changes detected.\n";
     exit(0);
 }
 
-print $gen->alter_sql($diff, ';;', true, $only);
+print $gen->sql_document();

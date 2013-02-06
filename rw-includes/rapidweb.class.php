@@ -132,6 +132,9 @@ class RapidWeb extends EventEmitter {
     }
 
     public function initialize() {
+        if ($_COOKIE[session_name()]) {
+            session_start();
+        }
         $this->trigger('init');
         $this->trigger('rw-init', $this);
     }
@@ -264,7 +267,7 @@ class RapidWeb extends EventEmitter {
                 array(
                     'page' => array(
                         'public' => $this->rootURL . $page->pagename,
-                        'private' => $this->rootURL . 'admin.php/' . $page->pagename
+                        'private' => $this->rootURL . $page->pagename
                     )
                 )
             ));
@@ -273,7 +276,7 @@ class RapidWeb extends EventEmitter {
                 array(
                     'page' => array(
                         'public' => $this->rootURL . 'index.php?' . $page->pagename,
-                        'private' => $this->rootURL . 'admin.php?' . $page->pagename
+                        'private' => $this->rootURL . 'index.php?' . $page->pagename
                     )
                 )
             ));
@@ -368,6 +371,27 @@ class RapidWeb extends EventEmitter {
             if ($bundle->hasAsset($asset)) return $bundle->assetURL($asset);
         }
         throw new Exception("Can't find script '$asset'");
+    }
+
+    public function isAuthenticated() {
+        if (!session_id()) return false;
+
+        return !!$_SESSION['username'];
+    }
+
+    public function mustAuthenticate() {
+        if ($this->isAuthenticated()) {
+            return true;
+        } else {
+            header("Location: ".$this->rootURL."rw-admin/login.php?continue=".$_SERVER['REQUEST_URL']);
+            exit();
+        }
+    }
+
+    public function deAuthenticate() {
+        if ($_SESSION['username']) {
+            $_SESSION['username'] = null;
+        }
     }
 
 }

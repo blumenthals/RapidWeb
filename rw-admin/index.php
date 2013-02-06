@@ -1,4 +1,3 @@
-<?php 
-	require('../rw-config.php');
-	require('require-authentication.php');
-?>
+<?php
+
+Header("Location: " . dirname($_SERVER['SCRIPT_NAME']).'/../index.php?login');

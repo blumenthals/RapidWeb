@@ -8,9 +8,13 @@
 
 /**
  * Full MySQL support for Modyllic.  Concepts that MySQL can't store or
- * metadata that's lossy in MySQL is kept in the SQLMETA table
+ * metadata that's lossy in MySQL is kept in the metadata table
  */
 class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
+
+    function schema_types() {
+        return array('database','meta','tables','views','routines','events','triggers');
+    }
 
     function ignore_index(Modyllic_Schema_Index $index ) {
         if ( $index instanceOf Modyllic_Schema_Index_Foreign and $index->weak ) {
@@ -23,10 +27,29 @@ class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
 
     function column_aliases( Modyllic_Schema_Column $column ) {}
 
+    function emit_type( $type, $from_type = null ) {
+        if ( $type instanceOf Modyllic_Type_Serial ) {
+            $bigint = Modyllic_Type::create("BIGINT");
+            $bigint->unsigned = true;
+            $this->add( $bigint->to_sql() );
+        }
+        else {
+            parent::emit_type( $type, $from_type );
+        }
+    }
+
+    function column_auto_increment( Modyllic_Schema_Column $column ) {
+        return $column->auto_increment;
+    }
+
+    function column_not_null( Modyllic_Schema_Column $column ) {
+        return ! $column->null;
+    }
+
     function foreign_key_weakly_references(Modyllic_Schema_Index $index) {
         $this->foreign_key_regular_references($index);
     }
-    
+
     function routine_attr_args($routine) {}
     function routine_attr_proc_returns($routine) {}
     function routine_attr_transactions($routine) {}
@@ -105,47 +128,6 @@ class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
             $meta["type"] = "SERIAL";
         }
         return $meta;
-    }
-
-    function create_sqlmeta() {
-        $this->begin_cmd();
-        $this->extend( "-- This is used to store metadata used by the schema management tool" );
-        $this->extend("CREATE TABLE IF NOT EXISTS SQLMETA (");
-        $this->indent();
-        $this->begin_list();
-        $this->extend("kind CHAR(9) NOT NULL");
-        $this->extend("which CHAR(90) NOT NULL");
-        $this->extend("value TEXT NOT NULL");
-        $this->extend("PRIMARY KEY (kind,which)");
-        $this->end_list();
-        $this->undent();
-        $this->extend(") ENGINE=MyISAM");
-        $this->end_cmd();
-    }
-
-    function insert_meta($kind,$which,array $meta) {
-        if ( ! $meta ) { return; }
-        if ( ! isset($this->what['sqlmeta']) ) { return; }
-        $this->cmd( "INSERT INTO SQLMETA (kind,which,value) VALUES (%str, %str, %str)",
-            $kind, $which, json_encode($meta) );
-    }
-    function delete_meta($kind,$which) {
-        if ( ! isset($this->what['sqlmeta']) ) { return; }
-        if ( ! $this->to_sqlmeta_exists ) { return; }
-        $this->cmd( "DELETE FROM SQLMETA WHERE kind=%str AND which=%str",
-            $kind, $which );
-    }
-    function update_meta($kind,$which,array $meta) {
-        if ( ! isset($this->what['sqlmeta']) ) { return; }
-        if ( ! $meta and ! $this->to_sqlmeta_exists ) { return; }
-        if ( $meta ) {
-            $meta_str = json_encode($meta);
-            $this->cmd( "INSERT INTO SQLMETA SET kind=%str, which=%str, value=%str ON DUPLICATE KEY UPDATE value=%str",
-                 $kind, $which, $meta_str, $meta_str );
-        }
-        else {
-            $this->delete_meta($kind,$which);
-        }
     }
 
 }

@@ -7,10 +7,12 @@
  * @author bturner@online-buddies.com
  */
 
+if ($lib_path = getenv("MODYLLIC_LIB_PATH")) set_include_path($lib_path.":".get_include_path());
+
 require_once "Modyllic/CommandLine.php";
 
 $args = Modyllic_CommandLine::get_args(array(
-    'description' => 'Generate a PHP helper class for the stored procs in the schema',
+    'description' => 'Migrate a database to match a schema',
     'options' => array(
         'fromschema' => array(
             'short_name'  => '-f',
@@ -64,35 +66,48 @@ $sth = $dbh->prepare('SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCH
 $sth->execute(array($dbname));
 list($count) = $sth->fetch(PDO::FETCH_NUM);
 if ( $count == 0 ) {
-    if ( $args->options['create'] ) {
-        $dbh->exec("CREATE DATABASE ".Modyllic_SQL::quote_ident($dbname));
-    }
-    else {
+    if ( ! $args->options['create'] ) {
         Modyllic_CommandLine::display_error( "database $dbname does not exist" );
     }
+    $to   = Modyllic_CommandLine::schema($args->options['toschema']);
+    $to->set_name( $dbname );
+    $gen = new $gen_class();
+    if ( $to->source != "db" ) {
+        $gen->generate_metatable( $to );
+    }
+    $gen->create( $to );
 }
-// End MySQL specific stuff
+else {
+    $from = Modyllic_CommandLine::schema( array($args->options['fromschema']) );
+    $gen = new $gen_class();
+    // We don't generate a metatable for the database side, it should
+    // already have one if its gonna.
+    $to   = Modyllic_CommandLine::schema($args->options['toschema']);
+    if ( $to->source != "db" ) {
+        $gen->generate_metatable( $to );
+    }
 
-$from = Modyllic_CommandLine::schema( array($args->options['fromschema']) );
+    Modyllic_Status::verbose_status("Comparing...");
+    $diff = new Modyllic_Diff( $from, $to );
+    $gen->alter($diff);
 
-$to   = Modyllic_CommandLine::schema($args->options['toschema']);
-
-Modyllic_Status::verbose("Comparing...\n");
-$diff = new Modyllic_Diff( $from, $to );
-
-if ( ! $diff->changeset->has_changes() ) {
-    Modyllic_Status::verbose("No changes detected.\n");
-    exit(0);
+    if (! $gen->sql_commands()) {
+        Modyllic_Status::clear_progress();
+        Modyllic_Status::verbose("No changes detected.\n");
+        exit(0);
+    }
+    /// @todo mysql specific again
+    $dbh->exec("USE ".Modyllic_SQL::quote_ident($dbname));
 }
 
-$dbh->exec("USE ".Modyllic_SQL::quote_ident($dbname));
+Modyllic_Status::verbose_status("Updating...");
 
-$gen = new $gen_class();
 foreach ( $gen->sql_header() as $sql ) {
     $dbh->exec( $sql );
 }
-$gen->alter($diff);
+
 $cmds = count($gen->sql_commands());
+
 try {
     $ii = 0;
     Modyllic_Status::$source_name = "changes into database";
@@ -111,4 +126,4 @@ catch (PDOException $e) {
     exit(1);
 }
 Modyllic_Status::clear_progress();
-Modyllic_Status::verbose("Database updated");
+Modyllic_Status::verbose("Database updated\n");

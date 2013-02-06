@@ -11,13 +11,13 @@
       $pagehash['flags'] |= FLAG_PAGE_LOCKED;
       InsertPage($dbi, $pagename, $pagehash);
       // echo htmlspecialchars($page) . " locked\n";
-      header("Location: admin.php?$page");
+      header("Location: {$RapidWeb->rootURL}?$page");
       exit();
    } elseif(isset($_REQUEST['unlock'])) {
       $pagehash['flags'] &= ~FLAG_PAGE_LOCKED;
       InsertPage($dbi, $pagename, $pagehash);
       // echo htmlspecialchars($page) . " unlocked\n";
-      header("Location: admin.php?$page");
+      header("Location: {$RapidWeb->rootURL}?$page");
       exit();
    }
 ?>

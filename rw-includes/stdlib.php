@@ -267,7 +267,7 @@ function checkAuth($user, $pass) {
     // Yep! Three variables named something like user.
     global $USERS;
     global $USER;
-    $arr = $USERS[$_SERVER['PHP_AUTH_USER']];
+    $arr = $USERS[$user];
 
     // Handle old rapidweb users that were just $user => $pass
     if (!is_array($arr)) {

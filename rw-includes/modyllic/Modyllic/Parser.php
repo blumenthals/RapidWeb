@@ -934,7 +934,6 @@ class Modyllic_Parser {
             $column->on_update = 'CURRENT_TIMESTAMP';
         }
 
-        $is_primary = false;
         while ( ! in_array($this->next()->value(), $this->column_term) ) {
             if ( $this->cur() instanceOf Modyllic_Token_Comment ) {
                 $column->docs = trim( $column->docs . ' ' . $this->cur()->value() );
@@ -963,7 +962,7 @@ class Modyllic_Parser {
                 }
             }
             else if ( $this->cur()->token() == 'PRIMARY KEY' ) {
-                $is_primary = true;
+                $column->is_primary = true;
             }
             else if ( $this->cur()->token() == 'UNIQUE' ) {
                 if ( $this->maybe('KEY') ) {
@@ -1016,10 +1015,11 @@ class Modyllic_Parser {
                 throw $this->error("Unknown token in column declaration: ".$this->cur()->debug());
             }
         }
-        if ( $is_primary ) {
+        if ( $column->is_primary ) {
             $index = new Modyllic_Schema_Index('!PRIMARY KEY');
             $index->primary = true;
             $index->columns = array($column->name => false);
+            $index->column_defined = true;
             $this->add_index( $index );
         }
         else if ( $column->unique ) {
@@ -1364,7 +1364,7 @@ class Modyllic_Parser {
      * @returns the token form of the reserved word (all caps)
      */
     function assert_reserved( $t1=null ) {
-        if ( ! $this->cur() instanceOf Modyllic_Token_Reserved ) {
+        if ( ! $this->cur() instanceOf Modyllic_Token_Bareword ) {
             throw $this->error( "Expected reserved word, got ".$this->cur()->debug() );
         }
         if ( is_null($t1) ) { return $this->cur()->token(); }

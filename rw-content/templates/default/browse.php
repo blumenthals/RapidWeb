@@ -27,7 +27,7 @@
         <tr>
           <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>/images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr> 
-                <td height="76" align="right" valign="middle">
+                <td height="66" align="right" valign="middle">
                   <?php get_template_part('admin/toolbar'); ?>
                 </td>
               </tr>

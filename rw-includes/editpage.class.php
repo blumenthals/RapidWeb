@@ -3,7 +3,7 @@
 class EditPage extends View {
 
     public function getScriptURL() {
-        return "{$this->rapidweb->rootURL}admin.php";
+        return "{$this->rapidweb->rootURL}";
     }
 
     protected function do_head() {

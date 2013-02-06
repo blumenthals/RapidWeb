@@ -16,17 +16,21 @@ class Modyllic_Loader {
     static function determine_loader($source) {
         if ( is_dir($source) ) {
             $loader = "Modyllic_Loader_Dir";
+            $loader_name = "dir";
         }
         else if ( file_exists($source) ) {
             $loader = "Modyllic_Loader_File";
+            $loader_name = "file";
         }
         else if ( Modyllic_Loader_DB::is_dsn($source) ) {
             $loader = "Modyllic_Loader_DB";
+            $loader_name = "db";
         }
         else {
             $loader = null;
+            $loader_name = null;
         }
-        return array($source,$loader);
+        return array($source,$loader,$loader_name);
     }
 
     static function load(array $sources,$schema=null) {
@@ -41,7 +45,8 @@ class Modyllic_Loader {
             }
             Modyllic_Status::$source_name = $source;
             Modyllic_Status::$source_index ++;
-            list($source,$loader) = self::determine_loader($source);
+            list($source,$loader,$loader_name) = self::determine_loader($source);
+            $schema->source = $loader_name;
             if ( isset($loader) ) {
                 call_user_func(array($loader,'load'),$source,$schema);
             }
@@ -52,7 +57,10 @@ class Modyllic_Loader {
             Modyllic_Status::status( 1, 1 );
 
         }
-        $schema->load_sqlmeta();
+        $schema->load_meta();
+        if (count($sources)>1) {
+            $schema->source = "aggregate";
+        }
         return $schema;
     }
 }
