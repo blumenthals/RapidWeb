@@ -383,7 +383,7 @@ class RapidWeb extends EventEmitter {
         if ($this->isAuthenticated()) {
             return true;
         } else {
-            header("Location: ".$this->rootURL."rw-admin/login.php?continue=".$_SERVER['REQUEST_URL']);
+            header("Location: ".$this->rootURL."rw-admin/login.php?continue=".$_SERVER['REQUEST_URI']);
             exit();
         }
     }
