@@ -275,11 +275,11 @@ function checkAuth($user, $pass) {
     }
 
     /// @todo move this into \Rapidweb\User
-    $USER = \Rapidweb\User::fromArray($user, $arr);
-    if ($USER->password == $pass) return true;
-    if (crypt($pass, $USER->crypt) == $USER->crypt) return true;
+    $_SESSION['user'] = \Rapidweb\User::fromArray($user, $arr);
+    if ($_SESSION['user']->password == $pass) return true;
+    if (crypt($pass, $_SESSION['user']->crypt) == $_SESSION['user']->crypt) return true;
 
-    $USER = null;
+    $_SESSION['user'] = null;
     return false;
 }
 
