@@ -137,8 +137,11 @@ try {
     } elseif (isset($_REQUEST['login'])) {
         session_start();
 
+        $s = dirname($_SERVER['SCRIPT_NAME']);
+        if ($s == '/') $s = '';
+
         if (!@$_SESSION['username']) {
-            header("Location: ".dirname($_SERVER['SCRIPT_NAME'])."/rw-admin/login.php?continue=".$_SERVER['REQUEST_URL']);
+            header("Location: $s/rw-admin/login.php?continue=".$_SERVER['REQUEST_URL']);
             exit();
         }
     } elseif ($res = $RapidWeb->route()) {
