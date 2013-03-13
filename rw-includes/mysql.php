@@ -234,7 +234,7 @@ function InitTitleSearch($dbc, $search) {
 
 
 // iterating through database
-function TitleSearchNextMatch($res) {
+function TitleSearchNextMatch($dbc, $res) {
   if($o = $res->fetch(PDO::FETCH_ASSOC)) {
      return $o->pagename;
   }
@@ -247,14 +247,14 @@ function TitleSearchNextMatch($res) {
 // setup for full-text search
 function InitFullSearch($dbc, $search) {
     $clause = MakeSQLSearchClause($search, 'content');
-    $res = $dbc->exec("SELECT * FROM wiki WHERE $clause");
+    $res = $dbc->query("SELECT * FROM wiki WHERE $clause");
     return $res;
 }
 
 // iterating through database
-function FullSearchNextMatch($res) {
+function FullSearchNextMatch($dbc, $res) {
     if($hash = $res->fetch(PDO::FETCH_ASSOC)) {
-        return MakePageHash($hash);
+        return MakePageHash($dbc, $hash);
     } else {
         return 0;
     }
