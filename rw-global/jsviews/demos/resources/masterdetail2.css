@@ -47,11 +47,11 @@ thead th {
 	color: #AD0157;
 }
 
-#movieList tr td:first-child {
+.movies tr td:first-child {
 	width: 250px;
 }
 
-#movieDetail > div {
+.detail > div {
 	border: 2px solid #4242ae;
 	width: 280px;
 	margin: 4px 0 4px 4px;
@@ -64,7 +64,7 @@ table td {
 	margin: 3px;
 }
 
-#movieDetail div div {
+.detail div div {
 	margin: 3px;
 }
 
@@ -72,7 +72,7 @@ table td {
 	background-color: yellow;
 }
 
-#movieDetail input {
+.detail input {
 	float: left;
 	padding: 2px;
 	width: 245px;
@@ -80,7 +80,7 @@ table td {
 	border: 1px solid #4a4aff;
 }
 
-#movieDetail {
+.detail {
 	float: left;
 	margin-left: 10px;
 	font-weight: bold;
@@ -88,12 +88,12 @@ table td {
 	color: #009;
 }
 
-#movieDetail div {
+.detail div {
 	float: left;
 	clear: both;
 }
 
-#movieDetail input.special {
+.detail input.special {
 	float: none;
 	padding: inherit;
 	width: inherit;
@@ -101,17 +101,17 @@ table td {
 	border: inherit;
 }
 
-#movieDetail .title {
+.detail .title {
 	padding-top: 8px;
 }
 
-.close {
+.removeLanguage, .removeMovie {
 	float: right;
 	cursor: pointer;
 	padding: 6px;
 }
 
-#addLanguageBtn, #addMovieBtn {
+.addLanguage, .addMovie {
 	float: right;
 	text-decoration: underline;
 	font-style: italic;
