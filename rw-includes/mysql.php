@@ -180,7 +180,6 @@ function SaveCopyToArchive($dbi, $pagename, $pagehash) {
 
 
 function IsWikiPage(PDO $dbc, $pagename) {
-    $pagename = addslashes($pagename);
     $res = $dbc->prepare("SELECT count(*) AS count FROM wiki WHERE pagename = ?");
     if ($res->execute(array($pagename))) {
         $row = $res->fetch(PDO::FETCH_ASSOC);
