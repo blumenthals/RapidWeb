@@ -17,8 +17,8 @@ class Modyllic_Type_Decimal extends Modyllic_Type_Numeric {
 
     function to_sql() {
         $sql = $this->name;
-        if ( $this->length != $this->default_length  or $this->scale != $this->default_scale ) {
-            $sql .= '(' . $this->length . ',' . $this->scale . ')';
+        if ( $this->length() != $this->default_length()  or $this->scale != $this->default_scale ) {
+            $sql .= '(' . $this->length() . ',' . $this->scale . ')';
         }
         if ( $this->unsigned ) {
             $sql .= ' UNSIGNED';
@@ -38,7 +38,7 @@ class Modyllic_Type_Decimal extends Modyllic_Type_Numeric {
         $this->scale = $old->scale;
     }
     function normalize($num) {
-        if ( $num instanceOf Modyllic_Token_Reserved ) {
+        if ( $num instanceOf Modyllic_Token_Bareword and Modyllic_SQL::is_reserved($num->token()) ) {
             return $num->value();
         }
         return $this->numify($num);

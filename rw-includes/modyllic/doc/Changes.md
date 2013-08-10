@@ -1,5 +1,44 @@
 Revision history for PHP module Modyllic
 
+v0.2.18 2013-06-24
+
+* Remove extra whitespace from view and event parsing (Rebecca Turner)
+* Make all db interactions use UTF8 with MySQL (Rebecca Turner)
+
+v0.2.17 2013-06-24
+
+* Support default lengths varying based on signedness (Rebecca Turner)
+* Merge "modyllic patch" and "modyllic apply" (Rebecca Turner)
+* Allow defaults to be functions/constants, eg, true/false (Rebecca Turner)
+* Add support for CREATE INDEX (Rebecca Turner)
+
+v0.2.16 2013-05-29
+
+* Actually connect to the database during apply (Aria Stewart)
+
+v0.2.15 2013-05-29
+
+* Add modyllic-apply command (Aria Stewart)
+
+v0.2.14 2013-05-29
+
+* Fix Modyllic view diff generation -- was referencing a changeset class rather then expected schema object (Rebecca Turner)
+
+v0.2.13 2013-05-29
+
+* Remove deprecated commandline scripts (Rebecca Turner)
+* Add new Modyllic command for applying previously generated diffs to a database (Rebecca Turner)
+* Support schema prefixed view names (Rebecca Turner)
+* Add support for views/events/triggers to the MySQL loader (Rebecca Turner)
+* Add support for the mysql ROW_FORMAT table option (Aria Stewart)
+* Fix PHP5.3ism (Rebecca Turner)
+* Substantially improve delimiter related error handling (Rebecca Turner)
+* Make syntax errors consume a single character as an error token (Rebecca Turner)
+* Improve colors used to highlight errors (Rebecca Turner)
+* Fix commandline summary (Rebecca Turner)
+* Improve the 'no MODYLLIC table' situation.  Works with DBs now, but still not dumps that lack it. (Rebecca Turner)
+* Fix #192: Adding multiple columns resulted in invalid AFTER clauses (Rebecca Turner)
+
 v0.2.12 2012-11-19
 
 Bug fixes:

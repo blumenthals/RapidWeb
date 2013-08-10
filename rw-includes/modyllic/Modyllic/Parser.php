@@ -145,25 +145,30 @@ class Modyllic_Parser {
 
         // Create commands can take a bunch of options before getting around to telling us what they're creating.
         // Right now we ignore the values of all of these, so we just note them and ignore them.
+        $opts = array();
         while (1) {
             $name = $this->get_reserved();
             if ( $name == "DEFINER" ) {
                 $this->get_symbol( "=" );
                 if ( $this->next()->token() == "CURRENT_USER" ) {
-                    $this->assert_reserved();
+                    $opts['DEFINER'] = $this->assert_reserved();
                 }
                 else {
-                    $this->assert_ident();
+                    $opts['DEFINER'] = array();
+                    $opts['DEFINER']['USER'] = $this->assert_ident();
                     $this->get_symbol('@');
-                    $this->get_ident();
+                    $opts['DEFINER']['HOST'] = $this->get_ident();
                 }
             }
             else if ( $name == "ALGORITHM" ) {
                 $this->get_symbol( "=" );
-                $this->get_reserved(array("UNDEFINED","MERGE","TEMPTABLE"));
+                $opts['ALGORITHM'] = $this->get_reserved(array("UNDEFINED","MERGE","TEMPTABLE"));
             }
             else if ( $name == "SQL SECURITY" ) {
-                $this->get_reserved(array("DEFINER","INVOKER"));
+                $opts['SQL SECURITY'] = $this->get_reserved(array("DEFINER","INVOKER"));
+            }
+            else if ( in_array($name,array('UNIQUE','FULLTEXT','SPATIAL')) ) {
+                $opts['INDEX'] = $name;
             }
             else {
                 break;
@@ -173,7 +178,7 @@ class Modyllic_Parser {
         // The rest here works pretty much the way parse_command works, finding and calling a method
         $method = str_replace(" ","_", "cmd_CREATE_$name");
         if ( is_callable( array($this,$method) ) ) {
-            $this->$method();
+            $this->$method( $opts );
         }
         else {
             throw $this->error( "Unsupported SQL command CREATE ".$this->cur()->debug());
@@ -509,19 +514,18 @@ class Modyllic_Parser {
             "DISABLE ON SLAVE",
             );
         if ( $this->peek_next()->token() == "AT" ) {
-            $this->ctx->schedule .= $this->get_reserved() .
-                              $this->get_expression( $term );
+            $this->ctx->schedule .= $this->get_reserved() . $this->get_expression($term);
         }
         else if ( $this->peek_next()->token() == "EVERY" ) {
             $this->ctx->schedule .= $this->get_reserved() .
-                              $this->get_expression( $term + array("STARTS","ENDS") );
+                   " " . trim($this->get_expression( $term + array("STARTS","ENDS")));
             if ( $this->peek_next()->token() == "STARTS" ) {
                 $this->ctx->schedule .= " " . $this->get_reserved() .
-                                  $this->get_expression( $term + array("ENDS") );
+                   " " . trim($this->get_expression($term + array("ENDS")));
             }
             if ( $this->peek_next()->token() == "ENDS" ) {
                 $this->ctx->schedule .= " " . $this->get_reserved() .
-                                  $this->get_expression( $term );
+                   " " . trim($this->get_expression($term));
             }
         }
         else {
@@ -554,12 +558,18 @@ class Modyllic_Parser {
 
     function cmd_CREATE_VIEW() {
         $name = $this->get_ident();
+        // If there's a period here then that means the name we fetched was
+        // our schema name.  MySQL emits a prefixed schema name on views and
+        // nothing else.
+        if ( $this->maybe('.') ) {
+            $name = $this->get_ident();
+        }
         if ( isset($this->schema->tables[$name]) ) {
             throw $this->error("Can't create VIEW $name when a table of that name already exists");
         }
         $view = $this->schema->add_view( new Modyllic_Schema_View( $name ) );
         ## Minimal support for views currently
-        $view->def = $this->rest();
+        $view->def = trim($this->rest());
     }
 
     function cmd_CREATE_PROCEDURE() {
@@ -686,8 +696,7 @@ class Modyllic_Parser {
                 $this->next();
             }
             $arg->dir = 'IN';
-            if ( $this->cur() instanceOf Modyllic_Token_Reserved and
-                 in_array($this->cur()->token(), array('IN','INOUT','OUT')) ) {
+            if ( $this->is_reserved(array('IN','INOUT','OUT')) ) {
                 $arg->dir = $this->cur()->token();
                 $this->next();
             }
@@ -735,16 +744,16 @@ class Modyllic_Parser {
             }
             else {
                 $type->length = $this->get_list();
-                if ( $type instanceOf Modyllic_Type_VarChar and $type->length > 65535 ) {
-                    $type = new Modyllic_Type_Text($type->name,$type->length);
+                if ( $type instanceOf Modyllic_Type_VarChar and $type->length() > 65535 ) {
+                    $type = new Modyllic_Type_Text($type->name,$type->length());
                 }
-                else if ( $type instanceOf Modyllic_Type_VarBinary and $type->length > 65535 ) {
-                    $type = new Modyllic_Type_Blob($type->name,$type->length);
+                else if ( $type instanceOf Modyllic_Type_VarBinary and $type->length() > 65535 ) {
+                    $type = new Modyllic_Type_Blob($type->name,$type->length());
                 }
             }
         }
         $binary = false;
-        while ( $this->peek_next() instanceOf Modyllic_Token_Reserved ) {
+        while ( $this->peek_next() instanceOf Modyllic_Token_Bareword ) {
             if ( in_array( $this->peek_next()->token(), array( 'SIGNED', 'UNSIGNED', 'ZEROFILL', 'ASCII', 'UNICODE', 'BINARY' ) ) ) {
                 switch ( $this->get_reserved() ) {
                     case 'SIGNED':   $type->unsigned = false; break;
@@ -786,10 +795,42 @@ class Modyllic_Parser {
         return $type;
     }
 
-    function cmd_CREATE_TABLE() {
+    function cmd_CREATE_INDEX($opts) {
+        $key = new Modyllic_Schema_Index();
+        if (isset($opts['INDEX'])) {
+            $key->unique   = $opts['INDEX'] == 'UNIQUE';
+            $key->fulltext = $opts['INDEX'] == 'FULLTEXT';
+            $key->spatial  = $opts['INDEX'] == 'SPATIAL';
+        }
+        $key->name = $this->get_ident();
+        if ( $this->peek_next()->token() == 'USING' ) {
+            $this->get_reserved();
+            $key->using = $this->get_reserved(array('BTREE','HASH'));
+        }
+
+        $this->get_reserved('ON');
+        $table_name = $this->get_ident();
+        if ( ! isset($this->schema->tables[$table_name]) ) {
+            throw $this->error("Tried to create INDEX on underknown table '$table_name'");
+        }
+        $this->ctx = $this->schema->tables[$table_name];
+        $this->get_symbol('(');
+        $key->columns = $this->index_columns();
+
+        if ( $this->peek_next()->token() == 'USING' ) {
+            $this->get_reserved();
+            $key->using = $this->get_reserved(array('BTREE','HASH'));
+        }
+        $this->add_index( $key );
+        return $key;
+
+    }
+
+   function cmd_CREATE_TABLE() {
         // CREATE TABLE ident ( create_definition,... ) table_option...
         // table_option:
         //     [ENGINE=<IDENT>]
+        //   | [ROW_FORMAT={DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}]
         //   | [[DEFAULT] {CHARACTER SET|CHARSET}=ident]
         //   | [[DEFAULT] COLLATE=ident]
         //   | [AUTO_INCREMENT=number]
@@ -816,7 +857,7 @@ class Modyllic_Parser {
             }
 
             # A key or column spec, followed by...
-            if ( $this->cur() instanceOf Modyllic_Token_Reserved ) {
+            if ( $this->is_reserved(array( "CONSTRAINT", "FOREIGN KEY", "PRIMARY KEY", "UNIQUE", "FULLTEXT", "SPATIAL", "KEY"  )) ) {
                 $last_was = $this->load_key();
             }
             else {
@@ -852,7 +893,7 @@ class Modyllic_Parser {
             $this->next();
             if ( $this->maybe_table_option() ) { }
             else {
-                throw $this->error("Unknown table flag ".$this->cur()->debug().", expected ENGINE, CHARSET or COLLATE");
+                throw $this->error("Unknown table flag ".$this->cur()->debug().", expected ENGINE, ROW_FORMAT, CHARSET or COLLATE");
             }
         }
         foreach ($this->ctx->columns as &$col) {
@@ -877,6 +918,11 @@ class Modyllic_Parser {
             $this->maybe( '=' );
             $this->get_reserved();
             $this->ctx->engine = $this->cur()->value(); # We want the user's capitalization
+        }
+        else if ( $this->cur()->token() == 'ROW_FORMAT' ) {
+            $this->maybe( '=' );
+            $this->get_reserved(array( 'DEFAULT', 'DYNAMIC', 'FIXED', 'COMPRESSED', 'REDUNDANT', 'COMPACT' ));
+            $this->ctx->row_format = $this->cur()->value();
         }
         else if ( $this->cur()->token() == 'CHARSET' or $this->cur()->token() == 'CHARACTER SET' ) {
             $this->maybe( '=' );
@@ -955,7 +1001,13 @@ class Modyllic_Parser {
                 $column->null = true;
             }
             else if ( $this->cur()->token() == 'DEFAULT' ) {
-                $column->default = $column->type->normalize( $this->next() );
+                $next = $this->next();
+                if ( $next instanceOf Modyllic_Token_Bareword ) {
+                    $column->default = $next->literal();
+                }
+                else {
+                    $column->default = $column->type->normalize( $next );
+                }
                 if ( $this->peek_next()->token() == 'ON UPDATE' ) {
                     $this->get_reserved();
                     $column->on_update = $this->get_reserved();
@@ -1364,17 +1416,36 @@ class Modyllic_Parser {
      * @returns the token form of the reserved word (all caps)
      */
     function assert_reserved( $t1=null ) {
+        if ( $this->is_reserved($t1) ) {
+            return $this->cur()->token();
+        }
+        else {
+            if ( ! $this->cur() instanceOf Modyllic_Token_Bareword ) {
+                throw $this->error( "Expected reserved word, got ".$this->cur()->debug() );
+            }
+            else {
+                throw $this->error( "Expected '".implode("', '",$t1)."', got ". $this->cur()->debug() );
+            }
+        }
+        return $this->cur()->token();
+    }
+
+    /*
+     * Determine if the current token is a reserved word
+     * @returns boolean
+     */
+    function is_reserved( $t1=null ) {
         if ( ! $this->cur() instanceOf Modyllic_Token_Bareword ) {
-            throw $this->error( "Expected reserved word, got ".$this->cur()->debug() );
+            return false;
         }
         if ( is_null($t1) ) { return $this->cur()->token(); }
 
         if ( ! is_array($t1) ) { $t1 = array($t1); }
 
         if ( ! in_array($this->cur()->token(),$t1) ) {
-            throw $this->error( "Expected '".implode("', '",$t1)."', got ". $this->cur()->debug() );
+            return false;
         }
-        return $this->cur()->token();
+        return true;
     }
 
     /**

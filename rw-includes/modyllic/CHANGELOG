@@ -1,5 +1,2 @@
-Bug fixes:
-
-* Fix version order in changelogs
-* Fix bug around sorting versions now that we're > *.10.0
-* Fix difference detection bug
+* Remove extra whitespace from view and event parsing (Rebecca Turner)
+* Make all db interactions use UTF8 with MySQL (Rebecca Turner)
