@@ -1,8 +1,5 @@
 <?php 
 
-ini_set('include_path', ini_get('include_path').":".dirname(__FILE__)."/modyllic");
-require_once "Modyllic/AutoLoader.php";
-
 function update_modyllic($dbc) {
     Modyllic_AutoLoader::install();
     global $mysql_user;

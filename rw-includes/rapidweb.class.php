@@ -210,55 +210,18 @@ class RapidWeb extends EventEmitter {
             $newpage = 1;
         }
 
-        $settings = RetrieveSettings($dbc);
+	if (!$pagehash['page_type']) $pagehash['page_type'] = 'page';
 
-        // set new pageinfo
-        $pagehash['lastmodified'] = time();
-        $pagehash['version']++;
-        $pagehash['author'] = $_SERVER['REMOTE_ADDRESS'];
+        $old = new \RapidWebPage($pagehash);
 
-        if($settings['default_meta_description'] == $page->meta) {
-            $pagehash['meta'] = null;
-        } else {
-            $pagehash['meta'] = $page->meta;
-        }
+	$new = new \RapidWebPage((array)$page);
+	foreach ($page as $k => $v) {
+		$new->$k = $v;
+	}
 
-        if($settings['default_title'] == $page->title) {
-            $pagehash['title'] = null;
-        } else {
-            $pagehash['title'] = $page->title;
-        }
+	$handler = $this->pageTypes[$new->page_type];
 
-        $pagehash['noindex'] = $page->noindex ? 1 : 0;
-
-        if($settings['default_meta_keywords'] == $page->keywords) {
-            $pagehash['keywords'] = null;
-        } else {
-            $pagehash['keywords'] = $page->keywords;
-        }
-
-        $pagehash['variables'] = $page->variables;
-
-        if(!empty($page->template)) {
-            $pagehash['template'] = $page->template;
-        } else {
-            unset($pagehash['template']);
-        }
-
-        $pagehash['gallery'] = $page->gallery;
-
-        $pagehash['plugins'] = $page->plugins;
-
-        $pagehash['page_type'] = $page->page_type;
-
-        if (! empty($page->content)) {
-            if(is_array($page->content)) $page->content = join("\n", $page->content);
-            $pagehash['content'] = preg_split('/[ \t\r]*\n/', chop($page->content));
-        } else {
-            $pagehash['content'] = array('');
-        }
-
-        InsertPage($dbc, $page->pagename, $pagehash);
+	$handler->savePage($new, $old);
 
         header('Content-Type: text/json');
 

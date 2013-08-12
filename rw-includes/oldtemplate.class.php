@@ -8,7 +8,7 @@ class OldTemplate extends View {
     }
 
     public function do_head() {
-        $this->loadJavascript('jquery-1.7.js');
+        $this->loadJavascript('jquery-1.7.min.js');
         if($plugin = $this->getPlugin()) $plugin->do_head($this->page);
     }
 

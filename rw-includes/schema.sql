@@ -76,8 +76,8 @@ CREATE TABLE wikiscore (
 ) ENGINE=MyISAM
 ;;
 CREATE TABLE wp_commentmeta (
-    meta_id BIGINT UNSIGNED NOT NULL auto_increment,
-    comment_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    meta_id BIGINT NOT NULL auto_increment,
+    comment_id BIGINT NOT NULL DEFAULT 0,
     meta_key VARCHAR(255),
     meta_value LONGTEXT,
     PRIMARY KEY (meta_id),
@@ -88,8 +88,8 @@ CREATE TABLE wp_commentmeta (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_comments (
-    comment_ID BIGINT UNSIGNED NOT NULL auto_increment,
-    comment_post_ID BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    comment_ID BIGINT NOT NULL auto_increment,
+    comment_post_ID BIGINT NOT NULL DEFAULT 0,
     comment_author TINYTEXT NOT NULL,
     comment_author_email VARCHAR(100) NOT NULL DEFAULT '',
     comment_author_url VARCHAR(200) NOT NULL DEFAULT '',
@@ -101,8 +101,8 @@ CREATE TABLE wp_comments (
     comment_approved VARCHAR(20) NOT NULL DEFAULT '1',
     comment_agent VARCHAR(255) NOT NULL DEFAULT '',
     comment_type VARCHAR(20) NOT NULL DEFAULT '',
-    comment_parent BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    comment_parent BIGINT NOT NULL DEFAULT 0,
+    user_id BIGINT NOT NULL DEFAULT 0,
     PRIMARY KEY (comment_ID),
     KEY comment_approved (comment_approved),
     KEY comment_approved_date_gmt (comment_approved,comment_date_gmt),
@@ -114,14 +114,14 @@ CREATE TABLE wp_comments (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_links (
-    link_id BIGINT UNSIGNED NOT NULL auto_increment,
+    link_id BIGINT NOT NULL auto_increment,
     link_url VARCHAR(255) NOT NULL DEFAULT '',
     link_name VARCHAR(255) NOT NULL DEFAULT '',
     link_image VARCHAR(255) NOT NULL DEFAULT '',
     link_target VARCHAR(25) NOT NULL DEFAULT '',
     link_description VARCHAR(255) NOT NULL DEFAULT '',
     link_visible VARCHAR(20) NOT NULL DEFAULT 'Y',
-    link_owner BIGINT UNSIGNED NOT NULL DEFAULT 1,
+    link_owner BIGINT NOT NULL DEFAULT 1,
     link_rating INT NOT NULL DEFAULT 0,
     link_updated DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     link_rel VARCHAR(255) NOT NULL DEFAULT '',
@@ -134,7 +134,7 @@ CREATE TABLE wp_links (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_options (
-    option_id BIGINT UNSIGNED NOT NULL auto_increment,
+    option_id BIGINT NOT NULL auto_increment,
     blog_id INT NOT NULL DEFAULT 0,
     option_name VARCHAR(64) NOT NULL DEFAULT '',
     option_value LONGTEXT NOT NULL,
@@ -146,8 +146,8 @@ CREATE TABLE wp_options (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_postmeta (
-    meta_id BIGINT UNSIGNED NOT NULL auto_increment,
-    post_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    meta_id BIGINT NOT NULL auto_increment,
+    post_id BIGINT NOT NULL DEFAULT 0,
     meta_key VARCHAR(255),
     meta_value LONGTEXT,
     PRIMARY KEY (meta_id),
@@ -158,8 +158,8 @@ CREATE TABLE wp_postmeta (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_posts (
-    ID BIGINT UNSIGNED NOT NULL auto_increment,
-    post_author BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    ID BIGINT NOT NULL auto_increment,
+    post_author BIGINT NOT NULL DEFAULT 0,
     post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     post_date_gmt DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     post_content LONGTEXT NOT NULL,
@@ -175,7 +175,7 @@ CREATE TABLE wp_posts (
     post_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     post_modified_gmt DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     post_content_filtered TEXT NOT NULL,
-    post_parent BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    post_parent BIGINT NOT NULL DEFAULT 0,
     guid VARCHAR(255) NOT NULL DEFAULT '',
     menu_order INT NOT NULL DEFAULT 0,
     post_type VARCHAR(20) NOT NULL DEFAULT 'post',
@@ -191,8 +191,8 @@ CREATE TABLE wp_posts (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_term_relationships (
-    object_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    term_taxonomy_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    object_id BIGINT NOT NULL DEFAULT 0,
+    term_taxonomy_id BIGINT NOT NULL DEFAULT 0,
     term_order INT NOT NULL DEFAULT 0,
     PRIMARY KEY (object_id,term_taxonomy_id),
     KEY term_taxonomy_id (term_taxonomy_id)
@@ -201,11 +201,11 @@ CREATE TABLE wp_term_relationships (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_term_taxonomy (
-    term_taxonomy_id BIGINT UNSIGNED NOT NULL auto_increment,
-    term_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    term_taxonomy_id BIGINT NOT NULL auto_increment,
+    term_id BIGINT NOT NULL DEFAULT 0,
     taxonomy VARCHAR(32) NOT NULL DEFAULT '',
     description LONGTEXT NOT NULL,
-    parent BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    parent BIGINT NOT NULL DEFAULT 0,
     count BIGINT NOT NULL DEFAULT 0,
     PRIMARY KEY (term_taxonomy_id),
     KEY taxonomy (taxonomy),
@@ -215,7 +215,7 @@ CREATE TABLE wp_term_taxonomy (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_terms (
-    term_id BIGINT UNSIGNED NOT NULL auto_increment,
+    term_id BIGINT NOT NULL auto_increment,
     name VARCHAR(200) NOT NULL DEFAULT '',
     slug VARCHAR(200) NOT NULL DEFAULT '',
     term_group BIGINT(10) NOT NULL DEFAULT 0,
@@ -227,8 +227,8 @@ CREATE TABLE wp_terms (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_usermeta (
-    umeta_id BIGINT UNSIGNED NOT NULL auto_increment,
-    user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    umeta_id BIGINT NOT NULL auto_increment,
+    user_id BIGINT NOT NULL DEFAULT 0,
     meta_key VARCHAR(255),
     meta_value LONGTEXT,
     PRIMARY KEY (umeta_id),
@@ -239,7 +239,7 @@ CREATE TABLE wp_usermeta (
   DEFAULT COLLATE=utf8_swedish_ci
 ;;
 CREATE TABLE wp_users (
-    ID BIGINT UNSIGNED NOT NULL auto_increment,
+    ID BIGINT NOT NULL auto_increment,
     user_login VARCHAR(60) NOT NULL DEFAULT '',
     user_pass VARCHAR(64) NOT NULL DEFAULT '',
     user_nicename VARCHAR(50) NOT NULL DEFAULT '',

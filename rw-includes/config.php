@@ -1,5 +1,8 @@
 <?php
 
+set_include_path(get_include_path().PATH_SEPARATOR.__DIR__."/modyllic");
+require_once "Modyllic/AutoLoader.php";
+
 // essential internal stuff -- skip it. Go down to Part One. There
 // are four parts to this file that interest you, all labeled Part
 // One, Two, Three and Four.
@@ -93,6 +96,6 @@ define("FLAG_PAGE_LOCKED", 1);
 
 set_include_path(get_include_path().PATH_SEPARATOR.dirname(__FILE__));
 
-spl_autoload_extensions('.class.php');
+spl_autoload_extensions('.class.php,.php');
 
 spl_autoload_register('spl_autoload');
