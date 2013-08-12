@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+ <name>OLB_PDO</name>
+ <channel>onlinebuddies.github.com/pear</channel>
+ <summary>Singletons, retries and transactions, oh my</summary>
+ <description>A simple PDO wrapper that adds singletons, retries and improved transaction support.</description>
+ <lead>
+  <name>Online Buddies, Inc</name>
+  <user>olb</user>
+  <email>development@online-buddies.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2013-05-20</date>
+ <time>14:33:00</time>
+ <version>
+  <release>0.2.9</release>
+  <api>0.1.2</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+ <notes>
+* Add OLB/PDORetryTransaction.php to the build
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <file baseinstalldir="/" name="build/lime_test.php" role="test" />
+   <file baseinstalldir="/" name="build/mh_test.php" role="test" />
+   <file baseinstalldir="/" name="OLB/PDO.php" role="php" />
+   <file baseinstalldir="/" name="OLB/PDOCommitTransaction.php" role="php" />
+   <file baseinstalldir="/" name="OLB/PDORetryTransaction.php" role="php" />
+   <file baseinstalldir="/" name="OLB/PDO/STH.php" role="php" />
+   <file baseinstalldir="/" name="test/Constructors.t" role="test" />
+   <file baseinstalldir="/" name="test/Queries.t" role="test" />
+   <file baseinstalldir="/" name="test/Reconnect.t" role="test" />
+   <file baseinstalldir="/" name="test/Singletons.t" role="test" />
+   <file baseinstalldir="/" name="test/Transactions.t" role="test" />
+   <file baseinstalldir="/" name="PDO_TODO" role="doc" />
+   <file baseinstalldir="/" name="COVER_TODO" role="doc" />
+   <file baseinstalldir="/" name="README.md" role="doc" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>0.2.9</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2013-05-20</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Add OLB/PDORetryTransaction.php to the build
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.8</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2013-05-20</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Fix transaction tests (there are only 15 now, not the previously asserted 16)
+* Suppress warnings about the INIT_COMMAND index not being in opts
+* Nested transactions via SAVEPOINTs-- note, experimental
+* Add the ability to throw exceptions that trigger transaction retries, ala deadlocks
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.7</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2013-05-17</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Provide our own implementation of MYSQL_ATTR_INIT_COMMAND as INIT_COMMAND
+* Add database tracing to exectransaction
+* execTransaction should pass along the return from its callable
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.6</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-11-06</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Disconnect on rollback failures
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.5</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-09-18</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Reverse the execute retry loop to work the same way as the other retry loops
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.4</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-09-18</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Fix logging on execute retries
+* Add ability to sleep only after n retries
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.3</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-09-04</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Stop logging error message for deadlocks-- they'll be logged by the retrier if need be.
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.2</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-08-14</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Fix permissions.
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.1</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-08-13</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Add support for a special kind of exceptions, any that implement the
+  OLB_PDOCommitTransaction interface, that when thrown will not trigger a
+  rollback during an execTransaction block.
+* Fix resetting of the singleton flag after various exception handling.
+* Change to inheriting from PDO, which allows OLB_PDO to pass PDO class
+  contraints.  It also massively simplifies constants access.
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.0</release>
+    <api>0.1.1</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-02-21</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+* Added RETRY_DEADLOCKS flag-- when it's true, we will retry deadlocked queries.
+* Converted Exception to PDOException
+* Reduced and simplified warnings relating to retries.  We now log only if
+  the first reconnect fails.  Previously we retried prior to the first
+  reconnection attempt if we had previously reconnected.
+* Changed retryable exception detection to use only on the error number.
+* Correctly throw calls to invalid methods on PDO_STH
+* Allow RETRIES and RETRY_DEADLOCKS to be overridden on calls to ->execute
+* Improved test suite with nearly 100% coverage
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2012-02-02</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD Style</license>
+   <notes>
+Initial release.
+   </notes>
+  </release>
+ </changelog>
+</package>

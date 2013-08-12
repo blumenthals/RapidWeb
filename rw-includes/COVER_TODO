@@ -1,0 +1,33 @@
+OLB_PDO
+
+  beginTransaction
+    In order to induce these we will need to mock PDO itself.
+      PDO::beginTransaction throwing a non-retryable exception
+      PDO::beginTransaction returning false
+  
+  logRetry
+  logWarning
+  logRetry
+    The code involved here are just calls to error_log and are usually overridden.
+
+OLB_PDO_STH
+
+  rewind
+    Used in iterator mode when working with multiple rowsets.
+
+  prepare
+    On reconnect, resetting:
+      fetchMode, bindValues, bindParams, bindColumns and attrs
+
+  dump
+    On errors, printing out:
+      bindValues, bindParams, bindColumns, attrs and fetchMode
+
+  execute
+    Error thrown after running out of retries.
+    This will require a mock PDOStatement object:
+      PDOStatement::execute throwing a non-PDOException
+
+  setAttribute
+  getAttribute
+    This may require a mock PDOStatement object, as most drivers do not actually implement statement handle attributes.
