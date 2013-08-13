@@ -2,6 +2,7 @@
 
 set_include_path(get_include_path().PATH_SEPARATOR.__DIR__."/modyllic");
 require_once "Modyllic/AutoLoader.php";
+Modyllic_Autoloader::install();
 
 // essential internal stuff -- skip it. Go down to Part One. There
 // are four parts to this file that interest you, all labeled Part

@@ -1,7 +1,6 @@
 <?php 
 
-function update_modyllic($dbc) {
-    Modyllic_AutoLoader::install();
+function update_modyllic(\OLB_PDO $dbc) {
     global $mysql_user;
     global $mysql_pwd;
     global $mysql_server;
@@ -62,7 +61,7 @@ define('RAPIDWEB_DB_VERSION', 11);
 function OpenDataBase() {
     global $mysql_server, $mysql_user, $mysql_pwd, $mysql_db;
 
-    $dbc = new PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
+    $dbc = new OLB_PDO("mysql:host=$mysql_server;dbname=$mysql_db", $mysql_user, $mysql_pwd);
     $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbc->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $dbc->exec("SET NAMES 'utf8'");
@@ -89,7 +88,7 @@ function MakeDBHash($pagename, $pagehash) {
 
 
 /** Deserialize components of page data coming from MySQL */
-function MakePageHash(PDO $dbc, $dbhash) {
+function MakePageHash(\OLB_PDO $dbc, $dbhash) {
   $dbhash['refs'] = unserialize($dbhash['refs']);
   $dbhash['gallery'] = json_decode($dbhash['gallery']);
   if(!$dbhash['plugins'] = json_decode($dbhash['plugins'])) $dbhash['plugins'] = new StdClass;
@@ -107,7 +106,7 @@ function MakePageHash(PDO $dbc, $dbhash) {
 *
 * @todo Move into RapidWebPage class
 */
-function RetrievePage(PDO $dbc, $pagename) {
+function RetrievePage(\OLB_PDO $dbc, $pagename) {
     $res = $dbc->prepare("select * FROM wiki WHERE pagename = ?");
     if ($res->execute(array($pagename))) {
         if ($dbhash = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -148,14 +147,14 @@ function InsertPage($dbc, $pagename, $pagehash) {
    }
 }
 
-function SaveSettings(PDO $dbc, $settingshash) {
+function SaveSettings(\OLB_PDO $dbc, $settingshash) {
    foreach($settingshash as $key => $value) {
       $stmt = $dbc->prepare("REPLACE INTO settings (name, value) VALUES (?, ?);");
       $stmt->execute(array($key, $value));
    }
 }
 
-function RetrieveSettings(PDO $dbc) {
+function RetrieveSettings(\OLB_PDO $dbc) {
   if ($settings = $dbc->query("SELECT name, value FROM settings")) {
     $settingshash = array();
     while($row = $settings->fetch(PDO::FETCH_ASSOC)) {
@@ -176,7 +175,7 @@ function SaveCopyToArchive($dbi, $pagename, $pagehash) {
 }
 
 
-function IsWikiPage(PDO $dbc, $pagename) {
+function IsWikiPage(\OLB_PDO $dbc, $pagename) {
     $res = $dbc->prepare("SELECT count(*) AS count FROM wiki WHERE pagename = ?");
     if ($res->execute(array($pagename))) {
         $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -185,7 +184,7 @@ function IsWikiPage(PDO $dbc, $pagename) {
     return 0;
 }
 
-function IsInArchive($dbc, $pagename) {
+function IsInArchive(\OLB_PDO $dbc, $pagename) {
     try {
         $stmt = $dbc->prepare("SELECT count(*) AS count FROM archive WHERE pagename = ?");
         $stmt->execute(array($pagename));
@@ -196,7 +195,7 @@ function IsInArchive($dbc, $pagename) {
     }
 }
 
-function RemovePage(PDO $dbc, $pagename) {
+function RemovePage(\OLB_PDO $dbc, $pagename) {
     $stmt = $dbc->prepare("DELETE FROM wiki WHERE pagename = ?");
     $stmt->execute(array($pagename));
 }
@@ -222,7 +221,7 @@ function MakeSQLSearchClause($search, $column) {
 }
 
 // setup for title-search
-function InitTitleSearch($dbc, $search) {
+function InitTitleSearch(\OLB_PDO $dbc, $search) {
     $clause = MakeSQLSearchClause($search, 'pagename');
     $res = $dbc->exec("SELECT pagename FROM wiki WHERE $clause ORDER BY pagename");
     return $res;
@@ -230,7 +229,7 @@ function InitTitleSearch($dbc, $search) {
 
 
 // iterating through database
-function TitleSearchNextMatch($dbc, $res) {
+function TitleSearchNextMatch(\OLB_PDO $dbc, $res) {
   if($o = $res->fetch(PDO::FETCH_ASSOC)) {
      return $o->pagename;
   }
@@ -241,22 +240,22 @@ function TitleSearchNextMatch($dbc, $res) {
 
 
 // setup for full-text search
-function InitFullSearch($dbc, $search) {
+function InitFullSearch(\OLB_PDO $dbc, $search) {
     $clause = MakeSQLSearchClause($search, 'content');
     $res = $dbc->query("SELECT * FROM wiki WHERE $clause");
     return $res;
 }
 
 // iterating through database
-function FullSearchNextMatch($dbc, $res) {
-    if($hash = $res->fetch(PDO::FETCH_ASSOC)) {
+function FullSearchNextMatch(\OLB_PDO $dbc, $res) {
+    if($hash = $res->fetch(\OLB_PDO::FETCH_ASSOC)) {
         return MakePageHash($dbc, $hash);
     } else {
         return 0;
     }
 }
 
-function GetAllWikiPageNames($dbc) {
+function GetAllWikiPageNames(\OLB_PDO $dbc) {
     $res = $dbc->query("SELECT pagename FROM wiki");
     $rows = $res->numRows();
     for ($i = 0; $i < $rows; $i++) {
