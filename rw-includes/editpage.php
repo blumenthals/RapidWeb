@@ -1,5 +1,8 @@
 <?php
 
+require __DIR__."/../rw-admin/require-authentication.php";
+
+
 // editpage relies on $pagename and $ScriptUrl
 
 if ($edit) {

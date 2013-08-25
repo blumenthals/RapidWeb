@@ -104,7 +104,7 @@ try {
     elseif (isset($_REQUEST['s']))     // default to title search
         $search = $_REQUEST['s'];
 
-    if (isset($_REQUEST['edit']) && defined('WIKI_ADMIN')) {
+    if (isset($_REQUEST['edit'])) {
         $edit = $_REQUEST['edit'];
         include "rw-includes/editpage.php";
     } elseif (isset($_REQUEST['links']) && defined('WIKI_ADMIN')) {
