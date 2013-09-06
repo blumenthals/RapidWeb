@@ -201,7 +201,6 @@ class RapidWeb extends EventEmitter {
 
     public function do_savePage($page) {
         global $dbc;
-        global $LinkStyle;
         $pagehash = RetrievePage($dbc, $page->pagename);
 
         // if this page doesn't exist yet, now's the time!
@@ -210,39 +209,37 @@ class RapidWeb extends EventEmitter {
             $newpage = 1;
         }
 
-	if (!$pagehash['page_type']) $pagehash['page_type'] = 'page';
+        if (!$pagehash['page_type']) $pagehash['page_type'] = 'page';
 
         $old = new \RapidWebPage($pagehash);
 
-	$new = new \RapidWebPage((array)$page);
-	foreach ($page as $k => $v) {
-		$new->$k = $v;
-	}
+        $new = new \RapidWebPage((array)$page);
+        foreach ($page as $k => $v) {
+            $new->$k = $v;
+        }
 
-	$handler = $this->pageTypes[$new->page_type];
+        $handler = $this->pageTypes[$new->page_type];
 
-	$handler->savePage($new, $old);
+        $handler->savePage($new, $old);
 
         header('Content-Type: text/json');
 
-        if (isset($LinkStyle) and $LinkStyle == 'path') {
-            print(json_encode(
-                array(
-                    'page' => array(
-                        'public' => $this->rootURL . $page->pagename,
-                        'private' => $this->rootURL . $page->pagename
-                    )
+        print(json_encode(
+            array(
+                'page' => array(
+                    'public' => $this->urlForPage($pagename),
+                    'private' => $this->urlForPage($pagename)
                 )
-            ));
+            )
+        ));
+    }
+
+	public function urlForPage($pagename) {
+        global $LinkStyle;
+        if (isset($LinkStyle) and $LinkStyle == 'path') { 
+            return $this->rootURL . $pagename;
         } else {
-            print(json_encode(
-                array(
-                    'page' => array(
-                        'public' => $this->rootURL . 'index.php?' . $page->pagename,
-                        'private' => $this->rootURL . 'index.php?' . $page->pagename
-                    )
-                )
-            ));
+            return $this->rootURL . 'index.php?' . $pagename;
         }
     }
 
