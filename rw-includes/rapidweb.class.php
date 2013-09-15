@@ -226,15 +226,12 @@ class RapidWeb extends EventEmitter {
 
         print(json_encode(
             array(
-                'page' => array(
-                    'public' => $this->urlForPage($pagename),
-                    'private' => $this->urlForPage($pagename)
-                )
+                'location' => $this->urlForPage($page->pagename)
             )
         ));
     }
 
-	public function urlForPage($pagename) {
+    public function urlForPage($pagename) {
         global $LinkStyle;
         if (isset($LinkStyle) and $LinkStyle == 'path') { 
             return $this->rootURL . $pagename;

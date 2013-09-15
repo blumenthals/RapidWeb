@@ -9,12 +9,8 @@ jQuery.fn.rapidwebEditor = function(options) {
             type: 'POST',
             headers: {'Content-Type': 'text/json'}
         }).success(function(data) {
-            if(data.page) {
-                if(data.page.private) {
-                    window.location = data.page.private;
-                } else if(data.page.public) {
-                    window.location = data.page.public;
-                }
+            if (data.location) {
+                window.location = data.location;
             }
         })
     }
