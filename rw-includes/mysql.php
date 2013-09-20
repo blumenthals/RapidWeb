@@ -137,10 +137,11 @@ function InsertPage($dbc, $pagename, $pagehash) {
         $pagehash['noindex'], (isset($pagehash['template']) ? $pagehash['template'] : NULL),
         $pagehash['page_type'],
         $pagehash['gallery'],
-        $pagehash['plugins']
+        $pagehash['plugins'],
+        $pagehash['head'], $pagehash['foot']
     );
 
-    $res = $dbc->prepare("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $res = $dbc->prepare("REPLACE INTO wiki (author, content, created, flags, lastmodified, pagename, refs, version, title, meta, keywords, variables, noindex, template, page_type, gallery, plugins, head, foot) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$res->execute($VALUES)) {
         $msg = sprintf("Error writing page '%s'", $pagename);
         ExitWiki($msg);

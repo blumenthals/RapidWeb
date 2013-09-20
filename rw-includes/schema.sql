@@ -60,6 +60,8 @@ CREATE TABLE wiki (
     gallery TEXT,
     page_type VARCHAR(32) NOT NULL DEFAULT 'page',
     plugins TEXT,
+    head TEXT,
+    foot TEXT,
     PRIMARY KEY (pagename)
 ) ENGINE=MyISAM
 ;;
