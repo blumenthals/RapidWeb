@@ -41,16 +41,15 @@
       </table>
 
       <br>
-
         <?php
             foreach($this->rapidweb->getPageTypes() as $slug => $pageType) {
                 echo "<div id='{$slug}_editor' class='rapidweb-editor'>";
                 $pageType->the_editor_content($this);
                 echo "</div>";
             }
+
+            $this->do_editor_settings();
         ?>
-
-
     </div>
 
     <?php $this->do_foot(); ?>

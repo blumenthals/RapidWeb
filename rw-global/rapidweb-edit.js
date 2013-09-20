@@ -1,11 +1,50 @@
 jQuery.fn.rapidwebEditor = function(options) {
     var saveURL = this.find('link[rel=rapidweb-admin]').attr('href')
 
-    var savePage = function savePage() {
+    var RapidwebPage = Backbone.Model.extend({});
+    var RapidwebEditor = Backbone.View.extend({
+        initialize: function (options) {
+            this.model.on('change', this.updateFields, this);
+            this.updateFields(this.model);
+        },
+        updateFields: function (model) {
+            for (var i in Object.keys(model.changed)) {
+                this.$('[name=' + i + ']').not('[type=checkbox]').val(model.changed[i]);
+            }
+            
+            this.$('[name=noindex]').get(0).checked = model.changed.noindex;
+        },
+        events: {
+            "change [name=metakeywords]": function (ev) {
+                this.model.set('keywords', $(ev.target).val());
+            },
+            "change .details [name]": function (ev) {
+                if (ev.target.nodeName.toLowerCase() == 'input' && ev.target.getAttribute('type') == 'checkbox') return;
+                this.model.set(ev.target.getAttribute('name'), ev.target.value);
+            },
+            "change .details [type=checkbox]": function (ev) {
+                this.model.set(ev.target.getAttribute('name'), ev.target.checked);
+            },
+            "click [name=save]": function(ev) {
+                ev.preventDefault();
+                savePage();
+            }
+        }
+    });
+
+    var model = new RapidwebPage();
+
+    window.v = new RapidwebEditor({el: $('body'), model: model});
+
+    model.set(pagedata);
+
+    model.attributes = pagedata; // Compatibility shim!
+
+    function savePage() {
         $.ajax({
             url: saveURL, 
             processData: false ,
-            data: JSON.stringify({command: 'savePage', page: pagedata}), 
+            data: JSON.stringify({command: 'savePage', page: model.toJSON()}), 
             type: 'POST',
             headers: {'Content-Type': 'text/json'}
         }).success(function(data) {
@@ -21,7 +60,7 @@ jQuery.fn.rapidwebEditor = function(options) {
         $(editortoshow).show()
     }
 
-    var modelBind = function modelBind(obj, field, control) {
+    function modelBind(obj, field, control) {
         $(control).change(function() {
             obj[field] = $(control).val()
         })
@@ -32,7 +71,7 @@ jQuery.fn.rapidwebEditor = function(options) {
         }
     }
 
-    var modelBindCheckbox = function modelBindCheckbox(obj, field, control) {
+    function modelBindCheckbox(obj, field, control) {
         $(control).change(function() {
             obj[field] = $(control).prop('checked')
         })
@@ -44,6 +83,11 @@ jQuery.fn.rapidwebEditor = function(options) {
     }
 
     $('#page_type').change(selectEditor)
+
+    modelBind(pagedata, 'page_type', '#page_type')
+    modelBind(pagedata, 'title', '.rapidweb-page-title-editor')
+    modelBind(pagedata, 'title', 'title')
+    modelBind(pagedata, 'content', '#page_editor [name=content]')
 
     var inlineEdit = $("<input class='rapidweb-page-title-editor'>")
     inlineEdit.hide()
@@ -71,17 +115,6 @@ jQuery.fn.rapidwebEditor = function(options) {
         $('title').text($(this).val())
     })
     
-    modelBind(pagedata, 'page_type', '#page_type')
-    modelBind(pagedata, 'content', '#page_editor [name=content]')
-    modelBind(pagedata, 'title', '#page_editor [name=title]')
-    modelBind(pagedata, 'title', '.rapidweb-page-title-editor')
-    modelBind(pagedata, 'title', 'title')
-    modelBind(pagedata, 'meta', '#page_editor [name=meta]')
-    modelBind(pagedata, 'keywords', '#page_editor [name=keywords]')
-    modelBind(pagedata, 'variables', '#page_editor [name=variables]')
-    modelBind(pagedata, 'template', '#page_editor [name=template]')
-    modelBindCheckbox(pagedata, 'noindex', '#page_editor [name=noindex]')
-
     this.find('.details-box .details-box-show').click(function() {
         $(this).hide()
         $(this).closest('.details-box').find('.details-box-hide').show()
@@ -95,11 +128,6 @@ jQuery.fn.rapidwebEditor = function(options) {
     })
 
     this.find('.details-box .details-box-hide, .details-box .details').hide()
-
-    this.find('[name=save]').click(function(ev) {
-        ev.preventDefault();
-        savePage();
-    })
 
     return this
 
