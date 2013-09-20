@@ -244,7 +244,9 @@ class WikiPage extends RWPlugin implements RWPageType {
     }
 
     public function the_content($page) {
+	echo $page->getParser()->parse($page->head);
         echo "###CONTENT###";
+	echo $page->getParser()->parse($page->foot);
     }
 
     public function the_title() {

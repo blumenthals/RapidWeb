@@ -21,5 +21,9 @@ namespace Rapidweb {
         public function toJSON() {
             return json_encode($this->hash);
         }
+
+        public function getParser() {
+            return new Parser($this->hash);
+        }
     }
 }
