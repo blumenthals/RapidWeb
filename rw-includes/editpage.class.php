@@ -58,6 +58,14 @@ class EditPage extends View {
                 <td><textarea name='variables' rows=2 class="txtfield"><?php echo $this->page->variables ?></textarea>  </td>
               </tr>
               <tr>
+                <td width="70" valign="top"><strong>Header </strong> </td>
+                <td><textarea name='head' rows=2 class="txtfield"><?php echo $this->page->head ?></textarea>  </td>
+              </tr>
+              <tr>
+                <td width="70" valign="top"><strong>Footer </strong> </td>
+                <td><textarea name='foot' rows=2 class="txtfield"><?php echo $this->page->foot ?></textarea>  </td>
+              </tr>
+              <tr>
                 <td width="70" valign="top"><strong>Page Template </strong> </td>
                 <td><select name='template'><?php echo ListTemplates($this->page->template); ?></select>                    </td>
               </tr>
