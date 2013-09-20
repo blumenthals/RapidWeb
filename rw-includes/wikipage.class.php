@@ -31,10 +31,6 @@ class WikiPage extends RWPlugin implements RWPageType {
           <div class='details'>
             <table width="100%" cellpadding="5" cellspacing="0" bgcolor="#f6f4e7">
               <tr>
-                <td width="70" valign="top"><strong>Title:</strong></td>
-                <td><input name='title' type=text class="txtfield" value='<?php echo $view->page->title ?>'>                    </td>
-              </tr>
-              <tr>
                 <td width="70" valign="top"><strong>Meta Description </strong> </td>
                 <td><textarea name='meta' rows=2 class="txtfield"><?php $view->page->meta ?></textarea>                    </td>
               </tr>
