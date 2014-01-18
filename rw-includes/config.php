@@ -8,7 +8,9 @@ Modyllic_Autoloader::install();
 // are four parts to this file that interest you, all labeled Part
 // One, Two, Three and Four.
 
-set_magic_quotes_runtime(0);
+if (PHP_VERSION_ID < 50400) {
+    set_magic_quotes_runtime(0);
+}
 error_reporting(E_ALL ^ E_NOTICE);
 
 // end essential internal stuff
