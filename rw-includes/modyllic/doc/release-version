@@ -1,0 +1,78 @@
+#!/bin/bash
+set -e -o pipefail
+VERSION=$1
+DEFAULT_STABILITY=beta
+STABILITY=${2-$DEFAULT_STABILITY}
+
+if [ "$1." == . ]; then
+	echo "Form: release-version version [stability]"
+	echo "If you don't specify a stability it will default to $DEFAULT_STABILITY"
+	exit 1
+fi
+
+make install-dist-prereqs test
+
+which pirum >/dev/null || echo "pirum cannot be executed" 1>&2
+which openssl >/dev/null || echo "openssl cannot be executed" 1>&2
+
+make test
+
+# Fetch all the tags, sort them and extract the most recent released version
+CURRENT=$(git tag | perl -ne 'next unless /^v(\d+)[.](\d+)[.](\d+)$/; printf "%03d.%03d.%03d,%s",$1,$2,$3,$_' | sort | tail -1 | cut -d, -f2)
+
+# Fetch all the commits since the most recent release and put them in the changelog
+echo "# Edit this list of commits down to something a user would want to read" > CHANGELOG.raw
+git log --format="* %s (%aN)" ${CURRENT}.. --ancestry-path  --no-merges > git.log
+if [ ! -s git.log ]; then
+	git log --format="* %s (%aN)" ${CURRENT}.. --topo-order  --no-merges > git.log
+fi
+cat git.log >> CHANGELOG.raw
+rm git.log
+
+# Have the user edit the changelog into something human readable, using
+# in order of preference, $VISUAL, $EDITOR, sensible-editor or vi.
+VISUAL=${VISUAL-${EDITOR-$(which sensible-editor || which vi)}}
+$VISUAL CHANGELOG.raw
+grep -v '^#' CHANGELOG.raw > CHANGELOG.new
+rm CHANGELOG.raw
+
+# Add the changelog to the wiki
+php build-changelog v$VERSION CHANGELOG.new > Changes.md-new
+git checkout upstream-wiki
+git pull upstream-wiki master
+mv Changes.md-new Changes.md
+git add Changes.md
+git commit -m"Release Modyllic-$VERSION"
+git checkout master
+
+# Merge the wiki
+git merge -s subtree upstream-wiki || $SHELL
+
+# Merge the test library
+git fetch upstream-testlib
+git merge -s subtree upstream-testlib/master || $SHELL
+
+# Commit the changelog
+mv CHANGELOG.new CHANGELOG
+git add CHANGELOG
+git commit -m"Release Modyllic-$VERSION"
+
+# Build a package.xml
+php build-package-xml base.xml package.xml $VERSION $STABILITY
+
+git tag "v$VERSION"
+
+pear package package.xml
+
+git checkout upstream-pear
+
+git pull upstream-pear gh-pages
+
+./release "Modyllic-$VERSION.tgz"
+git add -A feed.xml index.html rest/* get/* packages.json
+git commit -m"Release Modyllic-$VERSION"
+git checkout master
+
+echo "Release $VERSION built."
+echo "Verify that it's correct in the master and upstream-pear branches.  If all looks ok, run:"
+echo "    ./publish-version"

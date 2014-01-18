@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © 2011 Online Buddies, Inc. - All Rights Reserved
+ *
+ * @package Modyllic
+ * @author bturner@online-buddies.com
+ */
+
+if ($lib_path = getenv("MODYLLIC_LIB_PATH")) set_include_path($lib_path.":".get_include_path());
+
+require_once "Modyllic/CommandLine.php";
+
+$args = Modyllic_CommandLine::get_args(array(
+    'description' => 'Preparse the SQL and generate something that can be loaded instantly.',
+    'arguments' => array(
+        'spec' => array('multiple'=>true) )));
+
+$schema = Modyllic_CommandLine::schema($args->args['spec']);
+
+print serialize($schema);

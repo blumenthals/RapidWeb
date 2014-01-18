@@ -1,5 +1,46 @@
 Revision history for PHP module Modyllic
 
+v0.2.23 2014-01-06
+
+* Static tables with null values will now compare correctly
+* Comparing normalized types will now always use the right type while normalizing
+* Add ability to issue alters individually for, eg, replicating 5.5->5.6
+* Make attempts to insert into tables that don't yet exist non fatal-- although the insert WILL fail
+* Add facility for determining non-reserved keywords for highlighting purposes
+* Only emit ROW_FORMAT when it differs from the default.
+* Stop emitting IF EXISTS in ModyllicSQL
+* Use exec instead of prepare/execute to bypass bind param checking
+* Add examples to readme
+
+v0.2.22 2013-11-27
+
+* Make unknown metadata an error rather than an exception
+* Remove SQLMETA backwards compatibility
+* Allow enabling or disabling an event through ALTER EVENT
+* Upgrade substrs and matches to UTF-8
+* Support for SQL expressions in INSERT commands
+
+v0.2.21 2013-10-28
+
+* Match the function signature up with Modyllic_Schema_Index_Foreign::validate
+* Drop constraints, THEN indexes, THEN columns
+
+v0.2.20 2013-10-22
+
+* Fix emitting of altered events
+
+v0.2.19 2013-10-18
+
+* Fix false event diffs Events are tricky to handle right, for two reasons:
+* Whenever possible, produce error messages rather than exceptions
+* Add schema validation as a feature
+* Work around MySQL constraint limitations, separating drops from adds.
+* Fix handling of marking a column as a primary key-- columns are then marked not null by implication
+* Fix false view diffs MySQL compresses the spaces between the AS keyword and the select statement, so we need to parse at least that far.
+* Stop rewriting code body blocks when we didn't need to
+* Fix guard against events not existing
+* Fix #249: Guard against events not existing in MySQL 5.0
+
 v0.2.18 2013-06-24
 
 * Remove extra whitespace from view and event parsing (Rebecca Turner)

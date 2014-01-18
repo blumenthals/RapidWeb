@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © 2011 Online Buddies, Inc. - All Rights Reserved
+ *
+ * @package Modyllic
+ * @author bturner@online-buddies.com
+ */
+
+if ($lib_path = getenv("MODYLLIC_LIB_PATH")) set_include_path($lib_path.":".get_include_path());
+
+require_once "Modyllic/CommandLine.php";
+
+$args = Modyllic_CommandLine::get_args(array(
+    'description' => 'Generate a PHP helper class for the stored procs in the schema',
+    'options' => array(
+        'class' => array(
+            'short_name'  => '-c',
+            'long_name'   => '--class',
+            'description' => 'classname to use in the generated PHP, defaults to the database name',
+            'action'      => 'StoreString',
+            ) ),
+    'arguments' => array(
+        'spec' => array('multiple'=>true) )));
+
+$schema = Modyllic_CommandLine::schema($args->args['spec']);
+
+$class = $args->options['class'];
+if (!$class) { $class = ucfirst($schema->name); }
+
+$generator = new Modyllic_Generator_PHP();
+
+print $generator->helpers($schema,$class);
