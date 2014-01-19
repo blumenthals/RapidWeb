@@ -1,4 +1,3 @@
-<?php if (!isset($GLOBALS['LinkStyle']) or $GLOBALS['LinkStyle'] != 'path') throw new Exception('This theme requires $LinkStyle to be "path"'); ?>
 <!doctype html>
 <html>
 <head>
