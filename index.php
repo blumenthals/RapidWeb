@@ -99,14 +99,15 @@ if (isset($_REQUEST['full'])) {
 
 try {
     // Allow choice of submit buttons to determine type of search:
-    if (isset($_REQUEST['searchtype']) && ($_REQUEST['searchtype'] == 'full'))
+    if (isset($_REQUEST['searchtype']) && ($_REQUEST['searchtype'] == 'full')) {
         $full = $_REQUEST['s'];
-    elseif (isset($_REQUEST['s']))     // default to title search
+    } elseif (isset($_REQUEST['s'])) {    // default to title search
         $search = $_REQUEST['s'];
+    }
 
     if (isset($_REQUEST['edit'])) {
         $edit = $_REQUEST['edit'];
-        include "rw-includes/editpage.php";
+        include "rw-includes/legacy-editpage.php";
     } elseif (isset($_REQUEST['links']) && defined('WIKI_ADMIN')) {
         $links = $_REQUEST['links'];
         include "rw-includes/editlinks.php";
@@ -115,7 +116,7 @@ try {
         include "rw-includes/settings.php";
     } elseif (isset($_REQUEST['copy']) && defined('WIKI_ADMIN')) {
         $links = $_REQUEST['copy'];
-        include "rw-includes/editpage.php";
+        include "rw-includes/legacy-editpage.php";
     } elseif (isset($search)) {
         include "rw-includes/search.php";
     } elseif (isset($full)) {
