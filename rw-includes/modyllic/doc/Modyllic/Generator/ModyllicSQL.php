@@ -108,21 +108,30 @@ class Modyllic_Generator_ModyllicSQL {
     }
 
     function alter( Modyllic_Diff $diff ) {
-        $this->source = $diff->changeset;
+        $this->source = $diff;
         if ( ! $diff->changeset->has_changes() ) {
             return $this;
         }
+
         if ( isset($this->what['database']) ) {
             $this->alter_database( $diff->changeset->schema );
         }
+
+        if ( isset($this->what['routines']) ) {
+            $this->drop_routines( $diff->changeset->remove['routines'] );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->create_routines( $diff->changeset->add['routines'] );
+        }
+        if ( isset($this->what['routines']) ) {
+            $this->alter_routines( $diff->changeset->update['routines'] );
+        }
+
         if ( isset($this->what['triggers']) ) {
             $this->drop_triggers( $diff->changeset->remove['triggers'] );
         }
         if ( isset($this->what['events']) ) {
             $this->drop_events( $diff->changeset->remove['events'] );
-        }
-        if ( isset($this->what['routines']) ) {
-            $this->drop_routines( $diff->changeset->remove['routines'] );
         }
         if ( isset($this->what['views']) ) {
             $this->drop_views( $diff->changeset->remove['views'] );
@@ -137,9 +146,6 @@ class Modyllic_Generator_ModyllicSQL {
         if ( isset($this->what['views']) ) {
             $this->create_views( $diff->changeset->add['views'] );
         }
-        if ( isset($this->what['routines']) ) {
-            $this->create_routines( $diff->changeset->add['routines'] );
-        }
         if ( isset($this->what['events']) ) {
             $this->create_events( $diff->changeset->add['events'] );
         }
@@ -149,12 +155,10 @@ class Modyllic_Generator_ModyllicSQL {
 
         if ( isset($this->what['tables']) ) {
             $this->alter_tables( $diff->changeset->update['tables'] );
+            $this->create_constraints( $diff->changeset->add['tables'] );
         }
         if ( isset($this->what['views']) ) {
             $this->alter_views( $diff->changeset->update['views'] );
-        }
-        if ( isset($this->what['routines']) ) {
-            $this->alter_routines( $diff->changeset->update['routines'] );
         }
         if ( isset($this->what['events']) ) {
             $this->alter_events( $diff->changeset->update['events'] );
@@ -189,14 +193,15 @@ class Modyllic_Generator_ModyllicSQL {
         if ( isset($this->what['database']) ) {
             $this->create_database( $schema );
         }
+        if ( isset($this->what['routines']) ) {
+            $this->create_routines( $schema->routines );
+        }
         if ( isset($this->what['tables']) ) {
             $this->create_tables( $schema->tables, $schema );
+            $this->create_constraints( $schema->tables );
         }
         if ( isset($this->what['views']) ) {
             $this->create_views( $schema->views );
-        }
-        if ( isset($this->what['routines']) ) {
-            $this->create_routines( $schema->routines );
         }
         if ( isset($this->what['events']) ) {
             $this->create_events( $schema->events );
@@ -284,6 +289,13 @@ class Modyllic_Generator_ModyllicSQL {
     function create_tables( $tables, $schema ) {
         foreach ( $tables as $table ) {
             $this->create_table($table, $schema);
+        }
+        return $this;
+    }
+
+    function create_constraints( $tables ) {
+        foreach ( $tables as $table ) {
+            $this->create_constraint($table);
         }
         return $this;
     }
@@ -406,7 +418,7 @@ class Modyllic_Generator_ModyllicSQL {
         $this->table_docs( $table );
         $this->extend( "CREATE TABLE %id (", $table->name );
         $this->indent();
-        $indexes = array_filter( $table->indexes, array($this,"active_index_filter") );
+        $indexes = array_filter( $table->indexes, array($this,"not_foreign_key_filter") );
         $entries = count($table->columns) + count($indexes);
         $completed = 0;
         foreach ( $table->columns as $column ) {
@@ -436,66 +448,145 @@ class Modyllic_Generator_ModyllicSQL {
         return $this;
     }
 
-    function alter_table( $table ) {
+    function prepare_for_constraint($index) {
+        if (! isset($index->prepare)) return;
+        $proc = new Modyllic_Schema_Proc('MODYLLIC_'.(isset($index->cname)?$index->cname:$index->name));
+        $proc->body = $index->prepare;
+        $this->create_procedure($proc);
+        $this->cmd("CALL %id()", $proc->name);
+        $this->drop_procedure($proc);
+    }
+
+    function create_constraint( Modyllic_Schema_Table $table ) {
         if ( ! isset($this->what['meta']) and $table instanceOf Modyllic_Schema_MetaTable ) { return; }
-        if ( $table->has_schema_changes() ) {
-            if ( $table->options->has_changes() or
-                 count($table->add['columns'])+count($table->remove['columns'])+count($table->update['columns'])+
-                 count($table->add['indexes'])+count($table->remove['indexes']) > 0 ) {
-                $this->begin_cmd( "ALTER TABLE %id ", $table->name );
-                $this->begin_list();
-                if ($table->options->has_changes()) {
-                    $this->table_options( $table->options );
-                }
-                foreach ($table->remove['indexes'] as $index) {
-                    if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
-                        $this->drop_index($index);
-                    }
-                }
-                foreach ($table->remove['indexes'] as $index) {
-                    if ( ! $index instanceOf Modyllic_Schema_Index_Foreign ) {
-                        $this->drop_index($index);
-                    }
-                }
-                foreach (array_reverse($table->add['columns']) as $column) {
-                    $this->add_column( $column );
-                }
-                foreach ($table->remove['columns'] as $column) {
-                    $this->drop_column($column);
-                }
-                foreach ($table->update['columns'] as $column) {
-                    $this->alter_column($column);
-                }
-                $constraints = array();
-                foreach ($table->add['indexes'] as $index) {
-                    if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
-                        $constraints[] = $index;
-                    }
-                    else {
-                        $this->add_index($index);
-                    }
-                }
-                $this->end_list();
-                $this->end_cmd();
-                if (count($constraints)) {
-                    $this->begin_cmd( "ALTER TABLE %id ", $table->name );
-                    $this->begin_list();
-                    foreach ($constraints as $index) {
-                        $this->add_index($index);
-                    }
-                    $this->end_list();
-                    $this->end_cmd();
-                }
-            }
+        $indexes = array_filter( $table->indexes, array($this,"foreign_key_only_filter") );
+        $entries = count($indexes);
+        if ( ! $entries ) { return; }
+        ksort($indexes);
+        foreach ( $indexes as $index ) {
+            $this->prepare_for_constraint($index);
         }
-        $this->alter_table_data($table);
+        $this->begin_alter_table($table);
+        $completed = 0;
+        foreach ( $indexes as $index ) {
+            $this->add_index( $index );
+        }
+        $this->end_alter_table($table);
         return $this;
     }
 
-    function alter_table_data($table) {
-        if ( isset($table->static) and $table->static and ! $table->from->static ) {
-            $this->cmd("TRUNCATE %id", $table->name);
+    function remove_foreign_keys($indexes) {
+        foreach ($indexes as $index) {
+            if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
+                $this->drop_index($index);
+            }
         }
+    }
+
+    function clear_queue() {
+        $this->queue = array();
+    }
+    function queue_change( $method, $args ) {
+        $this->queue[] = array($method, $args);
+    }
+    function execute_queue() {
+        foreach ($this->queue as $todo) {
+            list($method, $args) = $todo;
+            call_user_func_array(array($this,$method),$args);
+        }
+    }
+
+    function queue_remove_keys($indexes) {
+        foreach ($indexes as $index) {
+            if ( ! $index instanceOf Modyllic_Schema_Index_Foreign ) {
+                $this->queue_change('drop_index',array($index));
+            }
+        }
+    }
+
+    function queue_remove_foreign_keys($indexes) {
+        foreach ($indexes as $index) {
+            if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
+                $this->queue_change('drop_index',array($index));
+            }
+        }
+    }
+
+    function queue_add_foreign_keys($indexes) {
+        foreach ($indexes as $index) {
+            if ( $index instanceOf Modyllic_Schema_Index_Foreign ) {
+                $this->queue_change('add_index',array($index));
+            }
+        }
+    }
+
+    function queue_add_keys($indexes) {
+        foreach ($indexes as $index) {
+            if ( ! $index instanceOf Modyllic_Schema_Index_Foreign ) {
+                $this->queue_change('add_index',array($index));
+            }
+        }
+    }
+
+    function begin_alter_table($table) {
+        $this->begin_cmd( "ALTER TABLE %id ", $table->name );
+        $this->begin_list();
+    }
+    function end_alter_table($table) {
+        $this->end_list();
+        $this->end_cmd();
+    }
+
+    function alter_table( $table ) {
+        if ( ! isset($this->what['meta']) and $table instanceOf Modyllic_Schema_MetaTable ) { return; }
+        if ( isset($table->static) and $table->static and ! $table->from->static ) {
+            $this->truncate_table($table);
+        }
+        if ( $table->has_schema_changes() ) {
+            $this->clear_queue();
+            if ($table->options->has_changes()) {
+                $this->queue_change( 'table_options', array($table->options) );
+            }
+            $this->queue_remove_foreign_keys($table->remove['indexes']);
+            $this->queue_remove_keys($table->remove['indexes']);
+            foreach (array_reverse($table->add['columns']) as $column) {
+                $this->queue_change( 'add_column', array( $column ) );
+            }
+            foreach ($table->remove['columns'] as $column) {
+                $this->queue_change( 'drop_column', array($column) );
+            }
+            foreach ($table->update['columns'] as $column) {
+                $this->queue_change( 'alter_column', array($column) );
+            }
+
+            if (count($this->queue)) {
+                $this->begin_alter_table($table);
+                $this->execute_queue();
+                $this->end_alter_table($table);
+            }
+        }
+        $this->alter_table_data($table);
+        if ( $table->has_schema_changes() ) {
+            $this->clear_queue();
+            foreach ($table->add['indexes'] as $index) {
+                $this->prepare_for_constraint($index);
+            }
+            $this->queue_add_keys($table->add['indexes']);
+            $this->queue_add_foreign_keys($table->add['indexes']);
+            if (count($this->queue)) {
+                $this->begin_alter_table($table);
+                $this->execute_queue();
+                $this->end_alter_table($table);
+            }
+        }
+        return $this;
+    }
+
+    function truncate_table($table) {
+        $this->cmd("TRUNCATE %id", $table->name);
+    }
+
+    function alter_table_data($table) {
         foreach ($table->remove['data'] as $row ) {
             $this->begin_cmd();
             $this->partial( "DELETE FROM %id WHERE ", $table->name);
@@ -638,26 +729,6 @@ class Modyllic_Generator_ModyllicSQL {
         return $this;
     }
 
-    function column_is_primary( Modyllic_Schema_Column $column ) {
-        return $column->is_primary;
-    }
-    function emit_column_is_primary( Modyllic_Schema_Column $column ) {
-        if ( $this->column_is_primary($column) ) {
-            $this->add( " PRIMARY KEY" );
-        }
-        return $this;
-    }
-
-    function column_unique( Modyllic_Schema_Column $column ) {
-        return $column->unique and ! $column->is_primary;
-    }
-    function emit_column_unique( Modyllic_Schema_Column $column ) {
-        if ( $this->column_unique($column) ) {
-            $this->add( " UNIQUE" );
-        }
-        return $this;
-    }
-
     function create_column( Modyllic_Schema_Column $column, $with_key=true ) {
         $this->extend("%id ", $column->name );
         if ( isset($column->from) ) {
@@ -670,10 +741,6 @@ class Modyllic_Generator_ModyllicSQL {
         $this->emit_column_auto_increment( $column );
         $this->emit_column_default( $column );
         $this->emit_column_on_update( $column );
-        if ( $with_key ) {
-            $this->emit_column_is_primary( $column );
-            $this->emit_column_unique( $column );
-        }
 
         $this->column_aliases($column);
         return $this;
@@ -705,17 +772,16 @@ class Modyllic_Generator_ModyllicSQL {
         return $this;
     }
 
-    function active_index_filter($index) {
-        return ! $this->ignore_index($index);
+    function foreign_key_only_filter($index) {
+        return $index instanceOf Modyllic_Schema_Index_Foreign;
+    }
+
+    function not_foreign_key_filter($index) {
+        return ! $this->foreign_key_only_filter($index);
     }
 
     function ignore_index(Modyllic_Schema_Index $index ) {
-        if ( $index->column_defined ) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return false;
     }
 
     function create_index( $index, $prefix=null ) {
@@ -831,7 +897,7 @@ class Modyllic_Generator_ModyllicSQL {
 
     function create_table_data($table) {
         if ( $table->static ) {
-            $this->cmd( "TRUNCATE TABLE %id", $table->name );
+            $this->truncate_table($table);
             foreach ($table->data as $row) {
                 $this->create_data( $table, $row );
             }

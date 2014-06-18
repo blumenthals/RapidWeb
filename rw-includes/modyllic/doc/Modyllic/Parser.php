@@ -767,9 +767,10 @@ class Modyllic_Parser {
         // characteristic:
         //   | [NOT] DETERMINISTIC
         //   | { CONTAINS SQL | NO SQL | READS SQL DATA | MODIFIES SQL DATA }
-        while ( $this->peek_next()->token() != 'BEGIN' and
-                $this->peek_next()->token() != 'RETURN' and
-                $this->peek_next()->token() != 'CALL' ) {
+        while ( true ) {
+            if (in_array($this->peek_next()->token(),array('BEGIN','RETURN','CALL','SELECT','INSERT','UPDATE','DELETE'))) {
+                break;
+            }
             switch ($this->get_reserved()) {
                 case 'CONTAINS SQL':
                 case 'NO SQL':
@@ -795,14 +796,10 @@ class Modyllic_Parser {
                 case 'COMMENT':
                     $this->get_string();
                     break;
-                case 'BEGIN';
-                    break;
-                case 'RETURN';
-                    break;
-                case 'CALL';
-                    break;
                 default:
                     $this->warning("Unknown characteristic in routine declaration: ".$this->cur()->debug());
+                    $this->tok->inject($this->cur());
+                    break 2;
             }
         }
         $routine->body = trim($this->rest());
@@ -947,7 +944,7 @@ class Modyllic_Parser {
         $this->get_reserved('ON');
         $table_name = $this->get_ident();
         if ( ! isset($this->schema->tables[$table_name]) ) {
-            throw $this->error("Tried to create INDEX on underknown table '$table_name'");
+            throw $this->error("Tried to create INDEX on unknown table '$table_name'");
         }
         $this->ctx = $this->schema->tables[$table_name];
         $this->get_symbol('(');
@@ -956,6 +953,11 @@ class Modyllic_Parser {
         if ( $this->peek_next()->token() == 'USING' ) {
             $this->get_reserved();
             $key->using = $this->get_reserved(array('BTREE','HASH'));
+        }
+        if ( $key->isConstraint() and $this->maybe('PREPARE') ) {
+            $this->assert_reserved();
+            $this->get_reserved('WITH');
+            $key->prepare = $this->get_statement();
         }
         $this->add_index( $key );
         return $key;
@@ -1227,11 +1229,12 @@ class Modyllic_Parser {
         //   | [UNIQUE|FULLTEXT] KEY ident (ident,...) [USING {BTREE|HASH}]
         $token = $this->assert_reserved();
         if ( $token == 'CONSTRAINT' or $token == 'FOREIGN KEY' ) {
-            return $this->load_foreign_key($token);
+            $key = $this->load_foreign_key($token);
         }
         else {
-            return $this->load_regular_key($token);
+            $key = $this->load_regular_key($token);
         }
+        return $key;
     }
 
     function load_regular_key($token) {
@@ -1274,11 +1277,17 @@ class Modyllic_Parser {
             $this->gen_index_name($key);
         }
 
-        if ( $this->peek_next()->token() == 'USING' ) {
-            $this->get_reserved();
+        if ( $this->maybe('USING') ) {
+            $this->assert_reserved();
             $key->using = $this->get_reserved(array('BTREE','HASH'));
         }
         $this->next();
+        if ( $key->isConstraint() and $this->cur()->token() == 'PREPARE' ) {
+            $this->assert_reserved();
+            $this->get_reserved('WITH');
+            $key->prepare = $this->get_statement(array(',',')'));
+            $this->next();
+        }
         $this->add_index( $key );
         return $key;
     }
@@ -1326,6 +1335,14 @@ class Modyllic_Parser {
             }
             else if ( $this->cur() instanceOf Modyllic_Token_Comment ) {
                 $key->docs = trim( $key->docs . ' ' . $this->cur()->value() );
+            }
+            else if ($this->cur()->token() == 'PREPARE') {
+                $this->assert_reserved();
+                $this->get_reserved('WITH');
+                $key->prepare = $this->get_statement(array(',',')'));
+            }
+            else if ( $this->cur() instanceOf Modyllic_Token_EOC ) {
+                break;
             }
             else {
                 $this->warning( "Error in foreign key declaration in ".$this->ctx->name.", expecting one of ".
@@ -1406,12 +1423,24 @@ class Modyllic_Parser {
             foreach ( $this->ctx->indexes as &$other_key ) {
                 if ( $other_key instanceOf Modyllic_Schema_Index_Foreign ) { continue; }
                 if ( count($key->columns) <= count($other_key->columns) ) {
+                    $idx = 0;
                     $matched = true;
-                    foreach ( $key->columns as $idx=>&$colname ) {
-                        if ( !isset($other_key->columns[$idx]) or $colname != $other_key->columns[$idx] ) {
+                    foreach ( $key->columns as $colname=>$truncate ) {
+                        if ( !isset($other_key->columns[$colname]) or $truncate != $other_key->columns[$colname] ) {
                             $matched = false;
                             break;
                         }
+                        $otheridx = 0;
+                        foreach ($other_key->columns as $othercolname=>$othertruncate) {
+                            if ($othercolname == $colname && $otheridx == $idx) {
+                                break;
+                            }
+                            if (++$otheridx > $idx) {
+                                $matched = false;
+                                break 2;
+                            }
+                        }
+                        ++$idx;
                     }
                     if ($matched) { break; }
                 }
@@ -1423,6 +1452,30 @@ class Modyllic_Parser {
                     $this->gen_index_name($regkey);
                 }
                 $this->add_index( $regkey );
+            }
+        }
+    }
+
+    function get_statement($terminated=array(), $delim_ends=true) {
+        $statement = '';
+        while (true) {
+            if ($delim_ends and $this->peek_next(true) instanceOf Modyllic_Token_EOC) {
+                return $statement;
+            }
+            if (in_array($this->peek_next(true)->token(), (array)$terminated)) {
+                return $statement;
+            }
+            $next = $this->next(true);
+            $statement .= $next->literal();
+            if ($next->token() == 'BEGIN') {
+                $delim = $this->tok->set_delimiter(';');
+                $statement .= $this->get_statement('END',false);
+                $this->tok->set_delimiter($delim);
+                $statement .= $this->next(true)->literal();
+            }
+            else if ($next->token() == '(') {
+                $statement .= $this->get_statement(')');
+                $statement .= $this->next(true)->literal();
             }
         }
     }

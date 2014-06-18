@@ -56,13 +56,15 @@ class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
 
     function sql_header() {
         return array(
-            "SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0",
             $this->_format("SET NAMES %str",array("utf8")),
+            "SET foreign_key_checks = 0"
             );
     }
 
     function sql_footer() {
-        return array( "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS" );
+        return array(
+            "SET foreign_key_checks = 1"
+        );
     }
 
     function table_meta($table) {
@@ -147,6 +149,57 @@ class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
         return $meta;
     }
 
+    function queue_remove_foreign_keys($indexes) {}
+    function queue_add_foreign_keys($indexes) {}
+
+    private function is_table_schema_changed($tables,$name) {
+        if (! isset($tables[$name])) return false;
+        return $tables[$name]->has_schema_changes();
+    }
+
+    function alter_tables($tables) {
+        // Here we disable all of the foreign keys in the tables we're modifying and that reference the tables that we're modifying
+        foreach ( $this->source->from->tables as $table ) {
+            $todrop = array();
+            foreach ( $table->indexes as $index ) {
+                if (! $index instanceOf Modyllic_Schema_Index_Foreign) continue;
+                if (! $this->is_table_schema_changed($tables,$table->name) and ! $this->is_table_schema_changed($tables,$index->references['table'])) continue;
+                if (isset($this->source->changeset->remove['tables'][$table->name])) continue;
+                $todrop[] = $index;
+            }
+            if (count($todrop)) {
+                $this->begin_alter_table($table);
+                foreach ($todrop as $index) {
+                    $this->drop_index($index);
+                }
+                $this->end_alter_table($table);
+            }
+        }
+
+        // then alter tables as we usually do
+        foreach ( $tables as $table ) {
+            $this->alter_table($table);
+        }
+
+        // then recreate the constraints we removed
+        foreach ( $this->source->to->tables as $table ) {
+            $toadd = array();
+            foreach ( $table->indexes as $index ) {
+                if (! $index instanceOf Modyllic_Schema_Index_Foreign) continue;
+                if (! $this->is_table_schema_changed($tables,$table->name) and ! $this->is_table_schema_changed($tables,$index->references['table'])) continue;
+                if (isset($this->source->changeset->remove['tables'][$table->name])) continue;
+                $toadd[] = $index;
+            }
+            if (count($toadd)) {
+                $this->begin_alter_table($table);
+                foreach ($toadd as $index) {
+                    $this->add_index($index);
+                }
+                $this->end_alter_table($table);
+            }
+        }
+    }
+
     function drop_database($schema) {
         if ($schema->name_is_default) return $this;
         $this->cmd( "DROP DATABASE IF EXISTS %id", $schema->name );
@@ -182,4 +235,15 @@ class Modyllic_Generator_MySQL extends Modyllic_Generator_ModyllicSQL {
         $this->cmd( "DROP EVENT IF EXISTS %id", $event->name );
         return $this;
     }
+
+    function truncate_table($table) {
+        $target = isset($table->to) ? $table->to : $table;
+        $this->cmd("DELETE FROM %id", $target->name);
+        foreach ($target->columns as $col) {
+            if (! $col->auto_increment) continue;
+            $this->cmd("ALTER TABLE %id AUTO_INCREMENT = 1", $target->name);
+            break;
+        }
+    }
+
 }

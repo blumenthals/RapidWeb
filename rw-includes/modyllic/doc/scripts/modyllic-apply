@@ -108,7 +108,16 @@ function apply_cmd($dbh,$cmd,$dsntoapply,$filename,$skip=null) {
         echo sprintf("%4s ----------------------------------------------\n", "#$stmt");
         echo "$cmd\n";
         try {
-            $dbh->exec($cmd);
+            $sth = $dbh->query($cmd);
+            // Do the full iteration over the result sets to un-cover any errors.
+            try {
+                do {
+                    if ($sth->rowCount()) while ($sth->fetch(PDO::FETCH_NUM) !== false);
+                } while($sth->nextRowset());
+            }
+            catch (PDOException $e) {
+                if (strpos($e->getMessage(), 'SQLSTATE[HY000]: General error') === false) throw $e;
+            }
         }
         catch (Exception $e) {
             echo "== ERROR ==========================================\n";

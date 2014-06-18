@@ -20,6 +20,7 @@ class Modyllic_Schema_Index extends Modyllic_Diffable {
     public $unique   = false;
     public $using;
     public $columns  = array();
+    public $prepare;
 
     /**
      * @param string $name
@@ -32,23 +33,24 @@ class Modyllic_Schema_Index extends Modyllic_Diffable {
         return $this->name;
     }
 
+    function isConstraint() {
+        return $this->unique || $this->primary;
+    }
+
     /**
      * @param Modyllic_Schema_Index $other
      * @returns bool True if $other is equivalent to $this
      */
-    function equal_to(Modyllic_Schema_Index $other, array $fromnames=null) {
-        if ( get_class($other) != get_class($this) )   { return false; }
-        if ( isset($fromnames) ) {
-            if ( count($this->columns) != count($other->columns) ) { return false; }
-            foreach ($other->columns as $name=>$column) {
-                if ( ( ! isset($fromnames[$name]) or ! isset($this->columns[$fromnames[$name]]) ) and
-                     ! isset($this->columns[$name]) ) {
-                    return false;
-                }
+    function equal_to(Modyllic_Schema_Index $other, array $fromnames=array()) {
+        if ( get_class($other) != get_class($this) ) { return false; }
+        if ( count($this->columns) != count($other->columns) ) { return false; }
+        foreach ($other->columns as $name=>$fromcolumn) {
+            $toname   = isset($fromnames[$name]) ? $fromnames[$name] : $name;
+            if (!isset($this->columns[$toname])) return false;
+            $tocolumn = $this->columns[$toname];
+            if ($tocolumn != $fromcolumn) {
+                return false;
             }
-        }
-        else {
-            if ( $this->columns != $other->columns ) { return false; }
         }
         if ( $this->primary != $other->primary ) { return false; }
         if ( $this->fulltext != $other->fulltext ) { return false; }
