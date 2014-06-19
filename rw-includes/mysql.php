@@ -23,25 +23,27 @@ function update_modyllic(\OLB_PDO $dbc) {
     }
 
     $to   = Modyllic_Loader::load($schemas);
+    $gen = new $gen_class();
+    $gen->generate_metatable( $to );
 
     $diff = new Modyllic_Diff( $from, $to );
+    $gen->alter($diff);
 
-    if ( ! $diff->changeset->has_changes() ) {
+    if (! $gen->sql_commands()) {
         echo "No changes\n";
         return(0);
     }
 
-    $gen = new $gen_class();
+    echo "<pre>";
     foreach ( $gen->sql_header() as $sql ) {
         echo "$sql\n";
         $dbc->exec( $sql );
     }
-    $gen->alter($diff);
     $cmds = count($gen->sql_commands());
     try {
         $ii = 0;
         foreach ($gen->sql_commands() as $cmd) {
-        echo "$cmd\n";
+            echo "$cmd\n";
             $dbc->exec($cmd);
         }
     }
@@ -51,6 +53,7 @@ function update_modyllic(\OLB_PDO $dbc) {
         print $cmd."\n";
         exit(1);
     }
+    echo "</pre>";
 
 }
 
