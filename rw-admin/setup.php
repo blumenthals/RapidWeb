@@ -1,6 +1,9 @@
-<?php
+<?php header("Content-Type: text/html"); ?>
+<pre>
 
-header("Content-Type: text/html");
+<?
+
+passthru('cd '.escapeshellarg(__DIR__."/../rw-global")."; make");
 
 echo "Compiling LESS files...";
 flush();
@@ -42,3 +45,6 @@ update_modyllic(OpenDatabase());
 
 echo "Done<br>";
 flush();
+
+?>
+</pre>
