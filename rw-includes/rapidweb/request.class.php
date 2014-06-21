@@ -24,7 +24,7 @@ namespace RapidWeb {
             }
 
             /// @todo make this pluggable
-            if ($this->headers['Content-Type'] == 'application/json') {
+            if (preg_match("@^application/json(;.*)?@", $this->headers['Content-Type'])) {
                 $this->content = json_decode(file_get_contents('php://input'));
             } else {
                 $this->content = file_get_contents('php://input');
