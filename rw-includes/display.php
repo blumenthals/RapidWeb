@@ -7,8 +7,9 @@
  */
 
 if (isset($LinkStyle) and $LinkStyle == 'path') {
-    if (!empty($_SERVER['PATH_INFO'])) {
-        $pagename = $_SERVER['PATH_INFO'];
+	$p = parse_url($_SERVER['REQUEST_URI']);
+    if (!empty($p['path'])) {
+        $pagename = $p['path'];
         if ($pagename{0} == '/') $pagename = substr($pagename, 1);
     }
 } else {
