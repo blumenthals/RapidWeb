@@ -7,19 +7,19 @@
  */
 
 if (isset($LinkStyle) and $LinkStyle == 'path') {
-	$p = parse_url($_SERVER['REQUEST_URI']);
+    $p = parse_url($_SERVER['REQUEST_URI']);
     if (!empty($p['path'])) {
-        $pagename = $p['path'];
+        $pagename = rawurldecode($p['path']);
         if ($pagename{0} == '/') $pagename = substr($pagename, 1);
     }
+} else if (!empty($_SERVER['QUERY_STRING'])) {
+    $args = explode('&', rawurldecode($_SERVER['argv'][0]));
+    if(!strstr($args[0], '=')) $pagename = $args[0];
 } else {
-    if (!empty($_SERVER['QUERY_STRING'])) {
-        $args = explode('&', rawurldecode($_SERVER['argv'][0]));
-        if(!strstr($args[0], '=')) $pagename = $args[0];
-    }
+     $pagename = '';
 }
 
-if(!isset($pagename)) $pagename = "home";
+if(empty($pagename)) $pagename = "home";
 
 $html = "";
 $enc_name = rawurlencode($pagename);
