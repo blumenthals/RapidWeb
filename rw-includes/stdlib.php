@@ -36,12 +36,11 @@ function LinkExistingWikiWord($wikiword, $linktext='', $target = '') {
 
 function LinkUnknownWikiWord($wikiword, $linktext='', $target = '') {
   global $ScriptUrl;
-  global $AdminUrl;
   $enc_word = rawurlencode($wikiword);
   if(empty($linktext))
      $linktext = htmlspecialchars($wikiword);
   if($target) $dtarget = " target='$target'";
-  return "<u>$linktext</u><a href=\"$AdminUrl?edit=$enc_word\"$dtarget>?</a>";
+  return "<u>$linktext</u><a href=\"$ScriptUrl?edit=$enc_word\"$dtarget>?</a>";
 }
 
 function LinkURL($url, $linktext='', $target = '') {
