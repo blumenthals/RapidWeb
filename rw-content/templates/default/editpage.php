@@ -1,58 +1,82 @@
-<!doctype html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Edit: <?php echo $this->page->pagename; ?></title>
-    <?php $this->do_head(); ?>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/switchcontent.js"></script>
-    <script type="text/javascript" src="<?php bloginfo('template_directory'); ?>/../default/rollovers.js"></script>
-    <link rel='stylesheet' href='rw-global/css/rapidweb.css'> <!-- FIXME, use a function to get this path -->
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link href="<?php bloginfo('template_directory'); ?>/../default/style.css" rel="stylesheet" type="text/css"/>
-    <link rel='rapidweb-admin' href='<?php echo $this->getScriptURL() ?>'>
-    <script>
-        <?php /** @todo rcdata escape the json */ ?>
-        var pagedata = <?php echo $this->page->toJSON(); ?>;
-    </script>
-  </head>
-  <body bgcolor="#FFFFFF" text="#000033" link="#000066" vlink="#003399" alink="#003399" onLoad="MM_preloadImages('<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif')">
-    <div id='page_wrapper'>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Edit: <?php echo $this->page->pagename; ?></title>
+<meta name="author" 		content="Mike Robertson, Blumenthals.com">
+<meta name="copyright" 		content="Blumenthals.com">
+<meta name="language" 		content="en-us">
+<meta name="Classification" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      <table width="100%">
-        <tr>
-          <td height="155" align="left" valign="middle"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/../default/rapidweb-logo.png" hspace="8" border=0 align="absmiddle"></a></td>
-          <td height="155" colspan="2" align="left" valign="middle"><h1><span class="headertitle"> Editing: <span class='rapidweb-page-title'><?php echo ($this->page->title ? $this->page->title : $this->page->pagename); ?></span></span></h1></td>
-        </tr>
-        <tr>
-          <td width='240' height="60" valign="middle">
-            <a onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('upload','','<?php bloginfo('template_directory'); ?>/../default/admin/upload-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/upload.gif" alt="Upload an Image from your computer" name="upload" width="102" height="49" border="0"></a>
-            <a onClick="window.open('<?php echo $this->getScriptURL(); ?>?settings','Settings',' width=551, height=494, resizable=yes')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('edit_meta_tags','','<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags-over.gif',1)"><img src="<?php bloginfo('template_directory'); ?>/../default/admin/meta_tags.gif" alt="Edit Default Meta Tags" name="edit_meta_tags" width="102" height="49" border="0"></a>
-          </td>
-          <td valign='middle'>
-            <?php $this->the_pagetype_selector(); ?>
-          </td> 
-          <td align="right">
-            <button name='save' class='btn'>Save</button>
-            <button name='cancel' class='btn' onClick="history.go(-1)">Cancel</button>
-          </td>
-        </tr>
-      </table>
+<?php $this->do_head(); ?>
 
-      <br>
-        <?php
-            foreach($this->rapidweb->getPageTypes() as $slug => $pageType) {
-                echo "<div id='{$slug}_editor' class='rapidweb-editor'>";
-                $pageType->the_editor_content($this);
-                echo "</div>";
-            }
+<link rel='rapidweb-admin' href='<?php echo $this->getScriptURL() ?>'>
+<script>
+  <?php /** @todo rcdata escape the json */ ?>
+  var pagedata = <?php echo $this->page->toJSON(); ?>;
+</script>
+<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans:100,300,400,500,700,800,900' rel='stylesheet' type='text/css'>
+<link href="<?php bloginfo('template_directory'); ?>/../default/browse.css" rel="stylesheet" />
+<link href="<?php bloginfo('template_directory'); ?>/color.css" rel="stylesheet" />
+<link href="<?php bloginfo('template_directory'); ?>/editpage.css" rel="stylesheet" />
 
-            $this->do_editor_settings();
-        ?>
+<!-- jQuery library (served from Google) -->
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+</head>
+
+<body>
+<header class="mainheader">
+  <div class="pagewidth">
+  <div class="logo"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/images/logo.png"></a></div>
+    <div id="main_nav">
+      Editing: <span class='rapidweb-page-title'><?php echo ($this->page->title ? $this->page->title : $this->page->pagename); ?>
     </div>
+  </div>
+</header>
 
-    <?php $this->do_foot(); ?>
+<div class="maincontent">
+  <div class="pagewidth">
+    <aside class="sidebar">
+      <div class="call_to_action">
+        <?php $this->the_pagetype_selector(); ?>
+      </div>
+      <article class="top_sidebar">
+        <a class="upload" onClick="window.open('rw-admin/upload.php','ImageUpload',' width=551, height=494, resizable=yes')" title="Upload an Image from your computer"></a>
+        <a class="meta" onClick="window.open('<?php echo $this->getScriptURL(); ?>?settings','Settings',' width=551, height=494, resizable=yes')" title="Edit Default Meta Tags"></a>
+      </article>
+    </aside>
+    <div class="content">
+	    <?php
+          foreach($this->rapidweb->getPageTypes() as $slug => $pageType) {
+            echo "<div id='{$slug}_editor' class='rapidweb-editor'>";
+              $pageType->the_editor_content($this);
+            echo "</div>";
+          }
+		  $this->do_editor_settings();
+        ?>
+      	<?php $this->do_foot(); ?>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+<footer class="mainfooter">
+  <div class="pagewidth">
+    <div class="left_footer">
+      <h1>Blumenthals.com</h1>
+	  201 N. Union St. #307<br>
+	  Olean, NY 14760 US
+	  <h2>716-372-4008</h2>
 
-  </body>
+    </div>
+    <div class="right_footer">
+      <div class="copyright">
+        &copy; Copyright <?php echo date("Y") ?>, <a href="#">Blumenthals.com</a>
+      </div>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+</footer>
+</body>
 </html>
