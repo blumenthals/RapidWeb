@@ -1,0 +1,65 @@
+/*
+Primary Color - 5092CC
+Secondary Color - 64B7FF
+Accent Color -	EBA318
+Call to Action - 264763
+*/
+
+a {
+	color: #5092CC;
+}
+h1{
+	color:#5092CC;
+}
+h3{
+	color:#5092CC;
+}
+.mainheader {
+	background-color: #5092CC;
+}
+.top_sidebar h2, .middle_sidebar h2, .bottom_sidebar h2{
+	color: #5092CC;
+}
+.mainfooter {
+	background-color: #5092CC;
+}
+.photo_slide{
+	background-color:#64B7FF;
+}
+a:hover, a:active {
+	background-color: #EBA318;
+}
+.mainheader nav li:hover, .mainheader nav li:active, .mainheader nav li.active{
+	background-color: #EBA318;
+}
+a.cboxElement:hover {
+	color: #EBA318;
+}
+a.cboxElement:hover img {
+	border-color: #EBA318 !important;
+}
+h2{
+	color:#264763;
+}
+.call_to_action{
+	background-color:#264763;
+}
+.logo_banner{
+	background-color: #5092CC;
+}
+
+@media only screen and (min-width: 150px) and (max-width:500px) {
+.mobile_menu a{
+	background-color: #5092CC;
+}
+.mobile_menu a:hover {
+	background-color: #EBA318;
+}
+.mainheader nav {
+	background-color: #64B7FF;
+}
+}
+
+
+
+

@@ -1,0 +1,106 @@
+@import url('http://fonts.googleapis.com/css?family=Chivo:400,900');
+@import url('css/ui-lightness/jquery-ui-1.8.16.custom.css');
+
+#main_nav{
+	float: right;
+	font-size: 140%;
+	text-transform: uppercase;
+	color: #fff;
+	padding: 10px 0;
+}
+.rapidweb-page-title{
+	font-weight:bold;
+}
+.content {
+width: 100%;
+padding: 0 0 20px 0;
+}
+.sidebar{
+width: 100%;
+padding: 15px 0;
+}
+.call_to_action {
+font-size: 120%;
+float: right;
+padding: 7px 14px;
+}
+.top_sidebar {
+	margin: 0;
+	float: left;
+	padding: 0;
+	background-color: transparent;
+}
+.mainheader a:hover, .sidebar a:hover{
+	background-color:transparent;
+	margin:0;
+	padding:0;
+}
+.txtfield {
+  	width: 99%;
+	font-size: 100%; /*Base font size is 14px */
+	font-family: 'Alegreya Sans', sans-serif;
+	line-height: 1.25;
+}
+
+.style1 {
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: #C9500D;
+  font-weight: bold;
+}
+.rw-login-form label,
+.rw-login-form input[type='text'],
+.rw-login-form input[type='password'] {
+  width: 100%;
+  margin-bottom: 1em;
+}
+.rw-menuless-content {
+  padding: 5em;
+}
+.commands td, .details td{
+	padding:5px;
+	vertical-align: top;
+}
+.commands td.label, .details td.label{
+	font-weight:bold;
+}
+.commands td.header, .details td.header{
+	font-weight:bold;
+}
+.commands tr.green_bar, .details tr.green_bar{
+	background-color: #e3e3e3;
+	border-top: solid 1px #000;
+	border-bottom: solid 1px #000;
+}
+h1, h2, h3{
+	text-align:inherit;
+	margin:0;
+	padding:0;
+	line-height:normal;
+}
+.show_details{
+	vertical-align:top;
+}
+
+
+
+
+@media only screen and (min-width: 150px) and (max-width:500px) {
+#main_nav {
+	display:block;
+	width:100%;
+	background-color: #9dc02e;
+	padding:10px 0;
+	text-align: center;
+	font-size: 100%;
+}
+.sidebar {
+	padding: 10px 0;
+}
+.call_to_action{
+	float:inherit;
+}
+.top_sidebar{
+	padding: 10px 0;
+}
+}
