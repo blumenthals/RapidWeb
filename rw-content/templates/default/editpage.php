@@ -17,9 +17,9 @@
   var pagedata = <?php echo $this->page->toJSON(); ?>;
 </script>
 <link href='http://fonts.googleapis.com/css?family=Alegreya+Sans:100,300,400,500,700,800,900' rel='stylesheet' type='text/css'>
-<link href="<?php bloginfo('template_directory'); ?>/../default/browse.css" rel="stylesheet" />
-<link href="<?php bloginfo('template_directory'); ?>/color.css" rel="stylesheet" />
-<link href="<?php bloginfo('template_directory'); ?>/editpage.css" rel="stylesheet" />
+<link href="/rw-content/templates/default/browse.css" rel="stylesheet" />
+<link href="/rw-content/templates/default/color.css" rel="stylesheet" />
+<link href="/rw-content/templates/default/editpage.css" rel="stylesheet" />
 
 <!-- jQuery library (served from Google) -->
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -29,7 +29,7 @@
 <body>
 <header class="mainheader">
   <div class="pagewidth">
-  <div class="logo"><a href="<?php echo $this->getScriptURL(); ?>"><img src="<?php bloginfo('template_directory'); ?>/images/logo.png"></a></div>
+  <div class="logo"><a href="<?php echo $this->getScriptURL(); ?>"><img src="/rw-content/templates/default/images/logo.png"></a></div>
     <div id="main_nav">
       Editing: <span class='rapidweb-page-title'><?php echo ($this->page->title ? $this->page->title : $this->page->pagename); ?>
     </div>
