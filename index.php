@@ -15,7 +15,7 @@ $now = new DateTime("now", new DateTimeZone("GMT"));
 header('Expires: '.$now->format(DateTime::RFC2822));
 
 /// @todo this is super horrible.
-if (preg_match('!^text/json(; .*)?$!', $_SERVER['CONTENT_TYPE'] ?: $_SERVER['HTTP_CONTENT_TYPE'])) {
+if (preg_match('!^text/json(; .*)?$!', $_SERVER['CONTENT_TYPE'] ? $_SERVER['CONTENT_TYPE'] : $_SERVER['HTTP_CONTENT_TYPE'])) {
     try {
         $request = json_decode(file_get_contents('php://input'));
         $RapidWeb->dispatchCommand($request);
