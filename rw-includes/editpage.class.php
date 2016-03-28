@@ -3,7 +3,7 @@
 class EditPage extends View {
 
     public function getScriptURL() {
-        return "{$this->rapidweb->rootURL}index.php";
+        return "{$this->rapidweb->rootURL}";
     }
 
     protected function do_head() {
@@ -38,39 +38,39 @@ class EditPage extends View {
     public function do_editor_settings() { ?>
         <section class='details-box'>
           <h3 class='details-box-show'>
-            <img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-down.gif" align="absmiddle"/> More Page Settings (Meta Tags, Variables, Template)
+            <img src="<?php bloginfo('template_directory'); ?>/../default/admin/plus.png" align="absmiddle" class="show_details"/> Show Page Settings (Meta Tags, Variables, Template)
           </h3>
           <h3 class='details-box-hide'>
-            <img src="<?php bloginfo('template_directory'); ?>/../default/admin/arrow-over.gif" align="absmiddle"/> Less Page Settings
+            <img src="<?php bloginfo('template_directory'); ?>/../default/admin/minus.png" align="absmiddle" class="show_details"/> Hide Page Settings
           </h3>
           <div class='details'>
-            <table width="100%" cellpadding="5" cellspacing="0" bgcolor="#f6f4e7">
+            <table width="100%">
               <tr>
-                <td width="70" valign="top"><strong>Meta Description </strong> </td>
+                <td class="label" width="20%">Meta Description:</td>
                 <td><textarea name='meta' rows=2 class="txtfield"><?php echo $this->page->meta ?></textarea>                    </td>
               </tr>
-              <tr>
-                <td width="70" valign="top"><strong>Meta Keywords </strong> </td>
+              <tr class="green_bar">
+                <td class="label">Meta Keywords:</td>
                 <td><textarea name='keywords' rows=2 class="txtfield"><?php echo $this->page->keywords ?></textarea>                    </td>
               </tr>
               <tr>
-                <td width="70" valign="top"><strong>Special Variables </strong> </td>
+                <td class="label">Special Variables:</td>
                 <td><textarea name='variables' rows=2 class="txtfield"><?php echo $this->page->variables ?></textarea>  </td>
               </tr>
-              <tr>
-                <td width="70" valign="top"><strong>Header </strong> </td>
+              <tr class="green_bar">
+                <td class="label">Header:</td>
                 <td><textarea name='head' rows=2 class="txtfield"><?php echo $this->page->head ?></textarea>  </td>
               </tr>
               <tr>
-                <td width="70" valign="top"><strong>Footer </strong> </td>
+                <td class="label">Footer:</td>
                 <td><textarea name='foot' rows=2 class="txtfield"><?php echo $this->page->foot ?></textarea>  </td>
               </tr>
-              <tr>
-                <td width="70" valign="top"><strong>Page Template </strong> </td>
+              <tr class="green_bar">
+                <td class="label">Page Template:</td>
                 <td><select name='template'><?php echo ListTemplates($this->page->template); ?></select>                    </td>
               </tr>
               <tr>
-                <td width="70" valign="top"><strong>Don't Index This Page </strong> </td>
+                <td class="label">Don't Index This Page:</td>
                 <td><input type='checkbox' name='noindex' <?php echo $this->page->noindex ? 'checked' : '' ?>></td>
               </tr>
             </table>

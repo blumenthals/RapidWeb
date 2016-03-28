@@ -42,7 +42,7 @@ class RWGallery extends RWPlugin {
             $caption = htmlspecialchars($image->caption);
             $description = htmlspecialchars($image->description);
             echo "<a href='".$image->image."' title='{$description}'>";
-            echo "<img src='".$image->thumbnail."' title='{$caption}'>";
+            echo "<img src='".$image->thumbnail."' title='{$caption}'>{$caption}";
             echo "</a>";
         }
         echo "</div>";
@@ -78,17 +78,21 @@ class RWGallery extends RWPlugin {
         </div>
         <div class='instructions'>
            <h3 style="border-bottom: solid 2px #C54808;">Instructions</h3>
-
-           <li>Drag a photo to re-arrange.</li>
-           <li>Click the 'X' on a picture to remove it.</li>
-           <li>JPEG, GIF and PNG files can all be uploaded.</li>
-           <li>Any photo over 1000 x 1000 pixels will be resized.</li>
-           <li>Be patient uploading. Uploading photos directly<br />
-             from a digital camera can be take some time.</li>
+           <div class="col">
+             <li>Drag a photo to re-arrange.</li>
+             <li>Click the 'X' on a picture to remove it.</li>
+             <li>JPEG, GIF and PNG files can all be uploaded.</li>
+             <li>Any photo over 1,000 x 1,000 pixels will be resized.</li>
+             <li>Be patient uploading. Uploading photos directly from a digital camera can be take some time.</li>
+           </div>
         </div>
         <div style="clear:both; padding-bottom:10px;"><!-- --></div>
         <div class='images'>
           <div class='insertion-point'></div>
+        </div>
+        <div style="float: right; height: 40px;">
+          <button class="cancel" name='cancel' onclick="history.go(-1)"></button>
+          <button class="save" name='save'></button>
         </div>
         
     <?php

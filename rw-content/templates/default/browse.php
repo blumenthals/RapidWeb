@@ -1,76 +1,148 @@
 <?php if (!isset($GLOBALS['LinkStyle']) or $GLOBALS['LinkStyle'] != 'path') throw new Exception('This theme requires $LinkStyle to be "path"'); ?>
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8" />
 <title>###PAGE###</title>
 <meta name="description" 	content="###META###">
 <meta name="keywords" 	 	content="###METAKEYWORDS###">
-<meta name="author" 		content="Blumenthals.com">
-<meta name="copyright" 		content="">
+<meta name="author" 		content="Mike Robertson, Blumenthals.com">
+<meta name="copyright" 		content="Blumenthals.com">
 <meta name="language" 		content="en-us">
 <meta name="Classification" content="">
-###METANOINDEX###
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="<?php bloginfo('template_directory'); ?>/rollovers.js"></script>
-<link href="<?php bloginfo('template_directory'); ?>/style.css" rel="stylesheet" type="text/css">
-<link href='<?php bloginfo('template_directory'); ?>/images/favicon.png' rel="shortcut icon" type="image/png" >
+###METANOINDEX###
 <?php $this->do_head(); ?>
+
+<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans:100,300,400,500,700,800,900' rel='stylesheet' type='text/css'>
+<link href="<?php bloginfo('template_directory'); ?>/browse.css" rel="stylesheet" />
+<link href="<?php bloginfo('template_directory'); ?>/color.css" rel="stylesheet" />
+
+<!-- jQuery library (served from Google) -->
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+<?php if (strtolower($_SERVER['REQUEST_URI'])=="/temp/home" || strtolower($_SERVER['REQUEST_URI'])=="/temp/"): ?>
+  <link href="<?php bloginfo('template_directory'); ?>/jquery.bxslider.css" rel="stylesheet" />
+  <script src="<?php bloginfo('template_directory'); ?>/jquery.bxslider.min.js"></script>
+  <script>
+      $(document).ready(function(){
+        $('.bxslider').bxSlider({
+          auto: true,
+       	  randomStart: true,
+    	  touchEnabled: true,
+    	  speed: 1500,
+    	  pause: 7000,
+    	  autoHover: true,
+        });
+      });
+   </script>
+<?php endif ?>    
+
 </head>
-<body onload="MM_preloadImages('<?php bloginfo('template_directory'); ?>/admin/edit-over.gif','<?php bloginfo('template_directory'); ?>/admin/delete-over.gif','<?php bloginfo('template_directory'); ?>/admin/backup-over.gif','<?php bloginfo('template_directory'); ?>/admin/upload-over.gif','<?php bloginfo('template_directory'); ?>/admin/meta_tags-over.gif','<?php bloginfo('template_directory'); ?>/admin/logout-over.gif')">
-<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="center" valign="top"><table width="775" height="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td height="154" colspan="2" align="left" valign="middle"><h1><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/rapidweb-logo.png" hspace="8" border=0 align="absmiddle"></a> <span class="headertitle">###PAGE###</span></h1></td>
-        </tr>
-        <tr>
-          <td colspan="2" valign="top" background="<?php bloginfo('template_directory'); ?>/images/centerbg.gif" class="repeatx"><table width="100%" border="0" cellspacing="0" cellpadding="0">
-              <tr> 
-                <td height="66" align="right" valign="middle">
-                  <?php get_template_part('admin/toolbar'); ?>
-                </td>
-              </tr>
-            </table>
-            <table width="100%" border="0" cellspacing="0" cellpadding="0">
-              <tr>
-                <td width="175" class='menu' valign="top"><table width="175" border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menutop.gif" width="175" height="43"></td>
-                    </tr>
-                    <tr>
-                      <td background="<?php bloginfo('template_directory'); ?>/images/menubg.gif">
-                        <ul class='rw-menu'>
-                          <li><a href="home">Home</a></li>
-                          <li><a href="ContactUs">Contact Us</a></li>
-                          <li><a href="FindPage">Search</a></li>
-                          <li><a href="###ADMINURL###?###PAGEURL###">Admin</a></li>
-                          <li><a href="SiteMap">Sitemap</a></li>
-                          <li><a href="RecentChanges">Recent Changes</a></li>
-                          <li><a href="http://www.rapidweb.info/index.php?TryIt">Editing Help</a></li>
-                          <li><a href="BlumenthalsSupport">Support</a></li>
-                          PAGECONTENT(navigation, UL)
-                         </ul>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><img src="<?php bloginfo('template_directory'); ?>/images/menubottom.gif" width="175" height="43"><br>
-                    </tr>
-                  </table></td>
-                  <td valign="top" class="bodycopy" align='left'><?php $this->the_content(); ?></td>
-              </tr>
-            </table></td>
-        </tr>
-        <tr>
-          <td colspan='2' class="addtlinfo" align='center'>
-            <p>&copy; Copyright 2011. All rights reserved.
-              Powered by <a href="http://www.RapidWeb.info">RapidWeb</a>.
-              Last Edited <nobr>###LASTMODIFIED###</nobr></p>
-            <p><small><a href='admin.php?###PAGEURL###'>Admin</a></small></p>
-          </td>
-        </tr>
-      </table></td>
-  </tr>
-</table>
+
+<body>
+<header class="mainheader">
+  <div class="pagewidth">
+  <div class="logo"><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/images/logo.png"></a></div>
+    <div class="mobile_menu"><a></a></div>
+    <div id="main_nav">
+      <nav>
+        PAGECONTENT(nav)
+      </nav>
+      ###IF:ADMIN###
+      <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=nav" style="right: 10px; top: 10px;"></a></div>
+      ###ENDIF:ADMIN###
+    </div>
+  </div>
+</header>
+
+<?php if (strtolower($_SERVER['REQUEST_URI'])=="/temp/home" || strtolower($_SERVER['REQUEST_URI'])=="/temp/"): ?>
+	<div class="photo_slide">
+      <div class="pagewidth">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=slideshow" style="right: 10px; top: 10px;"></a></div>
+        ###ENDIF:ADMIN###
+        <ul class="bxslider">
+    	  PAGECONTENT(slideshow, ul)
+        </ul>
+      </div>
+    </div>
+<?php endif ?>    
+
+<div class="maincontent">
+  <div class="pagewidth">
+    <div class="content">
+      <!--##### BODYCOPY #####-->
+      <?php get_template_part('admin/toolbar'); ?>
+      <?php $this->the_content(); ?>
+      <!--##### END BODYCOPY #####-->
+    </div>
+    <aside class="sidebar">
+      <div class="call_to_action">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=call_to_action" style="right: 0;top: 0px;"></a></div>
+        ###ENDIF:ADMIN###
+        PAGECONTENT(call_to_action)
+      </div>
+      <article class="top_sidebar">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=top_sidebar" style="right: 0;top: 0px;"></a></div>
+        ###ENDIF:ADMIN###
+        PAGECONTENT(top_sidebar)
+      </article>
+      <article class="middle_sidebar">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=middle_sidebar" style="right: 0;top: 0px;"></a></div>
+        ###ENDIF:ADMIN###
+        PAGECONTENT(middle_sidebar)
+      </article>
+      <article class="bottom_sidebar">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=bottom_sidebar" style="right: 0;top: 0px;"></a></div>
+        ###ENDIF:ADMIN###
+        PAGECONTENT(bottom_sidebar)
+      </article>
+    </aside>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+<footer class="mainfooter">
+  <div class="pagewidth">
+    <div class="left_footer">
+      ###IF:ADMIN###
+      <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=left_footer" style="left: 0;top: 0px;"></a></div>
+      ###ENDIF:ADMIN###
+      PAGECONTENT(left_footer)
+
+    </div>
+    <div class="right_footer">
+      <div class="wrench"><a href="rw-admin/login.php"></a></div>
+      <div class="links">
+        ###IF:ADMIN###
+        <div class="wrapper"><a class="editsm" title="Edit Page" href="###ADMINURL###?edit=nav" style="right: 0;top: 0px;"></a></div>
+        ###ENDIF:ADMIN###
+        <nav>
+          <ul>
+            <li><a href="SiteMap">SiteMap</a></li>
+            <li><a href="Search">Search</a></li>
+            PAGECONTENT(nav, ul)
+          </ul>
+        </nav>
+      </div>
+      <div class="copyright">
+        &copy; Copyright <?php echo date("Y") ?>, <a href="#">Blumenthals.com</a><br>
+        Last Modified: ###LASTMODIFIED###
+      </div>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
+</footer>
+<script type="text/javascript">
+jQuery( ".mobile_menu" ).click(function($) {
+  jQuery( "#main_nav" ).slideToggle( "fast" );
+});
+</script>
+
 </body>
 </html>

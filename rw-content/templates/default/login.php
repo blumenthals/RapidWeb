@@ -12,8 +12,6 @@
 <link href="/rw-content/templates/default/admin.css" rel="stylesheet" type="text/css">
 <link href="/rw-content/templates/default/color.css" rel="stylesheet" type="text/css">
 <link href='/rw-content/templates/default/images/favicon.png' rel="shortcut icon" type="image/png" >
-<style type="text/css">
-</style>
 <?php $this->do_head(); ?>
 </head>
 <body class='rw-login'>

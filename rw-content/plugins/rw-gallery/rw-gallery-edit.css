@@ -31,11 +31,18 @@
     cursor: pointer;
     text-indent: -9999px; }
 #rwgallery_editor .instructions {
-  float: left;
-  padding-left: 15px; }
-  #rwgallery_editor .instructions li {
-    margin-top: 3px;
-    margin-bottom: 3px; }
+  line-height:normal;
+  overflow:hidden;
+ }
+#rwgallery_editor .instructions .col {
+	-webkit-column-count:2;
+	-moz-column-count:2;
+	column-count:2;
+	border-bottom: solid 2px #C54808;
+}
+#rwgallery_editor .instructions li {
+    margin-top: 2px;
+    margin-bottom: 2px; }
 #rwgallery_editor .insertion-point {
   height: 154px;
   width: 3px;
@@ -46,16 +53,11 @@
   margin-left: -1px;
   margin-right: -2px; }
 #rwgallery_editor .uploader {
-  border: solid 1px #BEBEBE;
-  background-color: #ddd;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  margin-top: 3em;
-  height: 80px;
-  float: left; }
+  float: left;
+	padding: 20px 20px 20px 0;
+}
   #rwgallery_editor .uploader form {
-    margin: 1em; }
+}
   #rwgallery_editor .uploader .spinner {
     text-align: center;
     margin-top: 1em; }
@@ -77,7 +79,7 @@
     font-family: arial;
     font-size: 13px;
     font-weight: bold;
-    padding: 9px 21px;
+    padding: 15px 21px;
     content: "Upload a file";
     position: relative;
     color: #fff;
@@ -113,3 +115,23 @@
   display: block;
   width: 150px;
   margin: 1em auto; }
+@media only screen and (min-width: 150px) and (max-width:630px) {
+#rwgallery_editor .instructions .col {
+	-webkit-column-count:1;
+	-moz-column-count:1;
+	column-count:1;
+}
+}
+@media only screen and (min-width: 150px) and (max-width:500px) {
+#rwgallery_editor .uploader {
+  clear:both;
+  padding: 10px 0;
+  width: 100%;
+}
+#rwgallery_editor .uploader form {
+	text-align: center;
+}
+#rwgallery_editor .instructions {
+clear: both;
+}
+}
