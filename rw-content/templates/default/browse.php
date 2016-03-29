@@ -21,30 +21,12 @@
 
 <!-- jQuery library (served from Google) -->
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-
-<?php if (strtolower($_SERVER['REQUEST_URI'])=="/temp/home" || strtolower($_SERVER['REQUEST_URI'])=="/temp/"): ?>
-  <link href="<?php bloginfo('template_directory'); ?>/jquery.bxslider.css" rel="stylesheet" />
-  <script src="<?php bloginfo('template_directory'); ?>/jquery.bxslider.min.js"></script>
-  <script>
-      $(document).ready(function(){
-        $('.bxslider').bxSlider({
-          auto: true,
-       	  randomStart: true,
-    	  touchEnabled: true,
-    	  speed: 1500,
-    	  pause: 7000,
-    	  autoHover: true,
-        });
-      });
-   </script>
-<?php endif ?>    
-
 </head>
 
 <body>
 <header class="mainheader">
   <div class="pagewidth">
-  <div class="logo"><a href="###SCRIPTURL###"><img src="<?php bloginfo('template_directory'); ?>/images/logo.png"></a></div>
+  <div class="logo"><a href="/"><img src="<?php bloginfo('template_directory'); ?>/images/logo.png"></a></div>
     <div class="mobile_menu"><a></a></div>
     <div id="main_nav">
       <nav>
@@ -57,7 +39,7 @@
   </div>
 </header>
 
-<?php if (strtolower($_SERVER['REQUEST_URI'])=="/temp/home" || strtolower($_SERVER['REQUEST_URI'])=="/temp/"): ?>
+<?php if (strtolower($_SERVER['REQUEST_URI'])=="/home" || strtolower($_SERVER['REQUEST_URI'])=="/"): ?>
 	<div class="photo_slide">
       <div class="pagewidth">
         ###IF:ADMIN###
@@ -138,11 +120,29 @@
     <div style="clear:both;"></div>
   </div>
 </footer>
+<?php if (strtolower($_SERVER['REQUEST_URI'])=="/home" || strtolower($_SERVER['REQUEST_URI'])=="/"): ?>
+  <link href="<?php bloginfo('template_directory'); ?>/jquery.bxslider.css" rel="stylesheet" />
+  <script src="<?php bloginfo('template_directory'); ?>/jquery.bxslider.min.js"></script>
+  <script>
+      $(document).ready(function(){
+        $('.bxslider').bxSlider({
+          auto: true,
+       	  randomStart: true,
+    	  touchEnabled: true,
+    	  speed: 1500,
+    	  pause: 5000,
+    	  autoHover: true,
+        });
+      });
+   </script>
+<?php endif ?>    
+
 <script type="text/javascript">
 jQuery( ".mobile_menu" ).click(function($) {
   jQuery( "#main_nav" ).slideToggle( "fast" );
 });
 </script>
+
 
 </body>
 </html>

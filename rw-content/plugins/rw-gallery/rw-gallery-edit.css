@@ -110,7 +110,9 @@
 .photoDetailsEdit textarea, .photoDetailsEdit input {
   width: 100%; }
 .photoDetailsEdit textarea {
-  height: 3em; }
+	height: 5em;
+	font-size: 0.8em !important;
+}
 .photoDetailsEdit .gallery-tile {
   display: block;
   width: 150px;

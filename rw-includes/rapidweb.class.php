@@ -91,7 +91,7 @@ class RapidWeb extends EventEmitter {
             $w = imagesx($img);
             $h = imagesy($img);
             $s = min($w, $h);
-            foreach(array(175, 150, 75) as $size) {
+            foreach(array(300, 175, 150, 75) as $size) {
                 $imgsquare = imagecreatetruecolor($size, $size);
                 imagecopyresampled($imgsquare, $img, 0, 0, ($w - $s) / 2, ($h - $s) / 2, $size, $size, $s, $s);
                 imagejpeg($imgsquare, $dir.'/'.$request['img']->name.".{$size}x${size}.jpg");
@@ -99,13 +99,13 @@ class RapidWeb extends EventEmitter {
             }
 
             $imagefile = $request['img']->name;
-            if($w > 960 or $h > 960) {
+            if($w > 1250 or $h > 1250) {
                 if($w > $h) {
-                    $neww = 960;
-                    $newh = 960 * ($h / $w);
+                    $neww = 1250;
+                    $newh = 1250 * ($h / $w);
                 } else {
-                    $neww = 960 * ($w / $h);
-                    $newh = 960;
+                    $neww = 1250 * ($w / $h);
+                    $newh = 1250;
                 }
                 $newi = imagecreatetruecolor($neww, $newh);
                 imagecopyresampled($newi, $img, 0, 0, 0, 0, $neww, $newh, $w, $h); 

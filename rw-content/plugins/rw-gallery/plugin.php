@@ -82,7 +82,7 @@ class RWGallery extends RWPlugin {
              <li>Drag a photo to re-arrange.</li>
              <li>Click the 'X' on a picture to remove it.</li>
              <li>JPEG, GIF and PNG files can all be uploaded.</li>
-             <li>Any photo over 1,000 x 1,000 pixels will be resized.</li>
+             <li>Any photo over 1,250 x 1,250 pixels will be resized.</li>
              <li>Be patient uploading. Uploading photos directly from a digital camera can be take some time.</li>
            </div>
         </div>
