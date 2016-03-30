@@ -25,6 +25,15 @@ $html = "";
 $enc_name = rawurlencode($pagename);
 $pagehash = RetrievePage($dbc, $pagename);
 
+if ($pagehash['version'] == 0) {
+    if (!@$_SESSION['username']) {
+        Header("HTTP/1.1 404 Not Found");
+        $pagehash = RetrievePage($dbc, '404-FileNotFound');
+    } else {
+        $pagehash['content'] = 'This page does not exist yet';
+    }
+}
+
 // we render the page if it exists, else ask the user to write one.
 if (is_array($pagehash)) {
     $html = $RapidWeb->capture('display_page');
