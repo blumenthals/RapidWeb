@@ -26,7 +26,7 @@ $enc_name = rawurlencode($pagename);
 $pagehash = RetrievePage($dbc, $pagename);
 
 if ($pagehash['version'] == 0) {
-    if (!@$_SESSION['username']) {
+    if (!$RapidWeb->isAuthenticated()) {
         Header("HTTP/1.1 404 Not Found");
         $pagehash = RetrievePage($dbc, '404-FileNotFound');
     } else {
