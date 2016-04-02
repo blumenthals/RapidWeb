@@ -27,11 +27,14 @@ $pagehash = RetrievePage($dbc, $pagename);
 
 if ($pagehash['version'] == 0) {
     if (!$RapidWeb->isAuthenticated()) {
-        Header("HTTP/1.1 404 Not Found");
+        Header("Status: 404 Not Found");
         $pagehash = RetrievePage($dbc, '404-FileNotFound');
     } else {
+	header('Status: 200 OK');
         $pagehash['content'] = 'This page does not exist yet';
     }
+} else {
+	header('Status: 200 OK');
 }
 
 // we render the page if it exists, else ask the user to write one.
