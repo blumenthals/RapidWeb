@@ -12,9 +12,19 @@
 <link href="/rw-content/templates/default/admin.css" rel="stylesheet" type="text/css">
 <link href="/rw-content/templates/default/color.css" rel="stylesheet" type="text/css">
 <link href='/rw-content/templates/default/images/favicon.png' rel="shortcut icon" type="image/png" >
+<style type="text/css">
+body {
+	background: url(https://admin8.blumenthals.com:2083/cPanel_magic_revision_1377100399/unprotected/cpanel/images/login-whisp.png) no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	padding: 0 5%;
+}
+</style>
 <?php $this->do_head(); ?>
 </head>
-<body class='rw-login'>
+<body>
 <div class="login_background">
   <div class="logo_banner">
     <div class="logo"><img src="/rw-content/templates/default/images/logo.png"></div>
