@@ -65,7 +65,7 @@ class RWGallery extends RWPlugin {
           <iframe style='display: none' id='upload_target' name='upload_target'></iframe>
           <form action='<?php echo $view->getScriptURL(); ?>' target='upload_target' method='post' enctype='multipart/form-data'>
             <div class='file-upload'>
-              Upload a file
+              Upload a photo
               <div class='native-element'>
                 <input type='file' name='img'>
               </div>
@@ -80,10 +80,11 @@ class RWGallery extends RWPlugin {
            <h3 style="border-bottom: solid 2px #C54808;">Instructions</h3>
            <div class="col">
              <li>Drag a photo to re-arrange.</li>
+             <li>Drag the green 'insert here arrow' to move the insertion point.</li>
              <li>Click the 'X' on a picture to remove it.</li>
              <li>JPEG, GIF and PNG files can all be uploaded.</li>
              <li>Any photo over 1,250 x 1,250 pixels will be resized.</li>
-             <li>Be patient uploading. Uploading photos directly from a digital camera can be take some time.</li>
+             <li>Be patient uploading. Uploading photos directly from a digital camera can take some time.</li>
            </div>
         </div>
         <div style="clear:both; padding-bottom:10px;"><!-- --></div>
