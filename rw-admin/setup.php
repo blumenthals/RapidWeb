@@ -1,4 +1,5 @@
 <?php header("Content-Type: text/html"); ?>
+<?php ini_set('display_errors', 'on') ?>
 <pre>
 
 <?
