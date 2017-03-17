@@ -1,4 +1,4 @@
-<?php if(defined('WIKI_ADMIN')): ?>
+<?php if($RapidWeb->isAuthenticated()): ?>
 <script>
   if(typeof(jQuery) === 'undefined') {
 	var el = document.createElement('script')

@@ -52,7 +52,7 @@ function add_action($name) {
 }
 
 function get_template_part($slug, $name = false) {
-	global $TemmplateName;
+	global $TemmplateName, $RapidWeb;
 	$try = array();
 	$templates = array($TemplateName, 'default');
 	
