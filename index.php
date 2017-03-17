@@ -144,7 +144,10 @@ try {
         if (!@$_SESSION['username']) {
             header("Location: $s/rw-admin/login.php?continue=".$_SERVER['REQUEST_URL']);
             exit();
-        }
+        } else {
+            header("Location: /");
+            exit();
+       }
     } elseif ($res = $RapidWeb->route()) {
         /// @todo This is horrible. Fix!
         if ($res instanceof Rapidweb\Action) {
