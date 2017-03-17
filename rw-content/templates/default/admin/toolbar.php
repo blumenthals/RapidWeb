@@ -2,7 +2,7 @@
 <script>
   if(typeof(jQuery) === 'undefined') {
 	var el = document.createElement('script')
-	el.src = 'http://code.jquery.com/jquery-latest.min.js'
+	el.src = 'https://code.jquery.com/jquery-latest.min.js'
 	document.getElementsByTagName('head').item(0).appendChild(el)
   }
 window.onload = function() {
