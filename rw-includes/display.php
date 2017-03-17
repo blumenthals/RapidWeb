@@ -6,17 +6,22 @@
  * If it wasn't this file would not have been included
  */
 
+$pagename = '';
+
 if (isset($LinkStyle) and $LinkStyle == 'path') {
     $p = parse_url($_SERVER['REQUEST_URI']);
     if (!empty($p['path'])) {
+       if (strpos($p['path'], $_SERVER['PHP_SELF']) === 0) {
+            $p['path'] = substr($p['path'], strlen($_SERVER['PHP_SELF']));
+        }
         $pagename = rawurldecode($p['path']);
         if ($pagename{0} == '/') $pagename = substr($pagename, 1);
     }
-} else if (!empty($_SERVER['QUERY_STRING'])) {
+}
+
+if (!$pagename && !empty($_SERVER['QUERY_STRING'])) {
     $args = explode('&', rawurldecode($_SERVER['argv'][0]));
     if(!strstr($args[0], '=')) $pagename = $args[0];
-} else {
-     $pagename = '';
 }
 
 if(empty($pagename)) $pagename = "home";
